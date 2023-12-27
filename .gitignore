@@ -1,0 +1,18 @@
+node_modules/
+.env
+dbScripts/
+heapdump/
+temp/
+griffinSite/
+sitemap/*
+views/partials/codeBlocks/*
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
+
+
+npm-debug.log
+package-lock.json
+*.map
+*.xml

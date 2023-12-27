@@ -1,0 +1,26 @@
+<%
+const _title = typeof title === 'string' ? title: 'No Page Title'
+const _view = typeof view === 'string' ? view : '404'
+
+
+%>
+
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%= _title %></title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/main-bundle.css">
+  </head>
+  <body>
+    <%- include('nav') %>
+    <div class="container-fluid page-container">
+      <h1><%= _title %></h1>
+      <%- include(view) %>
+    </div>
+
+    <script type="text/javascript" src="/js/main-bundle.js"></script>
+  </body>
+</html>
