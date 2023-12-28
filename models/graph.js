@@ -1,8 +1,8 @@
 const mongoose = require('mongoose')
 
 const graphSchema = new mongoose.Schema({
-  name: { type: String, unique: true, required: true },
-  maxScale: {type: Number },
+  size: { type: String, unique: true, required: true },
+  adjacencyMatrix: [[Number]],
   notes: { type: String }
 }, {
   toObject: {

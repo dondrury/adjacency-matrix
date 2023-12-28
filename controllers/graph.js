@@ -1,4 +1,4 @@
-const Graph = require('../models/graph')
+// const Graph = require('../models/graph')
 
 exports.home = (req, res) => {
   return res.render('layout', { title: 'What is an adjacency graph?', view: 'home' })
