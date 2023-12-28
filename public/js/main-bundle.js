@@ -10,7 +10,7 @@ function init() {
 function showSparseMatrix(container) {
   // graphEl.querySelector('div.sparse-matrix-container').style.display = 'inline-block'
   console.log('showSparseMatrix', container);
-  var squareSize = 8;
+  var squareSize = 40;
   var matrix = {};
   try {
     matrix = JSON.parse(container.dataset.matrix);
@@ -50,11 +50,17 @@ function showSparseMatrix(container) {
     square.setAttribute('width', squareSize);
     square.setAttribute('height', squareSize);
     square.id = 'row-' + j + '-column-' + i;
-    // square.setAttribute('stroke', 'black')
-    // square.setAttribute('stroke-width', '0.5px')
     square.setAttribute('fill', value ? 'black' : 'white');
-    // square.classList.add('origin-circle')
     svg.appendChild(square);
+    if (value) {
+      var text = document.createElementNS(NS, 'text');
+      text.setAttribute('y', yOffset(j + 1) - squareSize / 5);
+      text.setAttribute('x', xOffset(i) + squareSize / 14);
+      text.textContent = value;
+      text.setAttribute('font-size', squareSize * 0.8 + 'px');
+      text.setAttribute('fill', 'red');
+      svg.appendChild(text);
+    }
   }
 }
 exports.showSparseMatrix = showSparseMatrix;
