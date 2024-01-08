@@ -71,7 +71,7 @@ const publicServeOptions = {
   }
 }
 app.use('/', express.static(path.join(__dirname, 'public'), publicServeOptions))
-
+app.get('/composingModes', graphController.getComposingModes)
 app.get('*', (req, res) => { // if page is left unspecified, this will direct to 404
   res.status(404).render('layout', { title: 'Sorry Not Found', view: '404' })
 })

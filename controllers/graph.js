@@ -4,6 +4,10 @@ exports.home = (req, res) => {
   return res.render('layout', { title: 'What is an adjacency graph?', view: 'home' })
 }
 
+exports.getComposingModes = (req, res) => {
+  return res.render('layout', { title: 'Composing Fundamental Modes', view: 'composingModes' })
+}
+
 // exports.getGraph = (req, res) => {
 //   const name = req.query.name || req.params.name
 //   const graph = new Graph({ name: name })
