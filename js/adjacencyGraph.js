@@ -1,7 +1,7 @@
 const NS = 'http://www.w3.org/2000/svg'
 // this is only going to work for tetrahedrons, of course
 const FundamentalModes = []
-const Triples = []
+const Triples = findAllTriples()
 const tripleTransformation = [
   [false, 0, 1, 2],
   [0, false, 2, 1],
@@ -10,15 +10,30 @@ const tripleTransformation = [
 ]
 
 findAllFundamentalNodes()
-findAllTriples()
-// console.log('there are ' + Triples.length + ' unique triples that add to 63')
+
+console.log('there are ' + Triples.length + ' unique triples that add to 63, without carrying any digits')
 
 function init () {
   showKeyOfFundamentalModes()
   showTripleTransformation()
+  showAllTripleCompositions()
   // console.log('test triple # 456', Triples[456])
-  showCompositionOfTriple([4, 8, 51], document.getElementById('triple-composition-456'))
+  // showCompositionOfTriple(Triples[456], document.getElementById('triple-composition-456'))
 }
+
+function showAllTripleCompositions () {
+  const container = document.getElementById('triple-composition-all')
+  for (let n = 0; n < Triples.length; n++) {
+    const graphDiv = document.createElement('div')
+    graphDiv.id = 'triple-composition-' + n
+    container.appendChild(graphDiv)
+    showCompositionOfTriple(Triples[n], graphDiv)
+    const label = document.createElement('div')
+    label.innerText = 'Triple Composition of ' + Triples[n]
+    graphDiv.appendChild(label)
+  }
+}
+
 
 function showCompositionOfTriple (triple, container) {
   const composed = composeTripleTransformationOf(triple)
@@ -104,7 +119,7 @@ function showSparseMatrix (container, matrix, squareSize) {
   svg.style.height = height + 'px'
   svg.style.width = width + 'px'
   svg.style.backgroundColor = '#d3d3d333'
-  svg.style.border = '0.5px solid black'
+  svg.style.border = '0.5px solid darkgrey'
   svg.classList.add('sparse-matrix')
   container.appendChild(svg)
   for (let j = 0; j < matrix.length; j++) { // rows
@@ -119,8 +134,9 @@ function showSparseMatrix (container, matrix, squareSize) {
     square.setAttribute('x', xOffset(i))
     square.setAttribute('width', squareSize)
     square.setAttribute('height', squareSize)
+    square.setAttribute('stroke', 'black')
     square.id = 'row-' + j + '-column-' + i
-    square.setAttribute('fill', value === true || typeof value === 'number' ? 'black' : 'white') // black for boolean true, or any number other than 0
+    square.setAttribute('fill', value === true || typeof value === 'number' ? 'darkgrey' : 'white') // darkgrey for boolean true, or any number other than 0
     svg.appendChild(square)
     if (typeof value === 'number' || typeof value === 'string') {
       const text = document.createElementNS(NS, 'text')
@@ -134,23 +150,29 @@ function showSparseMatrix (container, matrix, squareSize) {
   }
 }
 
-function findAllTriples () { // this is currently incorrect, they don't "add" to 63, they should be composed of combinations of exactly one element of [1,2,4,8,16,32]
-  // const powersOfTwo = [1, 2, 4, 8, 16, 32]
-  const exponents = [0, 1, 2, 3, 4, 5]
-  console.log('powerset of exponenets ', exponents)
-  console.log(getAllSubsets(exponents))
-
-  function getAllSubsets (array) {
-    const subsets = [[]]
-    for (const el of array) {
-      const last = subsets.length - 1
-      for (let i = 0; i <= last; i++) {
-        subsets.push([...subsets[i], el])
-      }
+function findAllTriples () { // this is currently incorrect, its spans further than it should, some don't work
+  const addsToSixtyThree = []
+  for (let i = 0; i < 64; i++) {
+    for (let j = 0; j < 64 - i; j++) {
+      const triple = [i]
+      triple.push(j)
+      triple.push(63 - i - j)
+      addsToSixtyThree.push(triple)
+      // console.log('triple', triple, triple[0] + triple[1] + triple[2])
     }
-    return subsets
   }
-
+  console.log('adds to sicty three', addsToSixtyThree)
+  const triples = addsToSixtyThree.filter((v, i) => {
+    // console.log('triple number ' + i + ' is ' + v)
+    // console.log(v[0].toString(2).padStart(6, '0'))
+    // console.log(v[1].toString(2).padStart(6, '0'))
+    // console.log(v[2].toString(2).padStart(6, '0'))
+    const threeWayXor = v[0] ^ v[1] ^ v[2]
+    // console.log('threeWayXor', threeWayXor)
+    return threeWayXor === 63
+  })
+  // console.log('triples', triples)
+  return triples
 }
 
 function findAllFundamentalNodes () {

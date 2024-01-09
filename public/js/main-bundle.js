@@ -1,27 +1,31 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 "use strict";
 
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
-function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
 var NS = 'http://www.w3.org/2000/svg';
 // this is only going to work for tetrahedrons, of course
 var FundamentalModes = [];
-var Triples = [];
+var Triples = findAllTriples();
 var tripleTransformation = [[false, 0, 1, 2], [0, false, 2, 1], [1, 2, false, 0], [2, 1, 0, false]];
 findAllFundamentalNodes();
-findAllTriples();
-// console.log('there are ' + Triples.length + ' unique triples that add to 63')
-
+console.log('there are ' + Triples.length + ' unique triples that add to 63, without carrying any digits');
 function init() {
   showKeyOfFundamentalModes();
   showTripleTransformation();
+  showAllTripleCompositions();
   // console.log('test triple # 456', Triples[456])
-  showCompositionOfTriple([4, 8, 51], document.getElementById('triple-composition-456'));
+  // showCompositionOfTriple(Triples[456], document.getElementById('triple-composition-456'))
+}
+function showAllTripleCompositions() {
+  var container = document.getElementById('triple-composition-all');
+  for (var n = 0; n < Triples.length; n++) {
+    var graphDiv = document.createElement('div');
+    graphDiv.id = 'triple-composition-' + n;
+    container.appendChild(graphDiv);
+    showCompositionOfTriple(Triples[n], graphDiv);
+    var label = document.createElement('div');
+    label.innerText = 'Triple Composition of ' + Triples[n];
+    graphDiv.appendChild(label);
+  }
 }
 function showCompositionOfTriple(triple, container) {
   var composed = composeTripleTransformationOf(triple);
@@ -105,7 +109,7 @@ function showSparseMatrix(container, matrix, squareSize) {
   svg.style.height = height + 'px';
   svg.style.width = width + 'px';
   svg.style.backgroundColor = '#d3d3d333';
-  svg.style.border = '0.5px solid black';
+  svg.style.border = '0.5px solid darkgrey';
   svg.classList.add('sparse-matrix');
   container.appendChild(svg);
   for (var j = 0; j < matrix.length; j++) {
@@ -121,8 +125,9 @@ function showSparseMatrix(container, matrix, squareSize) {
     square.setAttribute('x', xOffset(i));
     square.setAttribute('width', squareSize);
     square.setAttribute('height', squareSize);
+    square.setAttribute('stroke', 'black');
     square.id = 'row-' + j + '-column-' + i;
-    square.setAttribute('fill', value === true || typeof value === 'number' ? 'black' : 'white'); // black for boolean true, or any number other than 0
+    square.setAttribute('fill', value === true || typeof value === 'number' ? 'darkgrey' : 'white'); // darkgrey for boolean true, or any number other than 0
     svg.appendChild(square);
     if (typeof value === 'number' || typeof value === 'string') {
       var text = document.createElementNS(NS, 'text');
@@ -136,30 +141,29 @@ function showSparseMatrix(container, matrix, squareSize) {
   }
 }
 function findAllTriples() {
-  // this is currently incorrect, they don't "add" to 63, they should be composed of combinations of exactly one element of [1,2,4,8,16,32]
-  // const powersOfTwo = [1, 2, 4, 8, 16, 32]
-  var exponents = [0, 1, 2, 3, 4, 5];
-  console.log('powerset of exponenets ', exponents);
-  console.log(getAllSubsets(exponents));
-  function getAllSubsets(array) {
-    var subsets = [[]];
-    var _iterator = _createForOfIteratorHelper(array),
-      _step;
-    try {
-      for (_iterator.s(); !(_step = _iterator.n()).done;) {
-        var el = _step.value;
-        var last = subsets.length - 1;
-        for (var i = 0; i <= last; i++) {
-          subsets.push([].concat(_toConsumableArray(subsets[i]), [el]));
-        }
-      }
-    } catch (err) {
-      _iterator.e(err);
-    } finally {
-      _iterator.f();
+  // this is currently incorrect, its spans further than it should, some don't work
+  var addsToSixtyThree = [];
+  for (var i = 0; i < 64; i++) {
+    for (var j = 0; j < 64 - i; j++) {
+      var triple = [i];
+      triple.push(j);
+      triple.push(63 - i - j);
+      addsToSixtyThree.push(triple);
+      // console.log('triple', triple, triple[0] + triple[1] + triple[2])
     }
-    return subsets;
   }
+  console.log('adds to sicty three', addsToSixtyThree);
+  var triples = addsToSixtyThree.filter(function (v, i) {
+    // console.log('triple number ' + i + ' is ' + v)
+    // console.log(v[0].toString(2).padStart(6, '0'))
+    // console.log(v[1].toString(2).padStart(6, '0'))
+    // console.log(v[2].toString(2).padStart(6, '0'))
+    var threeWayXor = v[0] ^ v[1] ^ v[2];
+    // console.log('threeWayXor', threeWayXor)
+    return threeWayXor === 63;
+  });
+  // console.log('triples', triples)
+  return triples;
 }
 function findAllFundamentalNodes() {
   for (var i = 0; i < 64; i++) {
