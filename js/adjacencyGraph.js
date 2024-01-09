@@ -1,7 +1,8 @@
 const NS = 'http://www.w3.org/2000/svg'
 // this is only going to work for tetrahedrons, of course
 const FundamentalModes = []
-const Triples = findAllTriples()
+// const Triples = findAllTriples()
+const Quadruples = findAllQuadruples()
 const tripleTransformation = [
   [false, 0, 1, 2],
   [0, false, 2, 1],
@@ -9,16 +10,57 @@ const tripleTransformation = [
   [2, 1, 0, false]
 ]
 
+const compositionMatrices = [
+  [
+    [0, 1, 2, 3],
+    [1, 0, 3, 2],
+    [2, 3, 0, 1],
+    [3, 2, 1, 0]
+  ],
+  [
+    [0, 1, 2, 3],
+    [1, 0, 3, 2],
+    [2, 3, 1, 0],
+    [3, 2, 0, 1]
+  ],
+  [
+    [0, 1, 2, 3],
+    [1, 2, 3, 0],
+    [2, 3, 0, 1],
+    [3, 0, 1, 2]
+  ],
+  [
+    [0, 1, 2, 3],
+    [1, 3, 0, 2],
+    [2, 0, 3, 1],
+    [3, 2, 1, 0]
+  ]
+]
+
 findAllFundamentalNodes()
 
-console.log('there are ' + Triples.length + ' unique triples that add to 63, without carrying any digits')
+// console.log('there are ' + Triples.length + ' unique triples that add to 63, without carrying any digits')
 
 function init () {
   showKeyOfFundamentalModes()
-  showTripleTransformation()
-  showAllTripleCompositions()
+  // showTripleTransformation()
+  showFundamentalCompositionMatrices()
+  // showAllTripleCompositions()
   // console.log('test triple # 456', Triples[456])
   // showCompositionOfTriple(Triples[456], document.getElementById('triple-composition-456'))
+}
+
+function showFundamentalCompositionMatrices () {
+  const container = document.getElementById('four-composition-matrices')
+  for (let n = 0; n < 4; n++) {
+    const graphDiv = document.createElement('div')
+    graphDiv.id = 'composition-matrix-' + n
+    container.appendChild(graphDiv)
+    showSparseMatrix(graphDiv, compositionMatrices[n], 20)
+    const label = document.createElement('div')
+    label.innerText = 'Fundamental Composition Matrix # ' + n
+    graphDiv.appendChild(label)
+  }
 }
 
 function showAllTripleCompositions () {
@@ -33,7 +75,6 @@ function showAllTripleCompositions () {
     graphDiv.appendChild(label)
   }
 }
-
 
 function showCompositionOfTriple (triple, container) {
   const composed = composeTripleTransformationOf(triple)
@@ -173,6 +214,20 @@ function findAllTriples () { // this is currently incorrect, its spans further t
   })
   // console.log('triples', triples)
   return triples
+}
+
+function findAllQuadruples () {
+  const addsToSixtyThree = []
+  for (let i = 0; i < 64; i++) {
+    for (let j = 0; j < 64 - i; j++) {
+      const triple = [i]
+      triple.push(j)
+      triple.push(63 - i - j)
+      addsToSixtyThree.push(triple)
+      // console.log('triple', triple, triple[0] + triple[1] + triple[2])
+    }
+  }
+  console.log('adds to sixty three', addsToSixtyThree)
 }
 
 function findAllFundamentalNodes () {

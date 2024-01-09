@@ -1,9 +1,17 @@
 <div class="composing-modes">
-  <h2>Fundamental Modes</h2>
+  <h2>The Fundamental Modes of the Tetrahedron</h2>
+  <p>The fundamental modes of a tetrahedron can be numbered from 0-63</p>
+  <p>These represent 4x4 matrices, of the <i>all possible</i> relationships present or not present in a tetrahedron. These can be combined together in the rows and columns of a block matrix.</p>
+  <p> If all the fundamental modes in a row or column superimpose to create a single polyhedron, then that row and column is necessarily <b>Rank 3</b>! The point here is, we can look at the block matrix and apply a sort of <i>polyhedral math</i> to affirm that its rows and columns are rank 3, without even looking at the details of the rows inside of it, because we have sufficient information, having represented them in the following fundamental modes:</p>
   <div id="fundamental-modes-index"></div>
-  <h3>Sole Triple Transformation</h3>
-  <div id="triple-transformation"></div>
-  <div>Numbers represent index of the triple</div>
-  <h3>Example of Triple Transformation of triple #456</h3>
-  <div id="triple-composition-all"></div>
+  <!-- <h3>Sole Triple Transformation</h3> -->
+  <!-- <div id="triple-transformation"></div>
+  <div>Numbers represent index of the triple</div> -->
+
+  <h3>Four Fundamental 4x4 Composition Matrices</h3>
+  <div id="four-composition-matrices"></div>
+  <p>These numbers represent a fundamental mode of the tetrahedron, prior to composition as a block matrix. More specifically the <i>index</i> of an array of length four, containing fundamental modes of the tetrahedra. They could just as easily be displayed as A, B, C, D as 0, 1, 2, 3 because they are just placeholders for <i>unique</i> modes of the tetrahedron</p>
+  <p>We should also be clear that there are compliant block matrices of <i>any</i> size, but it's often useful to look at the minimal case first. The next step would be to look at 5x5 and 6x6 block matrices. 6x6 would be a particulary interesting case, because it would be restricted to only the unique modes [1, 2, 4, 8, 16, 32] because those are the only four binary numbers that contain only one 'true' bit in the ;last five places. This is because they are powers of 2.</p>
+  <!-- <h3>Example of Triple Transformation of triple #456</h3>
+  <div id="triple-composition-all"></div> -->
 </div>

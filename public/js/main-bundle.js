@@ -4,16 +4,33 @@
 var NS = 'http://www.w3.org/2000/svg';
 // this is only going to work for tetrahedrons, of course
 var FundamentalModes = [];
-var Triples = findAllTriples();
+// const Triples = findAllTriples()
+var Quadruples = findAllQuadruples();
 var tripleTransformation = [[false, 0, 1, 2], [0, false, 2, 1], [1, 2, false, 0], [2, 1, 0, false]];
+var compositionMatrices = [[[0, 1, 2, 3], [1, 0, 3, 2], [2, 3, 0, 1], [3, 2, 1, 0]], [[0, 1, 2, 3], [1, 0, 3, 2], [2, 3, 1, 0], [3, 2, 0, 1]], [[0, 1, 2, 3], [1, 2, 3, 0], [2, 3, 0, 1], [3, 0, 1, 2]], [[0, 1, 2, 3], [1, 3, 0, 2], [2, 0, 3, 1], [3, 2, 1, 0]]];
 findAllFundamentalNodes();
-console.log('there are ' + Triples.length + ' unique triples that add to 63, without carrying any digits');
+
+// console.log('there are ' + Triples.length + ' unique triples that add to 63, without carrying any digits')
+
 function init() {
   showKeyOfFundamentalModes();
-  showTripleTransformation();
-  showAllTripleCompositions();
+  // showTripleTransformation()
+  showFundamentalCompositionMatrices();
+  // showAllTripleCompositions()
   // console.log('test triple # 456', Triples[456])
   // showCompositionOfTriple(Triples[456], document.getElementById('triple-composition-456'))
+}
+function showFundamentalCompositionMatrices() {
+  var container = document.getElementById('four-composition-matrices');
+  for (var n = 0; n < 4; n++) {
+    var graphDiv = document.createElement('div');
+    graphDiv.id = 'composition-matrix-' + n;
+    container.appendChild(graphDiv);
+    showSparseMatrix(graphDiv, compositionMatrices[n], 20);
+    var label = document.createElement('div');
+    label.innerText = 'Fundamental Composition Matrix # ' + n;
+    graphDiv.appendChild(label);
+  }
 }
 function showAllTripleCompositions() {
   var container = document.getElementById('triple-composition-all');
@@ -164,6 +181,19 @@ function findAllTriples() {
   });
   // console.log('triples', triples)
   return triples;
+}
+function findAllQuadruples() {
+  var addsToSixtyThree = [];
+  for (var i = 0; i < 64; i++) {
+    for (var j = 0; j < 64 - i; j++) {
+      var triple = [i];
+      triple.push(j);
+      triple.push(63 - i - j);
+      addsToSixtyThree.push(triple);
+      // console.log('triple', triple, triple[0] + triple[1] + triple[2])
+    }
+  }
+  console.log('adds to sixty three', addsToSixtyThree);
 }
 function findAllFundamentalNodes() {
   for (var i = 0; i < 64; i++) {
