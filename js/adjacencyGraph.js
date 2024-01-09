@@ -202,7 +202,7 @@ function findAllTriples () { // this is currently incorrect, its spans further t
       // console.log('triple', triple, triple[0] + triple[1] + triple[2])
     }
   }
-  console.log('adds to sicty three', addsToSixtyThree)
+  console.log('triples add to sixty three', addsToSixtyThree)
   const triples = addsToSixtyThree.filter((v, i) => {
     // console.log('triple number ' + i + ' is ' + v)
     // console.log(v[0].toString(2).padStart(6, '0'))
@@ -212,7 +212,7 @@ function findAllTriples () { // this is currently incorrect, its spans further t
     // console.log('threeWayXor', threeWayXor)
     return threeWayXor === 63
   })
-  // console.log('triples', triples)
+  console.log('triples', triples)
   return triples
 }
 
@@ -220,14 +220,24 @@ function findAllQuadruples () {
   const addsToSixtyThree = []
   for (let i = 0; i < 64; i++) {
     for (let j = 0; j < 64 - i; j++) {
-      const triple = [i]
-      triple.push(j)
-      triple.push(63 - i - j)
-      addsToSixtyThree.push(triple)
+      for (let k = 0; k < 64 - i - j; k++) {
+        const quadruple = [i]
+        quadruple.push(j)
+        quadruple.push(k)
+        quadruple.push(63 - i - j - k)
+        addsToSixtyThree.push(quadruple)
+      }
       // console.log('triple', triple, triple[0] + triple[1] + triple[2])
     }
   }
   console.log('adds to sixty three', addsToSixtyThree)
+  const quadruples = addsToSixtyThree.filter((v, i) => {
+    const fourWayXor = v[0] ^ v[1] ^ v[2] ^ v[3]
+    // console.log('threeWayXor', threeWayXor)
+    return fourWayXor === 63
+  })
+  console.log('quadruples', quadruples)
+  return quadruples
 }
 
 function findAllFundamentalNodes () {
