@@ -1,11 +1,16 @@
+const FourTuples = require('./fourTuples')
 // const Graph = require('../models/graph')
-
+// console.log(FourTuples)
 exports.home = (req, res) => {
   return res.render('layout', { title: 'What is an adjacency graph?', view: 'home' })
 }
 
 exports.getComposingModes = (req, res) => {
   return res.render('layout', { title: 'Composing Fundamental Modes', view: 'composingModes' })
+}
+
+exports.getFourTuples = (req, res) => {
+  return res.render('layout', { view: 'fourTuples', title: 'All Four-Tuples', FourTuples })
 }
 
 // exports.getGraph = (req, res) => {

@@ -1,0 +1,15 @@
+<h3>All 4-Tuples</h3>
+<p>Each of these ordered sets of numbers sums to 63, and satisfies the bitwise operation:</p>
+<pre>a[0] XOR a[1] XOR a[2] XOR a[3] = 111111</pre>
+<p>which is to say that in the binary representation of the natural numbers, each place value of a power of two is represented in exactly one of them</p>
+<p>Or said another way, each edge of a single tetrahedron appears in exactly one of those modes, and not more than one. Each of six total edges are represented in the sum of the four</p>
+<h3>The Complete List of <%= FourTuples.length %> 4-Tuples</h3>
+<p>We are presenting a syntax here, where the subscript 4 is used to denote that it is a 4-tuple, and not a higher 5, or 6-tuple</p>
+<ul>
+  <% FourTuples.forEach((t, i) => { %>
+    <li>
+      <span>T<sub>4</sub>(<%= i %>) = </span>
+      <span><%= JSON.stringify(t, 0, 1) %></span>
+    </li>
+  <% }) %>
+</ul>

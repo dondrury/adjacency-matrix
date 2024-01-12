@@ -1,3 +1,4 @@
 !*.js
 _*.js
 gulpfile.js
+controllers/fourTuples.js

@@ -52,6 +52,7 @@ function init () {
 
 function showFundamentalCompositionMatrices () {
   const container = document.getElementById('four-composition-matrices')
+  if (!container) return
   for (let n = 0; n < 4; n++) {
     const graphDiv = document.createElement('div')
     graphDiv.id = 'composition-matrix-' + n
@@ -125,6 +126,7 @@ function showTripleTransformation () {
 
 function showKeyOfFundamentalModes () {
   const fundamentalModeContainer = document.getElementById('fundamental-modes-index')
+  if (!fundamentalModeContainer) return
   Array.from(FundamentalModes).forEach((mode, i) => {
     // console.log('graphing mode', i)
     const graphDiv = document.createElement('div')

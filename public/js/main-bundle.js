@@ -22,6 +22,7 @@ function init() {
 }
 function showFundamentalCompositionMatrices() {
   var container = document.getElementById('four-composition-matrices');
+  if (!container) return;
   for (var n = 0; n < 4; n++) {
     var graphDiv = document.createElement('div');
     graphDiv.id = 'composition-matrix-' + n;
@@ -92,6 +93,7 @@ function showTripleTransformation() {
 }
 function showKeyOfFundamentalModes() {
   var fundamentalModeContainer = document.getElementById('fundamental-modes-index');
+  if (!fundamentalModeContainer) return;
   Array.from(FundamentalModes).forEach(function (mode, i) {
     // console.log('graphing mode', i)
     var graphDiv = document.createElement('div');
