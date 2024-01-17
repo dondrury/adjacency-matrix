@@ -14,7 +14,7 @@ exports.getFourTuples = (req, res) => {
 }
 
 exports.getFundamentalModes = (req, res) => {
-  return res.render('layout', { view: 'fundamentalModes', title: 'Fundamental Modes' })
+  return res.render('layout', { view: 'fundamentalModes', title: 'Fundamental Modes', FundamentalModes })
 }
 
 // exports.getGraph = (req, res) => {
