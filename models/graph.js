@@ -1,8 +1,11 @@
 const mongoose = require('mongoose')
 
-const graphSchema = new mongoose.Schema({
-  size: { type: String, unique: true, required: true },
-  adjacencyMatrix: [[Number]],
+const matrixSchema = new mongoose.Schema({
+  name: { type: String, required: true, index: true },
+  size: { type: Number, required: true, index: true },
+  rank: { type: Number, required: true },
+  booleanArray: [[Boolean]],
+  jpgString: { type: String },
   notes: { type: String }
 }, {
   toObject: {
@@ -14,6 +17,6 @@ const graphSchema = new mongoose.Schema({
   timestamps: true
 })
 
-const Graph = mongoose.model('Graph', graphSchema)
+const Graph = mongoose.model('Matrix', matrixSchema)
 
 module.exports = Graph

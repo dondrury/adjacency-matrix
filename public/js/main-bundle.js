@@ -8,7 +8,8 @@ var FundamentalModes = [];
 var Quadruples = findAllQuadruples();
 var tripleTransformation = [[false, 0, 1, 2], [0, false, 2, 1], [1, 2, false, 0], [2, 1, 0, false]];
 var compositionMatrices = [[[0, 1, 2, 3], [1, 0, 3, 2], [2, 3, 0, 1], [3, 2, 1, 0]], [[0, 1, 2, 3], [1, 0, 3, 2], [2, 3, 1, 0], [3, 2, 0, 1]], [[0, 1, 2, 3], [1, 2, 3, 0], [2, 3, 0, 1], [3, 0, 1, 2]], [[0, 1, 2, 3], [1, 3, 0, 2], [2, 0, 3, 1], [3, 2, 1, 0]]];
-findAllFundamentalNodes();
+findAllFundamentalModes();
+window.FundamentalModes = FundamentalModes;
 
 // console.log('there are ' + Triples.length + ' unique triples that add to 63, without carrying any digits')
 
@@ -207,7 +208,7 @@ function findAllQuadruples() {
   console.log('quadruples', quadruples);
   return quadruples;
 }
-function findAllFundamentalNodes() {
+function findAllFundamentalModes() {
   for (var i = 0; i < 64; i++) {
     FundamentalModes[i] = createSparseMatrixFromFundamentalModeNumber(i);
   }

@@ -1,0 +1,24 @@
+
+  <h2>The Fundamental Modes of the Tetrahedron</h2>
+  <p>The fundamental modes of a tetrahedron can be numbered from 0-63</p>
+  <p>These represent 4x4 matrices, of the <i>all possible</i> relationships present or not present in a tetrahedron. These 4x4 matrices can be combined together in the rows and columns of a block matrix.</p>
+  <p> If all the fundamental modes in a row or column superimpose to create a single polyhedron, then that row and column is necessarily <b>Rank 3</b>! The point here is, we can look at the block matrix and apply a sort of <i>polyhedral math</i> to affirm that its rows and columns are rank 3, without even looking at the details of the rows inside of it, because we have sufficient information, having represented them in the following fundamental modes:</p>
+  <div id="fundamental-modes-index"></div>
+  <!-- <h3>Sole Triple Transformation</h3> -->
+  <!-- <div id="triple-transformation"></div>
+  <div>Numbers represent index of the triple</div> -->
+  <h3>Sets of Fundamental Modes that "add" to create a complete tetrahedron</h3>
+  <p>When we speak of "adding" fundamental modes, we mean to say that if you overlay the graphs of those being added on top of each other, each edge of the tetrahedron will be represented in exactly one of those graphs. There is no "carrying" or "place value" in this kind of polyhedral math, that wouldn't make any sense. Think of the modes, as different ways of dissasembling the edges of the tetrahedron into different sets, and adding those sets back together re-creates the original tetrahedron.</p>
+  <p>So let's go about finding all of those possible sets, that when combined, will assemble into a complete tetrahedron. Obviously there are a lot of them. The simplest would be [63]. That is the complete tetrahedron. Or [0, 63] works great too.</p>
+  <p>[0,63] is interesting because these are compliments of one another. [16, 47] are also complements of each other, because each contains what the other one lacks, and together they form a complete tetrahedron. Of course, we will find that in <i>any</i> complete set of fundamental modes, their numbers must add to 63, but not all sets of numbers that add to 63 will form a complete tetrahedron, because integer math carries over with place value.</p>
+  <h4>Sets of Two</h4>
+  <p>Each mode has a compliment, so there are 64 of those sets, which can be presented in order front to back or back to front, for a total of <b>128 complete ordered sets of fundamental modes with length 2</b></p>
+  <h4>Sets of Three</h4>
+  <p>The list begins to grow when we consider sets of three modes. There are 2080 sets of unique numbers between 0-63 that add to 63, but only 729 of them do not "carry" values algebraically in their binary representation, i.e. we can filter them out with two XOR operations! This list would include the "sets of two" from the previous heading, by simply splicing a 0 into the array. </p>
+  <h4>Sets of Four</h4>
+  <p>The real meat of the problem is in finding sets of 4, this is where the space gets really large. It turns out there are 45,760 unique ordered sets of numbers between 0-63 that add up to 63, however only 4096 of them do not "carry" values algebraically in their binary representation. Once again, this set includes the "twos" and "threes" as well. It contains <b>4096 complete ordered sets of fundamental modes with length 4</b></p>
+  <h4>Sets of Five and Six</h4>
+  <p>This will require 5x5 and 6x6 compositional matrices, which we have not found yet, and we will leave this for another time. The only set of length six would be [1, 2, 4, 8, 16, 32] interestingly!</p>
+  <h4>A Syntax for 4-Tuples</h4>
+  <p>Being that we have found all 4-tuples</p>
+

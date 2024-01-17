@@ -37,7 +37,8 @@ const compositionMatrices = [
   ]
 ]
 
-findAllFundamentalNodes()
+findAllFundamentalModes()
+window.FundamentalModes = FundamentalModes
 
 // console.log('there are ' + Triples.length + ' unique triples that add to 63, without carrying any digits')
 
@@ -242,7 +243,7 @@ function findAllQuadruples () {
   return quadruples
 }
 
-function findAllFundamentalNodes () {
+function findAllFundamentalModes () {
   for (let i = 0; i < 64; i++) {
     FundamentalModes[i] = createSparseMatrixFromFundamentalModeNumber(i)
   }
