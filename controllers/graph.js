@@ -1,12 +1,13 @@
 const FourTuples = require('./fourTuples')
 const FundamentalModes = require('./fundamentalModes')
+const Compositions = require('./compositions')
 
 exports.home = (req, res) => {
   return res.render('layout', { title: 'What is an adjacency graph?', view: 'home' })
 }
 
 exports.getComposingModes = (req, res) => {
-  return res.render('layout', { title: 'Composing Fundamental Modes', view: 'composingModes' })
+  return res.render('layout', { title: 'Composing Fundamental Modes', view: 'composingModes', Compositions, FundamentalModes })
 }
 
 exports.getFourTuples = (req, res) => {
@@ -15,6 +16,17 @@ exports.getFourTuples = (req, res) => {
 
 exports.getFundamentalModes = (req, res) => {
   return res.render('layout', { view: 'fundamentalModes', title: 'Fundamental Modes', FundamentalModes })
+}
+
+exports.getFourthComposition = (req, res) => {
+  const compositionNumber = req.params.compositionNumber
+  const modeNumber = req.params.modeNumber
+  console.log(`Composed C4,${compositionNumber}(${modeNumber})`)
+  const composition = Compositions[compositionNumber]
+  const mode = FundamentalModes[modeNumber]
+
+
+  return res.status(200).send()
 }
 
 // exports.getGraph = (req, res) => {

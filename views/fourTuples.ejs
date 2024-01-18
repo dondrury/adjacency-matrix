@@ -4,12 +4,17 @@
 <p>which is to say that in the binary representation of the natural numbers, each place value of a power of two is represented in exactly one of them</p>
 <p>Or said another way, each edge of a single tetrahedron appears in exactly one of those modes, and not more than one. Each of six total edges are represented in the sum of the four</p>
 <h3>The Complete List of <%= FourTuples.length %> 4-Tuples</h3>
-<p>We are presenting a syntax here, where the subscript 4 is used to denote that it is a 4-tuple, and not a higher 5, or 6-tuple</p>
+<p>We are presenting a syntax here, where the subscript 4 is used to denote that it is a 4-tuple, and not a higher 5, or 6-tuple. The second subscript is used to identify the number of that composition, for 0-3</p>
+<p>Click the links to view the each composition</p>
 <ul>
   <% FourTuples.forEach((t, i) => { %>
     <li>
       <span>T<sub>4</sub>(<%= i %>) = </span>
       <span><%= JSON.stringify(t, 0, 1) %></span>
+      <a href="/fourTuple/c4/0/<%= i %>">C<sub>4,0</sub>(<%= i %>)</a>
+      <a href="/fourTuple/c4/1/<%= i %>">C<sub>4,1</sub>(<%= i %>)</a>
+      <a href="/fourTuple/c4/2/<%= i %>">C<sub>4,2</sub>(<%= i %>)</a>
+      <a href="/fourTuple/c4/3/<%= i %>">C<sub>4,3</sub>(<%= i %>)</a>
     </li>
   <% }) %>
 </ul>

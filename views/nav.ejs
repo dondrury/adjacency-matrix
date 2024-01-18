@@ -19,8 +19,8 @@
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">
         <li class="<%= view === 'fundamentalModes' ? 'active' : '' %>"><a href="/fundamentalModes">Fundamental Modes</a></li>
-        <li class="<%= view === 'fourTuples' ? 'active' : '' %>"><a href="/fourTuples">All 4-Tuples</a></li>
         <li class="<%= view === 'composingModes' ? 'active' : '' %>"><a href="/composingModes">Composing Fundamental Modes</a></li>
+        <li class="<%= view === 'fourTuples' ? 'active' : '' %>"><a href="/fourTuples">All 4-Tuples and Their Compositions</a></li>
         
         
         
@@ -38,12 +38,12 @@
           </ul>
         </li> -->
       </ul>
-      <form class="navbar-form navbar-left" action="/graph/byId" method="GET">
+      <!-- <form class="navbar-form navbar-left" action="/graph/byId" method="GET">
         <div class="form-group">
           <input type="text" class="form-control" placeholder="Graph Name" name="name">
         </div>
         <button type="submit" class="btn btn-default">Create Graph From Name</button>
-      </form>
+      </form> -->
       <!-- <form class="navbar-form navbar-left" action="/graph/bySubstring" method="POST">
         <div class="form-group">
           <input type="text" class="form-control" placeholder="Substring" name="name">

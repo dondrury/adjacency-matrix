@@ -1,0 +1,15 @@
+<h4>Sum of <%= JSON.stringify(tuple) %></h4>
+<% const arrayOfModeNumbers = ( typeof tuple === 'object' && tuple.length) ? tuple : []
+
+%>
+<% arrayOfModeNumbers.forEach((number, i) => { %>
+  <%- include('matrixSVG', { matrix: FundamentalModes[number], 
+    width: 100, 
+    titleHTML: `<div><b>M<sub>${number}</sub></b></div>`
+  }) %>
+  <span style="font-size:40px;position:relative;top:-60px;"><%= i === arrayOfModeNumbers.length - 1 ? '=' : '+' %></span>
+<% }) %>
+<%- include('matrixSVG', { matrix: FundamentalModes[63], 
+  width: 100, 
+  titleHTML: '<div><b>M<sub>63</sub></b></div>'
+}) %>

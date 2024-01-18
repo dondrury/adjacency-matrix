@@ -1,13 +1,30 @@
 
 <h3>Four Fundamental 4x4 Composition Matrices</h3>
-<div id="four-composition-matrices"></div>
+<p>Now that we have a ring of <a href="/fourTuples">4-tuples</a> we can start to properly do math on entire rows and columbns of <i>block matrices</i></p>
 <p>These <b>4096 4-tuples</b> can be assembled into only four types of block matrices, in such a way that each row and column of <i>fundamental modes</i> sum to create a complete tetrahedron. Therefore, instead of having to look at the individual rows and columns to verify 3-rank compliance, in these four block patterns they combine in such a way that we are guranteed 3-rank compliance. We have drawn these block matrices, where the elements are natural numbers representing the <i>index</i> of the element in an array of length four, containing fundamental modes of the tetrahedra. They could just as easily be displayed as A, B, C, D as 0, 1, 2, 3 because they are just placeholders for <i>unique</i> modes of the tetrahedron</p>
+<h4>The Four 4x4 Composition Matrices:</h4>
+<%- include('matrixSVG', { matrix: Compositions[0], 
+  width: 100, 
+  titleHTML: '<div><b>C<sub>4,0</sub></b></div>'
+}) %>
+<%- include('matrixSVG', { matrix: Compositions[1], 
+  width: 100, 
+  titleHTML: '<div><b>C<sub>4,1</sub></b></div>'
+}) %>
+<%- include('matrixSVG', { matrix: Compositions[2], 
+  width: 100, 
+  titleHTML: '<div><b>C<sub>4,2</sub></b></div>'
+}) %>
+<%- include('matrixSVG', { matrix: Compositions[3], 
+  width: 100, 
+  titleHTML: '<div><b>C<sub>4,3</sub></b></div>'
+}) %>
 <p>For example, in the first row of each of these block matrices, we have [0, 1, 2, 3, 4], so if presented with a quadruple such as [34, 1, 4, 24] representing those modes of the tetrahedron, in that order, it would compose to a block matrix with the first row [34, 1, 4, 24]. Each of the modes must be present in each row or column, so only the order would change in any other row.</p>
 <p>We should also be clear that there are compliant block matrices of <i>any</i> size, but it's often useful to look at the minimal case first. The next step would be to look at 5x5 and 6x6 block matrices. 6x6 would be a particulary interesting case, because it would be restricted to only the unique modes [1, 2, 4, 8, 16, 32] because those are the only four binary numbers that contain only one 'true' bit in the ;last five places. This is because they are powers of 2.</p>
 <h3>5x5 and 6x6 Composition Matrices</h3>
 <p>These will be found at a later date</p>
-<h4>A Syntax for representing compositions of graphs and </h4>
-<!-- <h3>Example of Triple Transformation of triple #456</h3>
-<div id="triple-composition-all"></div> -->
+
+
+
 
  

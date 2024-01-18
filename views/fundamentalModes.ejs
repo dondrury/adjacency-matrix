@@ -1,7 +1,7 @@
 
   <div class="fundamental-modes-page">
     <h2>The Fundamental Modes of the Tetrahedron</h2>
-    <p>Each mode is a symmetric graph, and can be represented as a symmetric 4x4 matrix.</p>
+    <p>Each mode is a symmetric adjascency graph, and can be represented as a symmetric 4x4 matrix.</p>
     <p>The fundamental modes of the tetrahedron can be numbered from 0-63, by first representing the index of the mode in binary. Each digit of the six digits in the binary representation, represents the presence or absense of a connection between the two nodes. We have chosen to number them in this way, out of computational convenience: </p>
     <%- include('matrixSVG', { matrix: [
         [false, 5, 4, 3],
@@ -10,7 +10,7 @@
         [3, 1, 0, false]
       ], 
       width: 100, 
-      titleHTML: '<div><b>Place Value of Each Element in Binary Representation</b></div>'
+      titleHTML: '<div><b>"Place Value" of Each Element in Binary Representation</b></div>'
     }) %>
     <p>For example, if we look at M<sub>0</sub>, the binary representation of this number is 000000, which represents no connections at all. This would be a completely <i>empty</i> tetrahedron</p>
     <%- include('matrixSVG', { matrix: FundamentalModes[0], 
@@ -48,50 +48,14 @@
     <h4>Sets of Two</h4>
     <p>Each mode has a compliment, so there are 64 of those sets, which can be presented in order front to back or back to front, for a total of <b>128 complete ordered sets of fundamental modes with length 2</b></p>
     <p>For example lets look at [45, 18] </p>
-    <%- include('matrixSVG', { matrix: FundamentalModes[45], 
-      width: 100, 
-      titleHTML: '<div><b>M<sub>45</sub></b></div>'
-    }) %>
-    <span style="font-size:40px;position:relative;top:-60px;">+</span>
-    <%- include('matrixSVG', { matrix: FundamentalModes[18], 
-      width: 100, 
-      titleHTML: '<div><b>M<sub>18</sub></b></div>'
-    }) %>
-    <span style="font-size:40px;position:relative;top:-60px;">=</span>
-    <%- include('matrixSVG', { matrix: FundamentalModes[63], 
-      width: 100, 
-      titleHTML: '<div><b>M<sub>63</sub></b></div>'
-    }) %>
+    <%- include('tupleSum', { tuple: [45, 18] }) %>
     <h4>Sets of Three</h4>
     <p>The list begins to grow when we consider sets of three modes. There are 2080 sets of unique numbers between 0-63 that add to 63, but only 729 of them do not "carry" values algebraically in their binary representation, i.e. we can filter them out with two XOR operations! More on this in
       <a href="/fourTuples">4-Tuples</a>. This list would include the "sets of two" from the previous heading, by simply splicing a 0 into the array. </p>
     <h4>Sets of Four (4-Tuples)</h4>
     <p>The real meat of the problem is in finding sets of 4, this is where the space gets really large. It turns out there are 45,760 unique ordered sets of numbers between 0-63 that add up to 63, however only 4096 of them do not "carry" values algebraically in their binary representation. Once again, this set includes the "twos" and "threes" as well. It contains <b>4096 complete ordered sets of fundamental modes with length 4</b></p>
-    <p>Here is an interesting example of 4-tuple [49,2,8,4]:</p>
-    <%- include('matrixSVG', { matrix: FundamentalModes[49], 
-      width: 100, 
-      titleHTML: '<div><b>M<sub>49</sub></b></div>'
-    }) %>
-    <span style="font-size:40px;position:relative;top:-60px;">+</span>
-    <%- include('matrixSVG', { matrix: FundamentalModes[2], 
-      width: 100, 
-      titleHTML: '<div><b>M<sub>2</sub></b></div>'
-    }) %>
-    <span style="font-size:40px;position:relative;top:-60px;">+</span>
-    <%- include('matrixSVG', { matrix: FundamentalModes[8], 
-      width: 100, 
-      titleHTML: '<div><b>M<sub>8</sub></b></div>'
-    }) %>
-    <span style="font-size:40px;position:relative;top:-60px;">+</span>
-    <%- include('matrixSVG', { matrix: FundamentalModes[4], 
-      width: 100, 
-      titleHTML: '<div><b>M<sub>4</sub></b></div>'
-    }) %>
-    <span style="font-size:40px;position:relative;top:-60px;">=</span>
-    <%- include('matrixSVG', { matrix: FundamentalModes[63], 
-      width: 100, 
-      titleHTML: '<div><b>M<sub>63</sub></b></div>'
-    }) %>
+    <p>Here is an interesting example of 4-tuple [49, 2, 8, 4]:</p>
+    <%- include('tupleSum', { tuple: [49, 2, 8, 4] }) %>
     <h4>Sets of Five and Six</h4>
     <p>This will require 5x5 and 6x6 compositional matrices, which we have not found yet, and we will leave this for another time. The only set of length six would be [1, 2, 4, 8, 16, 32] interestingly!</p>
   </div>

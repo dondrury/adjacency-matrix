@@ -21,7 +21,7 @@
                       width="<%= squareSize %>" 
                       height="<%= squareSize %>" 
                       stroke="black"
-                      fill="<%= value === true || typeof value === 'number' ? 'darkgrey' : 'white' %>"></rect>
+                      fill="<%= (value === true || typeof value === 'number' || typeof value === 'string') ? 'darkgrey' : 'white' %>"></rect>
                 <text y="<%= yOffset(j + 1) - squareSize / 5 %>" 
                       x="<%= xOffset(i) + squareSize / 10 %>" 
                       font-size="<%= squareSize * 0.8 %>px" 
