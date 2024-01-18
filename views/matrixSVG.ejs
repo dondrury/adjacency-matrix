@@ -2,68 +2,34 @@
   <b>Error: Empty Matrix</b>
 <% } else {
   const overallWidth = typeof width === 'number' ? width : 100
+  const _titleHTML = typeof titleHTML === 'string' ? titleHTML: ''
   const squareSize = Math.floor(overallWidth / matrix.length)
-  console.log('matrix', matrix, 'overallWidth', overallWidth, 'squareSize', squareSize)
   const yOffset = m => m * squareSize
   const xOffset = n => n * squareSize
 
   %>
-  <div class="sparse-matrix-container" data-matrix="<%= JSON.stringify(matrix) %>">
+  <div class="matrix-svg-container" data-matrix="<%= JSON.stringify(matrix) %>">
     <svg viewBox="0 0 <%= overallWidth %> <%= overallWidth %>" 
          class="sparse-matrix"
-         style="height: <%= overallWidth %>px; width: <%= overallWidth %>px;" >
+         style="height: <%= overallWidth + 1 %>px; width:<%= overallWidth %>px;" >
          <% for (let j = 0; j < matrix.length; j++) { // rows
-          for (let i = 0; i < matrix[j].length; i++) { // columns %>
-            // addMatrixSquare(j, i, matrix[j][i])
-         <% }
-         } %>
+              for (let i = 0; i < matrix[j].length; i++) { // columns
+                const value = matrix[j][i]
+                %>
+                <rect y="<%= yOffset(j) %>" 
+                      x="<%= xOffset(i) %>" 
+                      width="<%= squareSize %>" 
+                      height="<%= squareSize %>" 
+                      stroke="black"
+                      fill="<%= value === true || typeof value === 'number' ? 'darkgrey' : 'white' %>"></rect>
+                <text y="<%= yOffset(j + 1) - squareSize / 5 %>" 
+                      x="<%= xOffset(i) + squareSize / 10 %>" 
+                      font-size="<%= squareSize * 0.8 %>px" 
+                      style="display:<%= (typeof value === 'number' || typeof value === 'string') ? 'inline-block' : 'none' %>;"
+                      fill="white"><%= value %></text>
+            <% }
+            } %>
     </svg>
+    <%- titleHTML %>
   </div>
 <% } %>
-
-
-
-<%
-function showSparseMatrix (container, matrix, squareSize) {
-  const svg = document.createElementNS(NS, 'svg')
-  const height = matrix.length * squareSize
-  const width = matrix.length * squareSize
-  const yOffset = m => m * squareSize
-  const xOffset = n => n * squareSize
-  svg.setAttributeNS(NS, 'viewBox', `${0} ${0} ${width} ${height}`)
-  svg.style.height = height + 'px'
-  svg.style.width = width + 'px'
-  svg.style.backgroundColor = '#d3d3d333'
-  svg.style.border = '0.5px solid darkgrey'
-  svg.classList.add('sparse-matrix')
-  container.appendChild(svg)
-  for (let j = 0; j < matrix.length; j++) { // rows
-    for (let i = 0; i < matrix[j].length; i++) { // columns
-      addMatrixSquare(j, i, matrix[j][i])
-    }
-  }
-
-  function addMatrixSquare (j, i, value) {
-    const square = document.createElementNS(NS, 'rect')
-    square.setAttribute('y', yOffset(j))
-    square.setAttribute('x', xOffset(i))
-    square.setAttribute('width', squareSize)
-    square.setAttribute('height', squareSize)
-    square.setAttribute('stroke', 'black')
-    square.id = 'row-' + j + '-column-' + i
-    square.setAttribute('fill', value === true || typeof value === 'number' ? 'darkgrey' : 'white') // darkgrey for boolean true, or any number other than 0
-    svg.appendChild(square)
-    if (typeof value === 'number' || typeof value === 'string') {
-      const text = document.createElementNS(NS, 'text')
-      text.setAttribute('y', yOffset(j + 1) - squareSize / 5)
-      text.setAttribute('x', xOffset(i) + squareSize / 10)
-      text.textContent = value
-      text.setAttribute('font-size', squareSize * 0.8 + 'px')
-      text.setAttribute('fill', 'white')
-      svg.appendChild(text)
-    }
-  }
-}
-%>
-
-
