@@ -18,15 +18,51 @@ exports.getFundamentalModes = (req, res) => {
   return res.render('layout', { view: 'fundamentalModes', title: 'Fundamental Modes', FundamentalModes })
 }
 
-exports.getFourthComposition = (req, res) => {
+exports.getFourByFourComposition = (req, res) => {
   const compositionNumber = req.params.compositionNumber
-  const modeNumber = req.params.modeNumber
-  console.log(`Composed C4,${compositionNumber}(${modeNumber})`)
-  const composition = Compositions[compositionNumber]
-  const mode = FundamentalModes[modeNumber]
+  const fourTupleNumber = req.params.fourTupleNumber
+  console.log(`Composed C4,${compositionNumber}(${fourTupleNumber})`)
+  const Composition = Compositions[compositionNumber]
+  const Tuple = FourTuples[fourTupleNumber]
+  const composedMatrix = composeTuple(Composition, Tuple)
+  // console.log('composedMatrix', composedMatrix)
+  return res.render('layout', { view: 'fourByFourComposition', title: 'Fundamental Modes', composedMatrix, Composition, Tuple, compositionNumber, fourTupleNumber, FundamentalModes })
+}
 
+function composeTuple (composition, tuple) {
+  const composed = []
+  for (let i = 0; i < composition.length; i++) {
+    const row = []
+    for (let j = 0; j < composition[i].length; j++) {
+      if (composition[i][j] === false) {
+        row.push(FundamentalModes[0])
+        // console.log('composed mode 0', FundamentalModes[0])
+      } else {
+        const indexOfTriple = composition[i][j]
+        const modeNumber = tuple[indexOfTriple]
+        // console.log('composed mode ' + modeNumber, FundamentalModes[modeNumber])
+        row.push(FundamentalModes[modeNumber])
+      }
+    }
+    composed.push(row)
+  }
+  return flattenNestedMatrix(composed)
+}
 
-  return res.status(200).send()
+function flattenNestedMatrix (composed) {
+  const flattened = []
+  for (let i = 0; i < composed.length; i++) { // row of composed
+    for (let m = 0; m < 4; m++) { // m is choice of row in sub-matrix
+      let flattenedRow = []
+      for (let j = 0; j < composed.length; j++) { // j is column of composed matrix
+        const subRow = composed[i][j][m]
+        flattenedRow = flattenedRow.concat(subRow)
+      }
+      flattened.push(flattenedRow)
+    }
+  }
+  // console.log('flattened', flattened)
+  return flattened
 }
 
 // exports.getGraph = (req, res) => {

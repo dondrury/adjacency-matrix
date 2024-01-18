@@ -74,7 +74,7 @@ app.use('/', express.static(path.join(__dirname, 'public'), publicServeOptions))
 app.get('/composingModes', graphController.getComposingModes)
 app.get('/fourTuples', graphController.getFourTuples)
 app.get('/fundamentalModes', graphController.getFundamentalModes)
-app.get('/fourTuple/c4/:compositionNumber/:modeNumber', graphController.getFourthComposition)
+app.get('/fourByFourComposition/c4/:compositionNumber/:fourTupleNumber', graphController.getFourByFourComposition)
 app.get('*', (req, res) => { // if page is left unspecified, this will direct to 404
   res.status(404).render('layout', { title: 'Sorry Not Found', view: '404' })
 })

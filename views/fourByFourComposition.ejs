@@ -1,0 +1,11 @@
+<%- include('matrixSVG', { matrix: composedMatrix, 
+  width: 400, 
+  titleHTML: `<div><b>C<sub>4,${compositionNumber}</sub>(${fourTupleNumber})</b></div>`
+}) %>
+<h4>This matrix composes this tuple: <%= JSON.stringify(Tuple) %></h4>
+<%- include('tupleSum', { tuple: Tuple }) %>
+<h4>According to this composition matrix</h4>
+<%- include('matrixSVG', { matrix: Composition, 
+  width: 100, 
+  titleHTML: `<div><b>C<sub>4,${compositionNumber}</sub></b></div>`
+}) %>
