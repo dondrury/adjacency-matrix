@@ -1,7 +1,11 @@
-<%- include('matrixSVG', { matrix: composedMatrix, 
-  width: 400, 
-  titleHTML: `<div><b>C<sub>4,${compositionNumber}</sub>(${fourTupleNumber})</b></div>`
-}) %>
+<div>
+  <%- include('matrixSVG', { matrix: composedMatrix, 
+    width: 400, 
+    titleHTML: `<div><b>C<sub>4,${compositionNumber}</sub>(${fourTupleNumber})</b></div>`
+  }) %>
+</div>
+
+
 <h4>This matrix composes this tuple: <%= JSON.stringify(Tuple) %></h4>
 <%- include('tupleSum', { tuple: Tuple }) %>
 <h4>According to this composition matrix</h4>
@@ -9,3 +13,6 @@
   width: 100, 
   titleHTML: `<div><b>C<sub>4,${compositionNumber}</sub></b></div>`
 }) %>
+
+<h4>Here is a visualization of this abstract polyhedron</h4>
+<div class="cytoscape-visualization" data-matrix="<%= JSON.stringify(composedMatrix) %>"></div>

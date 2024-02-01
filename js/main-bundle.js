@@ -1,6 +1,8 @@
 'use strict'
-const adjacencyGraph = require('./adjacencyGraph')
+// const adjacencyGraph = require('./adjacencyGraph')
+const cytoscapeVisualization = require('./cytoscapeVisualization')
 document.addEventListener('DOMContentLoaded', () => {
   console.log('Start')
-  adjacencyGraph.init()
+  // adjacencyGraph.init()
+  cytoscapeVisualization.init()
 })

@@ -6,7 +6,7 @@
   const squareSize = Math.floor(overallWidth / matrix.length)
   const yOffset = m => m * squareSize
   const xOffset = n => n * squareSize
-
+  let compositionGraph = false
   %>
   <div class="matrix-svg-container" data-matrix="<%= JSON.stringify(matrix) %>">
     <svg viewBox="0 0 <%= overallWidth %> <%= overallWidth %>" 
@@ -15,6 +15,7 @@
          <% for (let j = 0; j < matrix.length; j++) { // rows
               for (let i = 0; i < matrix[j].length; i++) { // columns
                 const value = matrix[j][i]
+                if (typeof value !== 'boolean') compositionGraph = true
                 %>
                 <rect y="<%= yOffset(j) %>" 
                       x="<%= xOffset(i) %>" 
@@ -30,6 +31,12 @@
             <% }
             } %>
     </svg>
+    <div>
+      <% if (!compositionGraph) { %>
+        <button>Show As Wireframe</button>
+      <% } %>
+
+    </div>
     <%- titleHTML %>
   </div>
 <% } %>
