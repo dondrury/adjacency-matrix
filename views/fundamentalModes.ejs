@@ -27,16 +27,16 @@
       width: 100, 
       titleHTML: '<div><b>M<sub>16</sub>, A Line Segment</b></div>'
     }) %>
-    <p>In a final example, if we look at M<sub>13</sub>, the binary representation of this number is  001101, which represents three connections between three specific points. This would be a specific <i>triangle face</i> the tetrahedron.</p>
-    <%- include('matrixSVG', { matrix: FundamentalModes[13], 
+    <p>In a final example, if we look at M<sub>52</sub>, the binary representation of this number is  110100, which represents three connections between three specific points. This would be a specific <i>triangle face</i> the tetrahedron.</p>
+    <%- include('matrixSVG', { matrix: FundamentalModes[52], 
       width: 100, 
       titleHTML: '<div><b>M<sub>13</sub>, A Triangle Face</b></div>'
     }) %>
     <h2>The Complete List of 64 Fundamental Modes of the Tetrahedron</h2>
     <p>Iterating from 0 to 60, we can span all of these undirected graphs, which are represented by the following symmetric graphs:</p>
     <% FundamentalModes.forEach((m, i) => { 
-      const titleHTML = `<h5>M<sub>${i}</sub></h5>
-                          <span>${i.toString(2).padStart(6, '0')}</span>`
+      const titleHTML = `<h4>M<sub>${i}</sub> <span>${i.toString(2).padStart(6, '0')}</span></h4>
+                          `
       %>
         <%- include('matrixSVG', { matrix: m, width: 100, titleHTML }) %> 
     <% }) %>

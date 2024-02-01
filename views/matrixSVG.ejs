@@ -9,6 +9,7 @@
   let compositionGraph = false
   %>
   <div class="matrix-svg-container" data-matrix="<%= JSON.stringify(matrix) %>">
+    <%- titleHTML %>
     <svg viewBox="0 0 <%= overallWidth %> <%= overallWidth %>" 
          class="sparse-matrix"
          style="height: <%= overallWidth + 1 %>px; width:<%= overallWidth %>px;" >
@@ -31,12 +32,13 @@
             <% }
             } %>
     </svg>
+    <div class="cytoscape-visualization" style="height: <%= overallWidth %>px; width:<%= overallWidth %>px;display:none;border:1px solid black;"></div>
     <div>
       <% if (!compositionGraph) { %>
         <button>Show As Wireframe</button>
       <% } %>
 
     </div>
-    <%- titleHTML %>
+    
   </div>
 <% } %>
