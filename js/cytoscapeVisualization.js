@@ -1,3 +1,4 @@
+import { eigs } from 'mathjs'
 const cytoscape = require('cytoscape')
 
 function init() {
@@ -9,6 +10,7 @@ function init() {
 function prepare(el, i) {
   // console.log('matrix svg element', el)
   const matrix = JSON.parse(el.dataset.matrix)
+  
   // console.log('matrix', matrix)
   const button = el.querySelector('button')
   if (!button) return
@@ -20,6 +22,7 @@ function prepare(el, i) {
     container.style.display = container.style.display === 'none' ? 'inline-block' : 'none'
     if (container.style.display === 'inline-block') {
       visualize(matrix, container)
+      findEigenValues(matrix)
       button.innerText = 'Show as Matrix'
     } else {
       container.innerHTML = ''
@@ -29,7 +32,24 @@ function prepare(el, i) {
   }
 }
 
+function findEigenValues (matrix) {
+  const numericalMatrix = []
+  for (let i = 0; i < matrix.length; i++) {  // i is for rows
+    const row = []
+    for (let j = 0; j < matrix[i].length; j++) { // j is for columns
+      row.push(matrix[i][j] ? 1: 0)
+    }
+    numericalMatrix.push(row)
+  }
+  // console.log('matrix', matrix)
+  // console.log('numericalMatrix', numericalMatrix)
+  // console.log('eigenvalues', eigs(numericalMatrix, { eigenvectors: false }))
+  const eigenValues = eigs(numericalMatrix, { eigenvectors: false }).values.sort((a,b) => a - b)
+  console.log('eigenValues', eigenValues)
+}
+
 function visualize (matrix, container) {
+ 
   const nodes = []
   for ( let i = 0; i < matrix.length; i++) {
     nodes.push({
