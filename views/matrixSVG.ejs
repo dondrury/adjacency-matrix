@@ -10,6 +10,7 @@
   %>
   <div class="matrix-svg-container" data-matrix="<%= JSON.stringify(matrix) %>">
     <%- titleHTML %>
+    <div class="characteristic-equation"></div>
     <svg viewBox="0 0 <%= overallWidth %> <%= overallWidth %>" 
          class="sparse-matrix"
          style="height: <%= overallWidth + 1 %>px; width:<%= overallWidth %>px;" >
@@ -28,7 +29,7 @@
                       x="<%= xOffset(i) + squareSize / 10 %>" 
                       font-size="<%= squareSize * 0.8 %>px" 
                       style="display:<%= (typeof value === 'number' || typeof value === 'string') ? 'inline-block' : 'none' %>;"
-                      fill="white"><%= value %></text>
+                      fill="white"><%- value %></text>
             <% }
             } %>
     </svg>

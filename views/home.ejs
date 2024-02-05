@@ -1,6 +1,30 @@
-<h2>What is an Adjacency Matrix?</h2>
+<h1>An Adventure in Mathematical Constructions of the Physical Universe!</h1>
 
+<p>Lets look at the characteristic polynomial of a symmetric adjascency matrix. Using the tetrahedron as the first example:</p>
+<%- include('matrixSVG', { matrix: FundamentalModes[63], 
+  width: 120, 
+  titleHTML: '<div><b>M<sub>63</sub>, A Tetrahedron</b></div>'
+}) %>
+<p>Now let's consider it as a numerical version</p>
+<%- include('matrixSVG', { matrix: [
+    [0, 1, 1, 1],
+    [1, 0, 1, 1],
+    [1, 1, 0, 1],
+    [1, 1, 1, 0]
+  ], 
+  width: 120, 
+  titleHTML: '<div><b>M<sub>63</sub>, A Represented with Real Numbers</b></div>'
+}) %>
+<p>Considering now, the characteristic equation:</p>
+<pre>det(A - I&lambda;) = 0</pre>
+<p>Therefore all we must do is find the determinant of matrices of this type, with only a -&lambda;, 0, or 1.</p>
+<%- include('matrixSVG', { matrix: [
+  ['-&lambda;', 1, 1, 1],
+  [1, '-&lambda;', 1, 1],
+  [1, 1, '-&lambda;', 1],
+  [1, 1, 1, '-&lambda;']
+], 
+width: 120, 
+titleHTML: '<div><b>M<sub>63</sub>, Matrix representation of the characteristic equation</b></div>'
+}) %>
 
-<!-- <h4>Sparse Matrix Representation</h4>
-<div class="sparse-matrix" data-matrix="[[53,0],[0,13]]">
-</div> -->

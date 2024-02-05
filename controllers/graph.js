@@ -3,7 +3,7 @@ const FundamentalModes = require('./fundamentalModes')
 const Compositions = require('./compositions')
 
 exports.home = (req, res) => {
-  return res.render('layout', { title: 'What is an adjacency graph?', view: 'home' })
+  return res.render('layout', { title: 'What is an adjacency graph?', view: 'home', Compositions, FundamentalModes })
 }
 
 exports.getComposingModes = (req, res) => {
