@@ -8,7 +8,7 @@ const browserify = require('browserify')
 const babelify = require('babelify')
 // const uglify = require('gulp-uglify')
 const chalk = require('chalk')
-const eslint = require('gulp-eslint')
+const eslint = require('gulp-eslint-new')
 const spawn = require('child_process').spawn
 const fs = require('fs')
 var node
