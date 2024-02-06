@@ -1,6 +1,15 @@
 const FourTuples = require('./fourTuples')
 const FundamentalModes = require('./fundamentalModes')
 const Compositions = require('./compositions')
+const Graph = require('../models/graph')
+
+
+exports.afterConnectionTasks = function () {
+ // anything we need to run once, like imports
+//  importAllFundamentalModes()
+}
+  
+
 
 exports.home = (req, res) => {
   return res.render('layout', { title: 'What is an adjacency graph?', view: 'home', Compositions, FundamentalModes })
@@ -113,3 +122,19 @@ function flattenNestedMatrix (composed) {
 //     return res.render('layout', { view: 'allGraphs', title:'Graphs including substring ' + req.body.name, graphs})
 //   })
 // }
+
+/* Archive of functions used to develop this list */
+function importAllFundamentalModes () {
+  // console.log('Graph Controller connected')
+  for (let i = 1; i < FundamentalModes.length; i++) {
+    const graph = new Graph({
+      name: 'Fundamental Mode ' + i,
+      booleanMatrix: FundamentalModes[i]
+    })
+    // console.log(graph)
+    graph.save((err, savedGraph) => {
+      if (err) console.log(err)
+      console.log('saved graph' , savedGraph)
+    })
+  }
+}

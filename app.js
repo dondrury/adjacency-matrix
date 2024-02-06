@@ -24,6 +24,7 @@ mongoose.connection.on('connected', init)
 function init () {
   console.log(chalk.green('Mongoose connected with URI'))
   clearInterval(connector)
+  afterConnectionTasks()
 }
 mongoose.connection.on('disconnected', function () {
   console.log(chalk.red('Mongoose disconnected unexpectedly'))
@@ -81,3 +82,7 @@ app.get('*', (req, res) => { // if page is left unspecified, this will direct to
 app.listen(process.env.PORT, () => {
   console.log(`Adjacency app listening at http://localhost:${process.env.PORT}`)
 })
+
+function afterConnectionTasks () {
+  graphController.afterConnectionTasks()
+}

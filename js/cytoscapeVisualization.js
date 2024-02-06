@@ -49,9 +49,9 @@ function prettyPrintPolynomial (poly) {
     // console.log('coefficient', coeff)
     let html = ''
     if (power !== '0') {
-      if (coeff === 1) html = `+&lambda;<sup>${power === '1' ? '': power}</sup>`
-      else if (coeff === -1) html = `-&lambda;<sup>${power === '1' ? '': power}</sup>`
-      else html = `${coeff > 0 ? '+' : ''}${coeff}&lambda;<sup>${power === '1' ? '': power}</sup>`
+      if (coeff === 1) html = `+&lambda;<sup>${power === '1' ? '' : power}</sup>`
+      else if (coeff === -1) html = `-&lambda;<sup>${power === '1' ? '' : power}</sup>`
+      else html = `${coeff > 0 ? '+' : ''}${coeff}&lambda;<sup>${power === '1' ? '' : power}</sup>`
     }
     else  html = (coeff > 0 ? '+' : '') + coeff // for regular numbers
     prettyHtml = html + prettyHtml
@@ -182,7 +182,6 @@ function findEigenValues (matrix) {
 }
 
 function visualize (matrix, container) {
- 
   const nodes = []
   for ( let i = 0; i < matrix.length; i++) {
     nodes.push({

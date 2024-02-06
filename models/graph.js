@@ -1,11 +1,17 @@
 const mongoose = require('mongoose')
+const Polynomial = require('polynomial')
+const eigs = require('mathjs').eigs
+// import { eigs } from 'mathjs'
+// graph is given only name and booleanArray when init, all other values are calculated internally
 
 const matrixSchema = new mongoose.Schema({
-  name: { type: String, required: true, index: true },
+  name: { type: String, index: true },
   size: { type: Number, required: true, index: true },
   rank: { type: Number, required: true },
-  booleanArray: [[Boolean]],
-  jpgString: { type: String },
+  booleanMatrix: [[Boolean]],
+  characteristicPolynomial: Object,
+  characteristicPolynomialString: { type: String, required: true, index: true },
+  approximateEigenvalues: [Number],
   notes: { type: String }
 }, {
   toObject: {
@@ -16,6 +22,151 @@ const matrixSchema = new mongoose.Schema({
   },
   timestamps: true
 })
+
+matrixSchema.pre('validate', function (next) {
+  // console.log('before validating', this)
+  const nonSquareError = nonSquare(this.booleanMatrix)
+  if (nonSquareError) {
+    next(nonSquareError)
+    return
+  }
+  this.size = this.booleanMatrix.length
+  this.rank = determineRank(this.booleanMatrix)
+  this.approximateEigenvalues = findEigenValues(this.booleanMatrix)
+  const characteristicPolynomial = findCharacteristicEquation(this.booleanMatrix)
+  this.characteristicPolynomial = characteristicPolynomial
+  this.characteristicPolynomialString = characteristicPolynomial.toString()
+  // console.log(this)
+  next()
+})
+
+function findCharacteristicEquation (matrix) {
+  const polynomialMatrix = createPolynomialMatrix(matrix)
+  return detByLaplace(polynomialMatrix)
+ }
+
+function detByLaplace(polyMatrix) {
+  // console.log('polynomial matrix from which to take determinant', polyMatrix)
+  if (polyMatrix.length === 2) { // 2x2 easy to calculate, also escape condition
+    const ad = polyMatrix[0][0].mul(polyMatrix[1][1])
+    const bc = polyMatrix[0][1].mul(polyMatrix[1][0])
+    return ad.sub(bc) // ad - bc, polynomial object, not number
+  }
+  // if not 2x2 we need to break it up into submatrices
+  const topRow = polyMatrix[0].map((el, index) => {
+    if (el.toString() === '0') {
+      // console.log('excepted a zero prefix')
+      return {
+        prefix: 0,
+        subMatrix: null
+      }
+    }
+    const subMatrix = []
+    for (let i = 1; i < polyMatrix.length; i++) {  // i is for rows, we ignore the first one, containing our coefficients
+      const row = []
+      for (let j = 0; j < polyMatrix[i].length; j++) { // j is for columns
+        if (j !== index) row.push(polyMatrix[i][j]) // don't take from our column
+      }
+      subMatrix.push(row)
+    }
+    
+    return {
+      prefix: el.mul(new Polynomial([index % 2 ? -1 : 1])), // switch sign for odd numbers
+      subMatrix
+    }
+  })
+  // console.log('topRow', topRow)
+  let polynomialSum = new Polynomial([0])
+  topRow.forEach(ob => {
+    // console.log('prefix', ob.prefix.toString())
+    if (ob.prefix !== 0) {
+      let partialSum = ob.prefix.mul(detByLaplace(ob.subMatrix))
+      polynomialSum = polynomialSum.add(partialSum)
+    }
+  }) // topRow now list of polynomials
+  return polynomialSum
+}
+
+function createPolynomialMatrix (matrix) {
+  // console.log('before createPolynomialMatrix', matrix)
+  const polynomialMatrix = []
+  for (let i = 0; i < matrix.length; i++) {  // i is for rows
+    const row = []
+    for (let j = 0; j < matrix[i].length; j++) { // j is for columns
+      let element = new Polynomial([0])
+      if (matrix[i][j]) element = new Polynomial([1])
+      if (i === j) element = new Polynomial([0, -1])
+      row.push(element)
+    }
+    polynomialMatrix.push(row)
+  }
+  // console.log('after createPolynomialMatrix', polynomialMatrix)
+  return polynomialMatrix
+}
+
+function findEigenValues (matrix) {
+  const numericalMatrix = []
+  for (let i = 0; i < matrix.length; i++) {  // i is for rows
+    const row = []
+    for (let j = 0; j < matrix[i].length; j++) { // j is for columns
+      row.push(matrix[i][j] ? 1: 0)
+    }
+    numericalMatrix.push(row)
+  }
+  // console.log('matrix', matrix)
+  // console.log('numericalMatrix', numericalMatrix)
+  // console.log('eigenvalues', eigs(numericalMatrix, { eigenvectors: false }))
+  return eigs(numericalMatrix, { eigenvectors: false }).values.sort((a,b) => a - b)
+}
+
+function determineRank (booleanMatrix) {
+  let maximumRank  = 0
+  for (let i = 0; i < booleanMatrix.length; i++) {
+    let rowRank = 0
+    for (let j = 0; j < booleanMatrix[i].length; j++) {
+      if (booleanMatrix[i][j]) rowRank++
+    }
+    if (rowRank > maximumRank) maximumRank = rowRank
+  }
+  for (let i = 0; i < booleanMatrix.length; i++) {
+    let rowRank = 0
+    for (let j = 0; j < booleanMatrix[i].length; j++) {
+      if (booleanMatrix[j][i]) rowRank++
+    }
+    if (rowRank > maximumRank) maximumRank = rowRank
+  }
+  return maximumRank
+}
+
+function nonSquare (booleanMatrix) {
+  const sizeFirstRow = booleanMatrix.length
+  for ( let i = 0; i < sizeFirstRow; i ++ ) {
+    if (booleanMatrix[i].length !== sizeFirstRow) {
+      return new Error('matrix is not square')
+    }
+  }
+}
+
+// storySchema.methods.isLive = function () {
+//   if ((this.goLive.getTime() < Date.now()) && (Date.now() < this.expire.getTime())) {
+//     return true
+//   }
+//   return false
+// }
+
+// storySchema.virtual('hasSchedule').get(function () {
+//   if (!this.goLive || !this.expire) return false
+//   if (this.goLive.getTime() === this.expire.getTime()) return false
+//   return true
+// })
+
+// function makeHtmlDateString (d) {
+//   let month = d.getMonth() + 1
+//   if (month < 10) { month = '0' + month }
+//   let day = d.getDate()
+//   if (day < 10) { day = '0' + day }
+//   return `${d.getFullYear()}-${month}-${day}`
+// }
 
 const Graph = mongoose.model('Matrix', matrixSchema)
 
