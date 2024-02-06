@@ -1,15 +1,15 @@
 const FourTuples = require('./fourTuples')
 const FundamentalModes = require('./fundamentalModes')
 const Compositions = require('./compositions')
+const Composition = require('../models/composition')
 const Graph = require('../models/graph')
 
 
 exports.afterConnectionTasks = function () {
  // anything we need to run once, like imports
 //  importAllFundamentalModes()
+  // importFirstFourCompositions()
 }
-  
-
 
 exports.home = (req, res) => {
   return res.render('layout', { title: 'What is an adjacency graph?', view: 'home', Compositions, FundamentalModes })
@@ -135,6 +135,22 @@ function importAllFundamentalModes () {
     graph.save((err, savedGraph) => {
       if (err) console.log(err)
       console.log('saved graph' , savedGraph)
+    })
+  }
+}
+
+function importFirstFourCompositions () {
+  for (let i = 0; i < Compositions.length; i ++) {
+    const composition = new Composition({
+      name: '4x4 Composition ' + i,
+      numericMatrix: Compositions[i]
+    })
+    composition.save((err, compositionAfter) => {
+      if (err) {
+        console.log(err)
+        return
+      }
+      console.log('done, compositionAfter', compositionAfter)
     })
   }
 }

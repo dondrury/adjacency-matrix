@@ -58,6 +58,37 @@
     <%- include('tupleSum', { tuple: [49, 2, 8, 4] }) %>
     <h4>Sets of Five and Six</h4>
     <p>This will require 5x5 and 6x6 compositional matrices, which we have not found yet, and we will leave this for another time. The only set of length six would be [1, 2, 4, 8, 16, 32] interestingly!</p>
+    <h3>The Characteristic Polynomial as a way of expressing the true "shape" of the structure</h3> 
+    <p>Lets look at the characteristic polynomial of a symmetric adjascency matrix. Using the tetrahedron as the first example:</p>
+    <%- include('matrixSVG', { matrix: FundamentalModes[63], 
+      width: 120, 
+      titleHTML: '<div><b>M<sub>63</sub>, A Tetrahedron</b></div>'
+    }) %>
+    <p>Now let's consider it as a numerical version</p>
+    <%- include('matrixSVG', { matrix: [
+        [0, 1, 1, 1],
+        [1, 0, 1, 1],
+        [1, 1, 0, 1],
+        [1, 1, 1, 0]
+      ], 
+      width: 120, 
+      titleHTML: '<div><b>M<sub>63</sub>, A Represented with Real Numbers</b></div>'
+    }) %>
+    <p>Considering now, the characteristic equation:</p>
+    <pre>det(A - I&lambda;) = 0</pre>
+    <p>Therefore all we must do is find the determinant of matrices of this type, with only a -&lambda;, 0, or 1.</p>
+    <%- include('matrixSVG', { matrix: [
+      ['-&lambda;', 1, 1, 1],
+      [1, '-&lambda;', 1, 1],
+      [1, 1, '-&lambda;', 1],
+      [1, 1, 1, '-&lambda;']
+    ], 
+    width: 120, 
+    titleHTML: '<div><b>M<sub>63</sub>, Matrix representation of the characteristic equation</b></div>'
+    }) %>
+    <p>We find the characteristic equation, using the Laplace Expansion method, yielding a characterstic equation for each graph, not just fundamental modes</p>
+
+  
   </div>
  
 

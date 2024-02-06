@@ -11,6 +11,7 @@ const matrixSchema = new mongoose.Schema({
   booleanMatrix: [[Boolean]],
   characteristicPolynomial: Object,
   characteristicPolynomialString: { type: String, required: true, index: true },
+  characteristicPolynomialHtml: String,
   approximateEigenvalues: [Number],
   notes: { type: String }
 }, {
@@ -36,9 +37,32 @@ matrixSchema.pre('validate', function (next) {
   const characteristicPolynomial = findCharacteristicEquation(this.booleanMatrix)
   this.characteristicPolynomial = characteristicPolynomial
   this.characteristicPolynomialString = characteristicPolynomial.toString()
+  this.characteristicPolynomialHtml = prettyPrintPolynomial(characteristicPolynomial)
   // console.log(this)
   next()
 })
+
+function prettyPrintPolynomial (poly) {
+  // console.log(poly)
+  let prettyHtml = ''
+  const polynomial = poly.coeff
+  for (const power in polynomial) {
+    // console.log('power', power)
+    const coeff = polynomial[power]
+    // console.log('coefficient', coeff)
+    let html = ''
+    if (power !== '0') {
+      if (coeff === 1) html = `+&lambda;<sup>${power === '1' ? '' : power}</sup>`
+      else if (coeff === -1) html = `-&lambda;<sup>${power === '1' ? '' : power}</sup>`
+      else html = `${coeff > 0 ? '+' : ''}${coeff}&lambda;<sup>${power === '1' ? '' : power}</sup>`
+    }
+    else  html = (coeff > 0 ? '+' : '') + coeff // for regular numbers
+    prettyHtml = html + prettyHtml
+  }
+  // console.log('prettyHtml', prettyHtml)
+  if (prettyHtml.charAt(0) === '+') prettyHtml = prettyHtml.substring(1)
+  return prettyHtml + ' = 0'
+}
 
 function findCharacteristicEquation (matrix) {
   const polynomialMatrix = createPolynomialMatrix(matrix)
