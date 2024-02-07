@@ -12,7 +12,7 @@ function prepare(el, i) {
   var button = el.querySelector('button');
   if (!button) return;
   var container = el.querySelector('div.cytoscape-visualization');
-  var svg = el.querySelector('svg');
+  // const svg = el.querySelector('svg')
   button.onclick = function () {
     visualize(matrix, container);
     container.style.display = 'block';

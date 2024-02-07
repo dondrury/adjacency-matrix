@@ -70,29 +70,35 @@
       description: '<div><b>M<sub>63</sub>, A Tetrahedron</b></div>'
     }) %>
     <p>Now let's consider it as a numerical version</p>
-    <%- include('matrixSVG', { matrix: [
-        [0, 1, 1, 1],
-        [1, 0, 1, 1],
-        [1, 1, 0, 1],
-        [1, 1, 1, 0]
-      ], 
-      width: 120, 
-      titleHTML: '<div><b>M<sub>63</sub>, A Represented with Real Numbers</b></div>'
+    <%- include('composition', { composition: 
+      {
+        numericMatrix: [
+          [0, 1, 1, 1],
+          [1, 0, 1, 1],
+          [1, 1, 0, 1],
+          [1, 1, 1, 0]
+        ]
+      },
+      description: '<div><b>M<sub>63</sub>, A Represented with Real Numbers</b></div>',
+      width: 100
     }) %>
-    <p>Considering now, the characteristic equation:</p>
+    <p>Considering now, the characteristic polynomial is:</p>
     <pre>det(A - I&lambda;) = 0</pre>
     <p>Therefore all we must do is find the determinant of matrices of this type, with only a -&lambda;, 0, or 1.</p>
-    <%- include('matrixSVG', { matrix: [
-      ['-&lambda;', 1, 1, 1],
-      [1, '-&lambda;', 1, 1],
-      [1, 1, '-&lambda;', 1],
-      [1, 1, 1, '-&lambda;']
-    ], 
-    width: 120, 
-    titleHTML: '<div><b>M<sub>63</sub>, Matrix representation of the characteristic equation</b></div>'
+    <%- include('composition', { composition: 
+      {
+        numericMatrix: [
+          ['-&lambda;', 1, 1, 1],
+          [1, '-&lambda;', 1, 1],
+          [1, 1, '-&lambda;', 1],
+          [1, 1, 1, '-&lambda;']
+        ]
+      },
+      description: '<div><b>M<sub>63</sub>, Matrix representation of the characteristic polynomial</b></div>',
+      width: 100
     }) %>
-    <p>We find the characteristic equation, using the Laplace Expansion method, yielding a characterstic equation for each graph, not just fundamental modes</p>
-    <p>The fundamental equations are computed when a complient graphs is saved in our database.</p>
+    <p>We find the characteristic polynomial, using the Laplace Expansion method, yielding a characterstic polynomial for each graph</p>
+    <p>The characteristic polynomial are computed when a complient graphs is saved in our database.</p>
   
   </div>
  

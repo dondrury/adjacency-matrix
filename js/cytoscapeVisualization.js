@@ -11,7 +11,7 @@ function prepare(el, i) {
   const button = el.querySelector('button')
   if (!button) return
   const container = el.querySelector('div.cytoscape-visualization')
-  const svg = el.querySelector('svg')
+  // const svg = el.querySelector('svg')
   button.onclick = function () {
     visualize(matrix, container)
     container.style.display = 'block'
