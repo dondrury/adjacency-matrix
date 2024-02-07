@@ -1,0 +1,10 @@
+
+<% graphs.forEach((graph, i) => { %>
+  <% if ( i !== 0 ) { %>
+    <span style="font-size:40px;position:relative;top:-110px;left:-21px;"><%= i === graphs.length - 1 ? '=' : '+' %></span>
+  <% } %>
+  <%- include('graph', { graph, 
+    width: 100
+  }) %>
+<% }) %>
+

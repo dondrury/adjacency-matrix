@@ -4,11 +4,13 @@ const eigs = require('mathjs').eigs
 // import { eigs } from 'mathjs'
 // graph is given only name and booleanArray when init, all other values are calculated internally
 
-const matrixSchema = new mongoose.Schema({
+const graphSchema = new mongoose.Schema({
   name: { type: String, index: true },
   size: { type: Number, required: true, index: true },
   rank: { type: Number, required: true },
   booleanMatrix: [[Boolean]],
+  binaryRepresentation: { type: String, required: true, index: true },
+  base10Representation: { type: Number, required: true, index: true, unique: true},
   characteristicPolynomial: Object,
   characteristicPolynomialString: { type: String, required: true, index: true },
   characteristicPolynomialHtml: String,
@@ -24,7 +26,7 @@ const matrixSchema = new mongoose.Schema({
   timestamps: true
 })
 
-matrixSchema.pre('validate', function (next) {
+graphSchema.pre('validate', function (next) {
   // console.log('before validating', this)
   const nonSquareError = nonSquare(this.booleanMatrix)
   if (nonSquareError) {
@@ -33,6 +35,8 @@ matrixSchema.pre('validate', function (next) {
   }
   this.size = this.booleanMatrix.length
   this.rank = determineRank(this.booleanMatrix)
+  this.binaryRepresentation = findBinaryRepresentation(this.booleanMatrix)
+  this.base10Representation = parseInt(this.binaryRepresentation, 2)
   this.approximateEigenvalues = findEigenValues(this.booleanMatrix)
   const characteristicPolynomial = findCharacteristicEquation(this.booleanMatrix)
   this.characteristicPolynomial = characteristicPolynomial
@@ -41,6 +45,16 @@ matrixSchema.pre('validate', function (next) {
   // console.log(this)
   next()
 })
+
+function findBinaryRepresentation (booleanMatrix) {
+  let arrayOfBooleans = []
+  for (let i = 0; i < booleanMatrix.length - 1; i++) { // i is for rows
+    const partialRow = booleanMatrix[i].slice(i + 1)
+    arrayOfBooleans = arrayOfBooleans.concat(partialRow)
+  }
+  console.log('backwards array of booleans', arrayOfBooleans)
+  return arrayOfBooleans.map(b => b ? '1' : '0').join('')
+}
 
 function prettyPrintPolynomial (poly) {
   // console.log(poly)
@@ -192,6 +206,6 @@ function nonSquare (booleanMatrix) {
 //   return `${d.getFullYear()}-${month}-${day}`
 // }
 
-const Graph = mongoose.model('Matrix', matrixSchema)
+const Graph = mongoose.model('Graph', graphSchema)
 
 module.exports = Graph

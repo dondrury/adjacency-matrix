@@ -1,184 +1,21 @@
-import { eigs } from 'mathjs'
 const cytoscape = require('cytoscape')
-const Polynomial = require('polynomial')
 
 function init() {
   console.log('started cytoscape visualization')
   // Array.from(document.getElementsByClassName('cytoscape-visualization')).forEach(create)
-  Array.from(document.getElementsByClassName('matrix-svg-container')).forEach(prepare)
+  Array.from(document.getElementsByClassName('graph-container')).forEach(prepare)
 }
 
 function prepare(el, i) {
-  // console.log('matrix svg element', el)
   const matrix = JSON.parse(el.dataset.matrix)
-  
-  // console.log('matrix', matrix)
   const button = el.querySelector('button')
   if (!button) return
-  // console.log('button', button)
   const container = el.querySelector('div.cytoscape-visualization')
-  // console.log('container', container)
-  const characteristicEquationEl = el.querySelector('.characteristic-equation')
-  const characteristicEquation = findCharacteristicEquation(matrix)
-  console.log('Characteristic equation', characteristicEquation.toString())
-  characteristicEquationEl.innerHTML = prettyPrintPolynomial(characteristicEquation)
   const svg = el.querySelector('svg')
   button.onclick = function () {
-    container.style.display = container.style.display === 'none' ? 'inline-block' : 'none'
-    if (container.style.display === 'inline-block') {
-      visualize(matrix, container)
-      findEigenValues(matrix)
-      // const characteristicEquation = 
-      // console.log('characteristic equation', characteristicEquation.toString())
-      button.innerText = 'Show as Matrix'
-    } else {
-      container.innerHTML = ''
-      button.innerText = 'Show as Wireframe'
-    }
-    svg.style.display = svg.style.display === 'none' ? 'inline-block' : 'none'
+    visualize(matrix, container)
+    container.style.display = 'block'
   }
-}
-
-function prettyPrintPolynomial (poly) {
-  // console.log(poly)
-  let prettyHtml = ''
-  const polynomial = poly.coeff
-  for (const power in polynomial) {
-    // console.log('power', power)
-    const coeff = polynomial[power]
-    // console.log('coefficient', coeff)
-    let html = ''
-    if (power !== '0') {
-      if (coeff === 1) html = `+&lambda;<sup>${power === '1' ? '' : power}</sup>`
-      else if (coeff === -1) html = `-&lambda;<sup>${power === '1' ? '' : power}</sup>`
-      else html = `${coeff > 0 ? '+' : ''}${coeff}&lambda;<sup>${power === '1' ? '' : power}</sup>`
-    }
-    else  html = (coeff > 0 ? '+' : '') + coeff // for regular numbers
-    prettyHtml = html + prettyHtml
-  }
-  // console.log('prettyHtml', prettyHtml)
-  if (prettyHtml.charAt(0) === '+') prettyHtml = prettyHtml.substring(1)
-  return prettyHtml + ' = 0'
-}
-
-function findCharacteristicEquation (matrix) {
- const polynomialMatrix = createPolynomialMatrix(matrix)
- return detByLaplace(polynomialMatrix)
-//  const testMatrix = [
-//   [new Polynomial([0,-1]), new Polynomial([1]),new Polynomial([0])],
-//   [new Polynomial([1]), new Polynomial([0,-1]),new Polynomial([1])],
-//   [new Polynomial([0]), new Polynomial([1]),new Polynomial([0, -1])]
-//  ]
-//  console.log('empty polynomial toString', (new Polynomial([0])).toString())
-//  console.log('determinant by Laplace as string', detByLaplace(testMatrix).toString())
-//  const pol0 = new Polynomial([1,1])
-//  const pol1 = new Polynomial([1,1])
-//  console.log(pol0, pol0.toString())
-//  console.log(pol1, pol1.toString())
-//  console.log('pol0 + pol1', pol0.add(pol1).toString())
-//  console.log('pol0 * pol1', pol0.mul(pol1).toString())
-}
-
-
-function detByLaplace(polyMatrix) {
-  // console.log('polynomial matrix from which to take determinant', polyMatrix)
-  if (polyMatrix.length === 2) { // 2x2 easy to calculate, also escape condition
-    const ad = polyMatrix[0][0].mul(polyMatrix[1][1])
-    const bc = polyMatrix[0][1].mul(polyMatrix[1][0])
-    return ad.sub(bc) // ad - bc, polynomial object, not number
-  }
-  // if not 2x2 we need to break it up into submatrices
-  const topRow = polyMatrix[0].map((el, index) => {
-    if (el.toString() === '0') {
-      // console.log('excepted a zero prefix')
-      return {
-        prefix: 0,
-        subMatrix: null
-      }
-    }
-    const subMatrix = []
-    for (let i = 1; i < polyMatrix.length; i++) {  // i is for rows, we ignore the first one, containing our coefficients
-      const row = []
-      for (let j = 0; j < polyMatrix[i].length; j++) { // j is for columns
-        if (j !== index) row.push(polyMatrix[i][j]) // don't take from our column
-      }
-      subMatrix.push(row)
-    }
-    
-    return {
-      prefix: el.mul(new Polynomial([index % 2 ? -1 : 1])), // switch sign for odd numbers
-      subMatrix
-    }
-  })
-  // console.log('topRow', topRow)
-  let polynomialSum = new Polynomial([0])
-  topRow.forEach(ob => {
-    // console.log('prefix', ob.prefix.toString())
-    if (ob.prefix !== 0) {
-      let partialSum = ob.prefix.mul(detByLaplace(ob.subMatrix))
-      polynomialSum = polynomialSum.add(partialSum)
-    }
-  }) // topRow now list of polynomials
-  return polynomialSum
-  // λ16-24λ14-8λ13+228λ12+144λ11-1080λ10-984λ9+2606λ8+3168λ7-2760λ6-4792λ5+372λ4+2832λ3+792λ2-360λ-135 = 0 beetle
-  // λ16-24λ14-8λ13+228λ12+144λ11-1080λ10-984λ9+2606λ8+3168λ7-2760λ6-4792λ5+372λ4+2832λ3+792λ2-360λ-135 = 0 beetle
-  // λ16-24λ14-16λ13+220λ12+288λ11-872λ10-1840λ9+934λ8+4800λ7+2392λ6-3952λ5-4836λ4-480λ3+1960λ2+1200λ+225 = 0 two short snake
-  // λ16-24λ14-8λ13+220λ12+144λ11-968λ10-920λ9+2118λ8+2656λ7-2152λ6-3768λ5+604λ4+2576λ3+456λ2-680λ-255 = 0 long snake
-  // λ16-24λ14-16λ13+220λ12+288λ11-872λ10-1840λ9+934λ8+4800λ7+2392λ6-3952λ5-4836λ4-480λ3+1960λ2+1200λ+225 = 0 two short snake
-  // λ16-24λ14-8λ13+220λ12+144λ11-968λ10-920λ9+2118λ8+2656λ7-2152λ6-3768λ5+604λ4+2576λ3+456λ2-680λ-255 = 0 long snake
-  // λ16-24λ14-8λ13+220λ12+144λ11-968λ10-920λ9+2118λ8+2656λ7-2152λ6-3768λ5+604λ4+2576λ3+456λ2-680λ-255 = 0 long snake
-  // λ16-24λ14-8λ13+220λ12+144λ11-968λ10-920λ9+2118λ8+2656λ7-2152λ6-3768λ5+604λ4+2576λ3+456λ2-680λ-255 = 0 long snake
-  // λ16-24λ14-8λ13+220λ12+144λ11-968λ10-920λ9+2118λ8+2656λ7-2152λ6-3768λ5+604λ4+2576λ3+456λ2-680λ-255 = 0 long snake
-  // λ16-24λ14-8λ13+220λ12+144λ11-968λ10-920λ9+2118λ8+2656λ7-2152λ6-3768λ5+604λ4+2576λ3+456λ2-680λ-255 = 0 long snake, graphed
-  // λ16-24λ14-8λ13+228λ12+144λ11-1080λ10-984λ9+2606λ8+3168λ7-2760λ6-4792λ5+372λ4+2832λ3+792λ2-360λ-135 = 0 beetle
-  // λ16-24λ14-8λ13+228λ12+144λ11-1080λ10-984λ9+2606λ8+3168λ7-2760λ6-4792λ5+372λ4+2832λ3+792λ2-360λ-135 = 0 beetle
-  // λ16-24λ14-8λ13+228λ12+144λ11-1080λ10-984λ9+2606λ8+3168λ7-2760λ6-4792λ5+372λ4+2832λ3+792λ2-360λ-135 = 0 beetle
-  // λ16-24λ14-8λ13+228λ12+144λ11-1080λ10-984λ9+2606λ8+3168λ7-2760λ6-4792λ5+372λ4+2832λ3+792λ2-360λ-135 = 0 beetle
-  // λ16-24λ14-8λ13+228λ12+144λ11-1080λ10-984λ9+2606λ8+3168λ7-2760λ6-4792λ5+372λ4+2832λ3+792λ2-360λ-135 = 0 beetle
-  // λ16-24λ14-8λ13+228λ12+144λ11-1080λ10-984λ9+2606λ8+3168λ7-2760λ6-4792λ5+372λ4+2832λ3+792λ2-360λ-135 = 0 beetle
-  // λ16-24λ14-8λ13+228λ12+144λ11-1080λ10-984λ9+2622λ8+3168λ7-2952λ6-4920λ5+980λ4+3600λ3+600λ2-1000λ-375 = 0 tetrahedral beetle?
-  // λ16-24λ14+220λ12-1000λ10+2470λ8-3496λ6+2844λ4-1240λ2+225 = 0 // different higher dimensional?
-  // λ16-24λ14+220λ12-1000λ10+2470λ8-3496λ6+2844λ4-1240λ2+225 = 0 // different higher dimensional?
-  // λ16-24λ14+220λ12-1000λ10+2470λ8-3496λ6+2844λ4-1240λ2+225 = 0 // again
-  // λ16-24λ14+220λ12-1000λ10+2470λ8-3496λ6+2844λ4-1240λ2+225 = 0
-
-  // λ16-24λ14-16λ13+204λ12+288λ11-648λ10-1584λ9+54λ8+2752λ7+1944λ6-1392λ5-2260λ4-480λ3+648λ2+432λ+81 = 0 two tetrahedrons and a cube
-
-  // 
-
-}
-
-function createPolynomialMatrix (matrix) {
-  // console.log('before createPolynomialMatrix', matrix)
-  const polynomialMatrix = []
-  for (let i = 0; i < matrix.length; i++) {  // i is for rows
-    const row = []
-    for (let j = 0; j < matrix[i].length; j++) { // j is for columns
-      let element = new Polynomial([0])
-      if (matrix[i][j]) element = new Polynomial([1])
-      if (i === j) element = new Polynomial([0, -1])
-      row.push(element)
-    }
-    polynomialMatrix.push(row)
-  }
-  // console.log('after createPolynomialMatrix', polynomialMatrix)
-  return polynomialMatrix
-}
-
-function findEigenValues (matrix) {
-  const numericalMatrix = []
-  for (let i = 0; i < matrix.length; i++) {  // i is for rows
-    const row = []
-    for (let j = 0; j < matrix[i].length; j++) { // j is for columns
-      row.push(matrix[i][j] ? 1: 0)
-    }
-    numericalMatrix.push(row)
-  }
-  // console.log('matrix', matrix)
-  // console.log('numericalMatrix', numericalMatrix)
-  // console.log('eigenvalues', eigs(numericalMatrix, { eigenvectors: false }))
-  const eigenValues = eigs(numericalMatrix, { eigenvectors: false }).values.sort((a,b) => a - b)
-  console.log('eigenValues', eigenValues)
 }
 
 function visualize (matrix, container) {

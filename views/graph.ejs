@@ -1,0 +1,39 @@
+<% if ( typeof graph !== 'object') { %>
+  <b>Error: Empty Matrix</b>
+<% } else {
+  const _description = typeof description === 'string' ? description: ''
+  const matrix = graph.booleanMatrix
+  const overallWidth = typeof width === 'number' ? width : 100
+  const squareSize = Math.floor(overallWidth / matrix.length)
+  const yOffset = m => m * squareSize
+  const xOffset = n => n * squareSize
+  %>
+  <div class="graph-container" data-matrix="<%= JSON.stringify(matrix) %>">
+    <%- _description %>
+    <svg viewBox="0 0 <%= overallWidth %> <%= overallWidth %>" 
+         class="sparse-matrix"
+         style="height: <%= overallWidth + 1 %>px; width:<%= overallWidth %>px;" >
+         <% for (let j = 0; j < matrix.length; j++) { // rows
+              for (let i = 0; i < matrix[j].length; i++) { // columns
+                const value = matrix[j][i]
+                %>
+                <rect y="<%= yOffset(j) %>" 
+                      x="<%= xOffset(i) %>" 
+                      width="<%= squareSize %>" 
+                      height="<%= squareSize %>" 
+                      stroke="black"
+                      fill="<%= (value === true || typeof value === 'number' || typeof value === 'string') ? 'darkgrey' : 'white' %>"></rect>
+                <text y="<%= yOffset(j + 1) - squareSize / 5 %>" 
+                      x="<%= xOffset(i) + squareSize / 10 %>" 
+                      font-size="<%= squareSize * 0.8 %>px" 
+                      style="display:<%= (typeof value === 'number' || typeof value === 'string') ? 'inline-block' : 'none' %>;"
+                      fill="white"><%- value %></text>
+            <% }
+            } %>
+    </svg>
+    <div><b>Graph #<%= graph.base10Representation %></b></div>
+    <div><b><%- graph.characteristicPolynomialHtml %></b></div>
+    <div class="cytoscape-visualization" style="height: <%= overallWidth %>px; width:<%= overallWidth %>px;display:none;border:1px solid black;"></div>
+    <button>Render As Wireframe</button>
+  </div>
+<% } %>

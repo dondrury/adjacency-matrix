@@ -3,6 +3,7 @@ const FundamentalModes = require('./fundamentalModes')
 const Compositions = require('./compositions')
 const Composition = require('../models/composition')
 const Graph = require('../models/graph')
+const fundamentalModes = require('./fundamentalModes')
 
 
 exports.afterConnectionTasks = function () {
@@ -24,7 +25,14 @@ exports.getFourTuples = (req, res) => {
 }
 
 exports.getFundamentalModes = (req, res) => {
-  return res.render('layout', { view: 'fundamentalModes', title: 'Fundamental Modes', FundamentalModes })
+  Graph.find({ size: 4 }).sort({ base10Representation: 1 }).exec((err, fundamentalModes) => {
+    if (err) {
+      console.log(err)
+      return res.render('layout', {view : 'error'}).status(500)
+    }
+    console.log('fundamentalModes', fundamentalModes)
+    return res.render('layout', { view: 'fundamentalModes', title: 'Fundamental Modes', FundamentalModes, fundamentalModes })
+  })
 }
 
 exports.getFourByFourComposition = (req, res) => {
@@ -126,7 +134,7 @@ function flattenNestedMatrix (composed) {
 /* Archive of functions used to develop this list */
 function importAllFundamentalModes () {
   // console.log('Graph Controller connected')
-  for (let i = 1; i < FundamentalModes.length; i++) {
+  for (let i = 0; i < FundamentalModes.length; i++) {
     const graph = new Graph({
       name: 'Fundamental Mode ' + i,
       booleanMatrix: FundamentalModes[i]
