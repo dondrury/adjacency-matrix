@@ -52,7 +52,7 @@ function findBinaryRepresentation (booleanMatrix) {
     const partialRow = booleanMatrix[i].slice(i + 1)
     arrayOfBooleans = arrayOfBooleans.concat(partialRow)
   }
-  console.log('backwards array of booleans', arrayOfBooleans)
+  console.log('array of booleans', arrayOfBooleans)
   return arrayOfBooleans.map(b => b ? '1' : '0').join('')
 }
 

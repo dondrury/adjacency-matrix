@@ -44,7 +44,7 @@ exports.getFundamentalModes = (req, res) => {
 
 exports.getFundamentalMode = (req, res) => {
   const number = req.params.number
-  console.log('get fundamental mode ', number)
+  // console.log('get fundamental mode ', number)
   Graph.findOne({ base10Representation: number}).exec((err, fundamentalMode) => {
     if (err) {
       console.log(err)
@@ -121,10 +121,12 @@ function importAllFundamentalModes () {
 
 function importFirstFourCompositions () {
   for (let i = 0; i < Compositions.length; i ++) {
+    // let i = 3
     const composition = new Composition({
       name: '4x4 Composition ' + i,
       numericMatrix: Compositions[i]
     })
+    console.log('composition before', composition)
     composition.save((err, compositionAfter) => {
       if (err) {
         console.log(err)
