@@ -42,6 +42,19 @@ exports.getFundamentalModes = (req, res) => {
   })
 }
 
+exports.getFundamentalMode = (req, res) => {
+  const number = req.params.number
+  console.log('get fundamental mode ', number)
+  Graph.findOne({ base10Representation: number}).exec((err, fundamentalMode) => {
+    if (err) {
+      console.log(err)
+      return res.render('layout', {view : 'error'}).status(404)
+    }
+    // console.log('fundamentalModes', fundamentalModes)
+    return res.render('layout', { view: 'fundamentalMode', title: 'Fundamental Mode ' + number, fundamentalMode })
+  })
+}
+
 exports.getFourByFourComposition = (req, res) => {
   const compositionNumber = req.params.compositionNumber
   const fourTupleNumber = req.params.fourTupleNumber

@@ -1,2 +1,19 @@
 <h1>An Adventure in Mathematical Constructions of the Physical Universe!</h1>
 
+<h2>Graphs</h2>
+<p>Graphs are symmetric adjascency matrices.</p>
+<h2>Fundamental Modes</h2>
+<p>Fundamental modes are all possible n x n sub-graphs of a rank-3 n x n adjascency graph.</p>
+<p>These are the 64 fundamental modes of the tetrahedron, including the complete tetrahedron, #63</p>
+<ol>
+   <% for (let i = 0; i < 64; i++) { %>
+    <li>
+      <a href="/fundamentalMode/<%= i %>">Fundamental Mode #<%= i %></a>
+    </li>
+     
+   <% } %>
+</ol>
+<h2>Compositions</h2>
+<p>Compositions are symmetric matrices of natural numbers, where the first row is [0,...,n - 1]</p>
+<h3>Tuples</h3>
+<p>Tuples are ordered sets of fundamental modes that add, element-wise to a rank-3 adjascency graph.</p>
