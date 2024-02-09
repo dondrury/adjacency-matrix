@@ -10,7 +10,6 @@
   %>
   <div class="matrix-svg-container" data-matrix="<%= JSON.stringify(matrix) %>">
     <%- _description %>
-    <div class="characteristic-equation"></div>
     <svg viewBox="0 0 <%= overallWidth %> <%= overallWidth %>" 
          class="sparse-matrix"
          style="height: <%= overallWidth + 1 %>px; width:<%= overallWidth %>px;" >
@@ -34,5 +33,6 @@
             } %>
     </svg>
     <div><b><%= composition.name %></b></div>
+    <div><b>Base 10 Representation: <%= composition.base10Representation %></b></div>
   </div>
 <% } %>

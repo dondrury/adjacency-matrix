@@ -1,11 +1,13 @@
 const FourTuples = require('./fourTuples')
-const FundamentalModes = require('./fundamentalModes')
-const Compositions = require('./compositions')
 const Composition = require('../models/composition')
 const Graph = require('../models/graph')
+var Compositions4x4 = []
+var FundamentalModes4x4 = []
 
 
 exports.afterConnectionTasks = function () {
+  find4x4Compositions()
+  find4x4FundamentalModes()
  // anything we need to run once, like imports
 //  importAllFundamentalModes()
   // importFirstFourCompositions()
@@ -16,14 +18,8 @@ exports.home = (req, res) => {
 }
 
 exports.getComposingModes = (req, res) => {
-  Composition.find({ size: 4 }).exec((err, compositions) => {
-    if (err) {
-      console.log(err)
-      return res.render('layout', {view: 'error'}).status(404)
-    }
-    // console.log(compositions)
-    return res.render('layout', { title: 'Composing Fundamental Modes', view: 'composingModes', compositions, Compositions })
-  })
+  console.log({ compositions: Compositions4x4})
+  return res.render('layout', { title: 'Composing Fundamental Modes', view: 'composingModes', compositions: Compositions4x4 })
  
 }
 
@@ -32,14 +28,7 @@ exports.getFourTuples = (req, res) => {
 }
 
 exports.getFundamentalModes = (req, res) => {
-  Graph.find({ size: 4 }).sort({ base10Representation: 1 }).exec((err, fundamentalModes) => {
-    if (err) {
-      console.log(err)
-      return res.render('layout', {view : 'error'}).status(404)
-    }
-    // console.log('fundamentalModes', fundamentalModes)
-    return res.render('layout', { view: 'fundamentalModes', title: 'Fundamental Modes', fundamentalModes })
-  })
+  return res.render('layout', { view: 'fundamentalModes', title: 'Fundamental Modes', fundamentalModes: FundamentalModes4x4 })
 }
 
 exports.getFundamentalMode = (req, res) => {
@@ -135,4 +124,26 @@ function importFirstFourCompositions () {
       console.log('done, compositionAfter', compositionAfter)
     })
   }
+}
+
+function find4x4Compositions () {
+  Composition.find({ size: 4 }).sort({ base10Representation: 1 }).exec((err, compositions) => {
+    if (err) {
+      console.log(err)
+      return
+    }
+    // console.log(compositions)
+    Compositions4x4 = compositions
+  })
+}
+
+function find4x4FundamentalModes () {
+  Graph.find({ size: 4 }).sort({ base10Representation: 1 }).exec((err, fundamentalModes) => {
+    if (err) {
+      console.log(err)
+      return
+    }
+    // console.log('fundamentalModes', fundamentalModes)
+    FundamentalModes4x4 = fundamentalModes
+  })
 }

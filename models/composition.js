@@ -1,5 +1,4 @@
 const mongoose = require('mongoose')
-const { base } = require('./graph')
 
 const compositionSchema = new mongoose.Schema({
   name: { type: String, index: true, required: true },
@@ -55,7 +54,7 @@ function checkFirstRow (numericMatrix) {
 function checkValidComposition (numericMatrix) {
   let orderedArray = (new Array(numericMatrix.length)).fill(0)
   orderedArray = orderedArray.map((el, i) => i)
-  const ascendingStringWithCommas = orderedArray.join(',')
+  const ascendingStringWithCommas = orderedArray.join(',') // 0,1,2,3,...
   // console.log('ascendingStringWithCommas', ascendingStringWithCommas)
   for (let i = 0; i < numericMatrix.length; i++) { // check that rows contain each index
     const rowString = (numericMatrix[i].map(el => el)).sort().join(',') // make a shallow copy
@@ -84,11 +83,11 @@ function findBase10Representation (numericMatrix) {
     const partialRow = numericMatrix[i].slice(i + 1)
     arrayOfCoefficients = arrayOfCoefficients.concat(partialRow)
   }
-  console.log('array of coefficients', arrayOfCoefficients)
+  // console.log('array of coefficients', arrayOfCoefficients)
   let base10Representation = 0
   for (let i = 0; i < arrayOfCoefficients.length; i++) { // first coefficient gets highest power of two
     const term = arrayOfCoefficients[i] * Math.pow(2, arrayOfCoefficients.length - 1 - i)
-    console.log(`term${i}`, term)
+    // console.log(`term${i}`, term)
     base10Representation += term
   }
   return base10Representation
