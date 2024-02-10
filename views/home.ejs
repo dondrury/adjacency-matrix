@@ -14,6 +14,15 @@
    <% } %>
 </ol>
 <h2>Compositions</h2>
+<p>We have found 4 4x4 Compositions, by hand:</p>
+<ul>
+  <% for (let i = 0; i < 4; i++) { %>
+   <li>
+     <a href="/composition/<%= compositions[i]._id %>"><%= compositions[i].name %></a>
+   </li>
+    
+  <% } %>
+</ul>
 <p>Compositions are symmetric matrices of natural numbers, where the first row is [0,...,n - 1]</p>
 <h3>Tuples</h3>
 <p>Tuples are ordered sets of fundamental modes that add, element-wise to a rank-3 adjascency graph.</p>

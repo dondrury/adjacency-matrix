@@ -5,7 +5,6 @@ const compositionSchema = new mongoose.Schema({
   size: { type: Number, required: true },
   rank: Number,
   numericMatrix: [[Number]],
-  base10Representation: { type: Number, index: true, required: true, unique: true },
   notes: { type: String }
 }, {
   toObject: {
@@ -74,23 +73,6 @@ function checkValidComposition (numericMatrix) {
       return new Error('not a composition matrix, a column contains duplicate elements')
     }
   }
-}
-
-function findBase10Representation (numericMatrix) {
-  console.log('findBase10Representation numericMatrix', numericMatrix)
-  let arrayOfCoefficients = []
-  for (let i = 0; i < numericMatrix.length - 1; i++) { // i is for rows
-    const partialRow = numericMatrix[i].slice(i + 1)
-    arrayOfCoefficients = arrayOfCoefficients.concat(partialRow)
-  }
-  // console.log('array of coefficients', arrayOfCoefficients)
-  let base10Representation = 0
-  for (let i = 0; i < arrayOfCoefficients.length; i++) { // first coefficient gets highest power of two
-    const term = arrayOfCoefficients[i] * Math.pow(2, arrayOfCoefficients.length - 1 - i)
-    // console.log(`term${i}`, term)
-    base10Representation += term
-  }
-  return base10Representation
 }
 
 function determineRank (numericMatrix) {

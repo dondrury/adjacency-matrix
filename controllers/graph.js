@@ -1,8 +1,10 @@
 const FourTuples = require('./fourTuples')
 const Composition = require('../models/composition')
 const Graph = require('../models/graph')
+const Tuple = require('../models/tuple')
 var Compositions4x4 = []
 var FundamentalModes4x4 = []
+var Tuples4x4 = []
 
 
 exports.afterConnectionTasks = function () {
@@ -11,16 +13,26 @@ exports.afterConnectionTasks = function () {
  // anything we need to run once, like imports
 //  importAllFundamentalModes()
   // importFirstFourCompositions()
+  // importAllFourTuples()
 }
 
 exports.home = (req, res) => {
-  return res.render('layout', { title: 'What is an adjacency graph?', view: 'home'})
+  return res.render('layout', { title: 'What is an adjacency graph?', view: 'home', compositions: Compositions4x4, fundamentalModes: FundamentalModes4x4})
 }
 
 exports.getComposingModes = (req, res) => {
-  console.log({ compositions: Compositions4x4})
+  // console.log({ compositions: Compositions4x4})
   return res.render('layout', { title: 'Composing Fundamental Modes', view: 'composingModes', compositions: Compositions4x4 })
- 
+}
+
+exports.getComposition = (req, res) => {
+  Composition.findById(req.params.id).exec((err, composition) => {
+    if (err) {
+      console.log(err)
+      return res.render('layout', {view : 'error'}).status(404)
+    }
+    return res.render('layout', { title: composition.name, view: 'composition', composition})
+  })
 }
 
 exports.getFourTuples = (req, res) => {
@@ -122,6 +134,32 @@ function importFirstFourCompositions () {
         return
       }
       console.log('done, compositionAfter', compositionAfter)
+    })
+  }
+}
+
+function importAllFourTuples () {
+  let i = 0
+  nextFourTuple()
+  function nextFourTuple() {
+    if (i > FourTuples.length - 1) return
+    console.log('attemting the ' + i + 'th tuple')
+    const fourTuple = FourTuples[i]
+    console.log('fourTuple before', fourTuple)
+    const tuple = new Tuple({
+      numberArray: fourTuple
+    })
+    // tuple.numberArray = [20,10,12,21]
+    tuple.save((err, tupleAfter) => {
+      if (err) {
+        console.log(err)
+        i++
+        nextFourTuple()
+        return
+      }
+      console.log('tuple after', tupleAfter)
+      i++
+      nextFourTuple()
     })
   }
 }

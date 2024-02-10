@@ -77,6 +77,7 @@ app.get('/fourTuples', graphController.getFourTuples)
 app.get('/fundamentalModes', graphController.getFundamentalModes)
 app.get('/fundamentalMode/:number', graphController.getFundamentalMode)
 app.get('/fourByFourComposition/c4/:compositionNumber/:fourTupleNumber', graphController.getFourByFourComposition)
+app.get('/composition/:id', graphController.getComposition)
 app.get('*', (req, res) => { // if page is left unspecified, this will direct to 404
   res.status(404).render('layout', { title: 'Sorry Not Found', view: '404' })
 })
