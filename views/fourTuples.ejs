@@ -3,18 +3,30 @@
 <pre>a[0] XOR a[1] XOR a[2] XOR a[3] = 111111</pre>
 <p>which is to say that in the binary representation of the natural numbers, each place value of a power of two is represented in exactly one of them</p>
 <p>Or said another way, each edge of a single tetrahedron appears in exactly one of those modes, and not more than one. Each of six total edges are represented in the sum of the four</p>
-<h3>The Complete List of <%= FourTuples.length %> 4-Tuples and Their Compositions</h3>
+<h3>The Complete List of <%= tuples.length %> 4-Tuples and Their 4x4 Compositions using Fundamental Modes</h3>
 <p>We are presenting a syntax here, where the subscript 4 is used to denote that it is a 4-tuple, and not a higher 5, or 6-tuple. The second subscript is used to identify the number of that composition, for 0-3</p>
 <p>Click the links to view the each composition</p>
-<ul>
-  <% FourTuples.forEach((t, i) => { %>
-    <li>
-      <span>T<sub><%= i %></sub> = </span>
-      <span><%= JSON.stringify(t, 0, 1) %></span>
-      <a href="/fourByFourComposition/c4/0/<%= i %>">C<sub>4,0</sub>(<%= i %>)</a>
-      <a href="/fourByFourComposition/c4/1/<%= i %>">C<sub>4,1</sub>(<%= i %>)</a>
-      <a href="/fourByFourComposition/c4/2/<%= i %>">C<sub>4,2</sub>(<%= i %>)</a>
-      <a href="/fourByFourComposition/c4/3/<%= i %>">C<sub>4,3</sub>(<%= i %>)</a>
-    </li>
-  <% }) %>
-</ul>
+<table>
+  <thead>
+    <th>Number</th>
+    <th>Tuple</th>
+    <th><%= compositions[3].name %></th>
+    <th><%= compositions[2].name %></th>
+    <th><%= compositions[1].name %></th>
+    <th><%= compositions[0].name %></th>
+  </thead>
+  <tbody>
+    <% tuples.forEach((t, i) => { %>
+      <tr>
+        <td>T<sub><%= i %></sub> = </td>
+        <td><%= JSON.stringify(t.numberArray, 0, 1) %></td>
+        <td><a href="/composeFundamentalModes/tuple/<%= t._id %>/composition/<%= compositions[3]._id %>"><%= compositions[3].name %></a></td>
+        <td><a href="/composeFundamentalModes/tuple/<%= t._id %>/composition/<%= compositions[2]._id %>"><%= compositions[2].name %></a></td>
+        <td><a href="/composeFundamentalModes/tuple/<%= t._id %>/composition/<%= compositions[1]._id %>"><%= compositions[1].name %></a></td>
+        <td><a href="/composeFundamentalModes/tuple/<%= t._id %>/composition/<%= compositions[0]._id %>"><%= compositions[0].name %></a></td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table>
+
+

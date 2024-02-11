@@ -15,6 +15,12 @@ const graphSchema = new mongoose.Schema({
   characteristicPolynomialString: { type: String, required: true, index: true },
   characteristicPolynomialHtml: String,
   approximateEigenvalues: [Number],
+  phylogeny: {
+    composition: { type: mongoose.Schema.Types.ObjectId, ref: 'Composition'},
+    tuple: [
+      { type: mongoose.Schema.Types.ObjectId, ref: 'Graph'}
+    ]
+  },
   notes: { type: String }
 }, {
   toObject: {
@@ -37,6 +43,7 @@ graphSchema.pre('validate', function (next) {
   this.rank = determineRank(this.booleanMatrix)
   this.binaryRepresentation = findBinaryRepresentation(this.booleanMatrix)
   this.base10Representation = parseInt(this.binaryRepresentation, 2)
+  console.log('base10representation', this.base10Representation)
   this.approximateEigenvalues = findEigenValues(this.booleanMatrix)
   const characteristicPolynomial = findCharacteristicEquation(this.booleanMatrix)
   this.characteristicPolynomial = characteristicPolynomial
@@ -52,7 +59,7 @@ function findBinaryRepresentation (booleanMatrix) {
     const partialRow = booleanMatrix[i].slice(i + 1)
     arrayOfBooleans = arrayOfBooleans.concat(partialRow)
   }
-  console.log('array of booleans', arrayOfBooleans)
+  // console.log('array of booleans', arrayOfBooleans)
   return arrayOfBooleans.map(b => b ? '1' : '0').join('')
 }
 

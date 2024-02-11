@@ -10,6 +10,8 @@ var Tuples4x4 = []
 exports.afterConnectionTasks = function () {
   find4x4Compositions()
   find4x4FundamentalModes()
+  find4Tuples()
+  setTimeout(import16x16Graphs, 1000)
  // anything we need to run once, like imports
 //  importAllFundamentalModes()
   // importFirstFourCompositions()
@@ -36,7 +38,7 @@ exports.getComposition = (req, res) => {
 }
 
 exports.getFourTuples = (req, res) => {
-  return res.render('layout', { view: 'fourTuples', title: 'All Four-Tuples', FourTuples })
+  return res.render('layout', { view: 'fourTuples', title: 'All Four-Tuples', tuples: Tuples4x4, compositions: Compositions4x4 })
 }
 
 exports.getFundamentalModes = (req, res) => {
@@ -67,24 +69,69 @@ exports.getFourByFourComposition = (req, res) => {
   return res.render('layout', { view: 'fourByFourComposition', title: 'Fundamental Modes', composedMatrix, Composition, Tuple, compositionNumber, fourTupleNumber, FundamentalModes })
 }
 
-function composeTuple (composition, tuple) {
+exports.getComposeFundamentalModes = (req, res) => {
+  const tupleId = req.params.tupleId
+  const compositionId = req.params.compositionId
+  Tuple.findById(tupleId).exec((err, tuple) => {
+    if (err) {
+      console.log(err)
+      return res.render('layout', {view : 'error'}).status(404)
+    }
+    if (!tuple) {
+      // console.log('missing tuple')
+      return res.render('layout', {view : 'error'}).status(404)
+    }
+    
+    // console.log('using tuple', tuple)
+    Composition.findById(compositionId).exec((err, composition) => {
+      if (err) {
+        console.log(err)
+        return res.render('layout', {view : 'error'}).status(404)
+      }
+      if (!composition) {
+        console.log('missing composition')
+        return res.render('layout', {view : 'error'}).status(404)
+      }
+      // console.log('using composition', composition)
+      const composedMatrix = composeFundamentalModes(composition, tuple)
+      console.log('composedMatrix', composedMatrix)
+      return res.render('layout', { view: 'graph', title: 'A Composition', graph: composedMatrix, width: 400 })
+    })
+  })
+}
+
+function composeFundamentalModes (compositionObject, tupleObject) {
+  const composition = compositionObject.numericMatrix
+  const tuple = tupleObject.numberArray
+  // console.log('composition', composition)
+  // console.log('tuple', tuple)
   const composed = []
   for (let i = 0; i < composition.length; i++) {
     const row = []
     for (let j = 0; j < composition[i].length; j++) {
       if (composition[i][j] === false) {
-        row.push(FundamentalModes[0])
+        row.push(FundamentalModes4x4[0])
         // console.log('composed mode 0', FundamentalModes[0])
       } else {
-        const indexOfTriple = composition[i][j]
-        const modeNumber = tuple[indexOfTriple]
-        // console.log('composed mode ' + modeNumber, FundamentalModes[modeNumber])
-        row.push(FundamentalModes[modeNumber])
+        const indexOfTuple = composition[i][j]
+        const modeNumber = tuple[indexOfTuple]
+        // console.log('composed mode ' + modeNumber, FundamentalModes4x4[modeNumber].booleanMatrix)
+        row.push(FundamentalModes4x4[modeNumber].booleanMatrix)
       }
     }
     composed.push(row)
   }
-  return flattenNestedMatrix(composed)
+  const booleanMatrix = flattenNestedMatrix(composed)
+  const newGraph = new Graph({
+    name: '[' + tuple.toString() + '] via ' + compositionObject.name,
+    phylogeny: {
+      composition: compositionObject._id,
+      tuple: tuple.map(value => FundamentalModes4x4[value]._id) // graph ids for later
+    },
+    booleanMatrix
+  })
+  // console.log('newGraph', newGraph)
+  return newGraph
 }
 
 function flattenNestedMatrix (composed) {
@@ -103,8 +150,61 @@ function flattenNestedMatrix (composed) {
   return flattened
 }
 
+/* initialization functions */
+
+function find4x4Compositions () {
+  Composition.find({ size: 4 }).sort({ base10Representation: 1 }).exec((err, compositions) => {
+    if (err) {
+      console.log(err)
+      return
+    }
+    // console.log(compositions)
+    Compositions4x4 = compositions
+  })
+}
+
+function find4x4FundamentalModes () {
+  Graph.find({ size: 4 }).sort({ base10Representation: 1 }).exec((err, fundamentalModes) => {
+    if (err) {
+      console.log(err)
+      return
+    }
+    FundamentalModes4x4 = fundamentalModes
+  })
+}
+
+function find4Tuples () {
+  Tuple.find({ size: 4}).exec((err, tuples) => {
+    if (err) {
+      console.log(err)
+      return
+    }
+    Tuples4x4 = tuples
+    // console.log(tuples)
+  })
+}
+
 /* Archive of functions used to develop this list */
 /* eslint-disable */
+function import16x16Graphs() {
+  let compositionNumber = 1
+  let tupleNumber = 0
+  import16x16Graph(tupleNumber, compositionNumber)
+  function import16x16Graph (tupleNumber, compositionNumber) {
+    console.log('composting tuple number ' + tupleNumber + ' with compositionNumber ' + compositionNumber)
+    const tuple = Tuples4x4[tupleNumber]
+    const composition = Compositions4x4[compositionNumber]
+    const composedGraph = composeFundamentalModes(composition, tuple)
+    // console.log('composedMatrix', composedMatrix)
+    composedGraph.save((err, after) => {
+      if (err) console.log(err)
+      console.log('afterSave', after)
+      tupleNumber++
+      import16x16Graph(tupleNumber, compositionNumber)
+    })
+  }
+}
+
 function importAllFundamentalModes () {
   // console.log('Graph Controller connected')
   for (let i = 0; i < FundamentalModes.length; i++) {
@@ -121,6 +221,7 @@ function importAllFundamentalModes () {
 }
 
 function importFirstFourCompositions () {
+  const Compositions = require('./compositions')
   for (let i = 0; i < Compositions.length; i ++) {
     // let i = 3
     const composition = new Composition({
@@ -162,26 +263,4 @@ function importAllFourTuples () {
       nextFourTuple()
     })
   }
-}
-
-function find4x4Compositions () {
-  Composition.find({ size: 4 }).sort({ base10Representation: 1 }).exec((err, compositions) => {
-    if (err) {
-      console.log(err)
-      return
-    }
-    // console.log(compositions)
-    Compositions4x4 = compositions
-  })
-}
-
-function find4x4FundamentalModes () {
-  Graph.find({ size: 4 }).sort({ base10Representation: 1 }).exec((err, fundamentalModes) => {
-    if (err) {
-      console.log(err)
-      return
-    }
-    // console.log('fundamentalModes', fundamentalModes)
-    FundamentalModes4x4 = fundamentalModes
-  })
 }

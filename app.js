@@ -76,6 +76,7 @@ app.get('/composingModes', graphController.getComposingModes)
 app.get('/fourTuples', graphController.getFourTuples)
 app.get('/fundamentalModes', graphController.getFundamentalModes)
 app.get('/fundamentalMode/:number', graphController.getFundamentalMode)
+app.get('/composeFundamentalModes/tuple/:tupleId/composition/:compositionId', graphController.getComposeFundamentalModes)
 app.get('/fourByFourComposition/c4/:compositionNumber/:fourTupleNumber', graphController.getFourByFourComposition)
 app.get('/composition/:id', graphController.getComposition)
 app.get('*', (req, res) => { // if page is left unspecified, this will direct to 404

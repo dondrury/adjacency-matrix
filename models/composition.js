@@ -3,6 +3,7 @@ const mongoose = require('mongoose')
 const compositionSchema = new mongoose.Schema({
   name: { type: String, index: true, required: true },
   size: { type: Number, required: true },
+  stringRepresentation: { type: String, required: true, unique: true },
   rank: Number,
   numericMatrix: [[Number]],
   notes: { type: String }
@@ -35,8 +36,8 @@ compositionSchema.pre('validate', function (next) {
     next(checkValidCompositonError)
     return
   }
+  this.stringRepresentation = JSON.stringify(this.numericMatrix)
   this.rank = determineRank(this.numericMatrix)
-  this.base10Representation = findBase10Representation(this.numericMatrix)
   next()
 })
 

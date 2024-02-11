@@ -8,6 +8,7 @@ const tupleSchema = new mongoose.Schema({
   size: { type: Number, required: true, index: true },
   rank: { type: Number, required: true },
   numberArray: [Number],
+  stringRepresentation: { type: String, required: true, unique: true},
 }, {
   toObject: {
     virtuals: true
@@ -21,6 +22,7 @@ const tupleSchema = new mongoose.Schema({
 tupleSchema.pre('validate', function (next) {
   this.size = this.numberArray.length
   this.rank = findRank(this.numberArray)
+  this.stringRepresentation = JSON.stringify(this.numberArray)
   // console.log('after validating', this)
   const isNotTupleError = isNotTuple(this.numberArray)
   if (isNotTupleError) {
