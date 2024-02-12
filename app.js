@@ -74,6 +74,7 @@ const publicServeOptions = {
 app.use('/', express.static(path.join(__dirname, 'public'), publicServeOptions))
 app.get('/composingModes', graphController.getComposingModes)
 app.get('/fourTuples', graphController.getFourTuples)
+app.get('/morphs', graphController.getMorphs)
 app.get('/fundamentalModes', graphController.getFundamentalModes)
 app.get('/fundamentalMode/:number', graphController.getFundamentalMode)
 app.get('/composeFundamentalModes/tuple/:tupleId/composition/:compositionId', graphController.getComposeFundamentalModes)

@@ -13,6 +13,7 @@ const graphSchema = new mongoose.Schema({
   base10Representation: { type: Number, required: true },
   characteristicPolynomial: Object,
   characteristicPolynomialString: { type: String, required: true, index: true },
+  morphIdentified: { type: mongoose.Schema.Types.ObjectId, ref: 'Graph'},
   characteristicPolynomialHtml: String,
   approximateEigenvalues: [Number],
   phylogeny: {

@@ -2,16 +2,22 @@ const FourTuples = require('./fourTuples')
 const Composition = require('../models/composition')
 const Graph = require('../models/graph')
 const Tuple = require('../models/tuple')
+const Morph = require('../models/morph')
 var Compositions4x4 = []
 var FundamentalModes4x4 = []
 var Tuples4x4 = []
-
+var Morphs = []
 
 exports.afterConnectionTasks = function () {
   find4x4Compositions()
   find4x4FundamentalModes()
   find4Tuples()
-  setTimeout(import16x16Graphs, 1000)
+  findAllMorphs()
+  // updateExampleCount()
+  // setInterval(updateExampleCount, 1000)
+  // classifyNextGraph()
+  // setInterval(classifyNextGraph, 500)
+  // setTimeout(import16x16Graphs, 1000)
  // anything we need to run once, like imports
 //  importAllFundamentalModes()
   // importFirstFourCompositions()
@@ -20,6 +26,10 @@ exports.afterConnectionTasks = function () {
 
 exports.home = (req, res) => {
   return res.render('layout', { title: 'What is an adjacency graph?', view: 'home', compositions: Compositions4x4, fundamentalModes: FundamentalModes4x4})
+}
+
+exports.getMorphs = (req, res) => {
+  return res.render('layout', { title: 'What Morphs Exist', view: 'morphs', morphs: Morphs })
 }
 
 exports.getComposingModes = (req, res) => {
@@ -184,9 +194,102 @@ function find4Tuples () {
   })
 }
 
+function findAllMorphs () {
+  Morph.find().populate('example').exec((err, morphs) => {
+    if (err) {
+      console.log(err)
+      return
+    }
+    // morphs = morphs.map(m => {
+    //   const ob = m.toObject()
+    //   ob.examples = ob.examples.length
+    //   return ob
+    // })
+    Morphs = morphs
+    // console.log('Morphs', Morphs)
+  })
+}
+
 /* Archive of functions used to develop this list */
 /* eslint-disable */
-function import16x16Graphs() {
+
+function updateExampleCount () {
+  Morph.findOne({ exampleCount: { $exists: false }}).exec((err, morph) => {
+    if (err) {
+      console.log(err)
+      return
+    }
+    if (!morph) {
+      console.log('all morphs updated')
+      return
+    }
+    console.log(morph.examples)
+    morph.exampleCount = morph.examples.length
+    morph.example = morph.examples[0]
+    morph.examples = []
+    morph.save((err, updatedMorph) => {
+      if (err) {
+        console.log(err)
+        return
+      }
+      console.log('morph updated', updatedMorph)
+    })
+  })
+}
+function classifyNextGraph () {
+  Graph.findOne({ morphIdentified: {$exists: false }}).exec((err, graph) => {
+    if (err) {
+      console.log(err)
+      return
+    }
+    if (!graph) {
+      console.log('end of graphs, all classified')
+      process.exit()
+    }
+    console.log('found graph with polynomial ' + graph.characteristicPolynomialString)
+    Morph.findOne({ characteristicPolynomialString: graph.characteristicPolynomialString }).exec((err, existingMorph) => {
+      if (err) {
+        console.log(err)
+        return
+      }
+      if (!existingMorph) {
+        const newMorph = new Morph({
+          name: '',
+          size: graph.size,
+          characteristicPolynomial: graph.characteristicPolynomial,
+          characteristicPolynomialString: graph.characteristicPolynomialString,
+          characteristicPolynomialHtml: graph.characteristicPolynomialHtml,
+          approximateEigenvalues: graph.approximateEigenvalues,
+          examples: [graph._id],
+          notes: ''
+        })
+        newMorph.save((err, savedNewMorph) => {
+          if (err) {
+            console.log(err)
+            return
+          }
+          console.log('new morph', savedNewMorph)
+          graph.morphIdentified = savedNewMorph._id
+          graph.save((err) => console.log)
+        })
+      } else {
+        existingMorph.examples.push(graph._id)
+        existingMorph.save((err, updatedMorph) => {
+          if (err) {
+            console.log(err)
+            return
+          }
+          console.log('updated morph', updatedMorph)
+          graph.morphIdentified = updatedMorph._id
+          graph.save((err) => console.log)
+        })
+      }
+    })
+    
+  })
+}
+
+function import16x16Graphs () {
   let compositionNumber = 3
   let tupleNumber = 0
   import16x16Graph(tupleNumber, compositionNumber)

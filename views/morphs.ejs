@@ -1,0 +1,13 @@
+<h1>All Known Morphs at 4x4 and 16x16 sizes</h1>
+<p>"Morphs" are what we call the shape of the graph, and it turns out that even though there are many thousands of graphs, when their characteristic polynomial is found, many are shared. In fact, some morphs have thousands of different graphs that produce the same morph, but each of those matrices shares the same characteristic polynomial</p>
+<p>Here are all currently identified morphs, and how many there are, with an example of each one:</p>
+
+<% morphs.forEach(m => { %>
+  <div>
+    <h3>There are <%= m.exampleCount %> <%= m.name %></h3>
+    <p><%- m.characteristicPolynomialHtml %></p>
+    <%- include('graph', { graph: m.example, 
+      width: 400
+    }) %>
+  </div>
+<% }) %>
