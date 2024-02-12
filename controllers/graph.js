@@ -187,7 +187,7 @@ function find4Tuples () {
 /* Archive of functions used to develop this list */
 /* eslint-disable */
 function import16x16Graphs() {
-  let compositionNumber = 1
+  let compositionNumber = 3
   let tupleNumber = 0
   import16x16Graph(tupleNumber, compositionNumber)
   function import16x16Graph (tupleNumber, compositionNumber) {
@@ -207,6 +207,7 @@ function import16x16Graphs() {
 
 function importAllFundamentalModes () {
   // console.log('Graph Controller connected')
+  const FundamentalModes = require('./fundamentalModes')
   for (let i = 0; i < FundamentalModes.length; i++) {
     const graph = new Graph({
       name: 'Fundamental Mode ' + i,

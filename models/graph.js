@@ -9,8 +9,8 @@ const graphSchema = new mongoose.Schema({
   size: { type: Number, required: true, index: true },
   rank: { type: Number, required: true },
   booleanMatrix: [[Boolean]],
-  binaryRepresentation: { type: String, required: true, index: true },
-  base10Representation: { type: Number, required: true, index: true, unique: true},
+  binaryRepresentation: { type: String, required: true, unique: true },
+  base10Representation: { type: Number, required: true },
   characteristicPolynomial: Object,
   characteristicPolynomialString: { type: String, required: true, index: true },
   characteristicPolynomialHtml: String,
@@ -43,7 +43,7 @@ graphSchema.pre('validate', function (next) {
   this.rank = determineRank(this.booleanMatrix)
   this.binaryRepresentation = findBinaryRepresentation(this.booleanMatrix)
   this.base10Representation = parseInt(this.binaryRepresentation, 2)
-  console.log('base10representation', this.base10Representation)
+  // console.log('base10representation', this.base10Representation)
   this.approximateEigenvalues = findEigenValues(this.booleanMatrix)
   const characteristicPolynomial = findCharacteristicEquation(this.booleanMatrix)
   this.characteristicPolynomial = characteristicPolynomial
