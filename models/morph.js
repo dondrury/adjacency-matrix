@@ -8,8 +8,8 @@ const morphSchema = new mongoose.Schema({
   characteristicPolynomialHtml: String,
   approximateEigenvalues: [Number],
   image: String,
-  exampleCount: Number,
-  example: { type: mongoose.Schema.Types.ObjectId, ref: 'Graph'},
+  exampleCount: { type: Number, default: 1 },
+  bestExample: { type: mongoose.Schema.Types.ObjectId, ref: 'Graph'},
   notes: { type: String }
 }, {
   toObject: {

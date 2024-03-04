@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 const Polynomial = require('polynomial')
 const eigs = require('mathjs').eigs
+const Morph = require('./morph')
 // import { eigs } from 'mathjs'
 // graph is given only name and booleanArray when init, all other values are calculated internally
 
@@ -11,11 +12,8 @@ const graphSchema = new mongoose.Schema({
   booleanMatrix: [[Boolean]],
   binaryRepresentation: { type: String, required: true, unique: true },
   base10Representation: { type: Number, required: true },
-  characteristicPolynomial: Object,
-  characteristicPolynomialString: { type: String, required: true, index: true },
-  morphIdentified: { type: mongoose.Schema.Types.ObjectId, ref: 'Graph'},
-  characteristicPolynomialHtml: String,
-  approximateEigenvalues: [Number],
+  morphIdentified: { type: mongoose.Schema.Types.ObjectId, ref: 'Morph'},
+  pseudoSkewSymmetryScore: Number,
   phylogeny: {
     composition: { type: mongoose.Schema.Types.ObjectId, ref: 'Composition'},
     tuple: [
@@ -40,18 +38,64 @@ graphSchema.pre('validate', function (next) {
     next(nonSquareError)
     return
   }
+  const isSymmetricError = isSymmetric(this.booleanMatrix)
+  if (!isSymmetricError) {
+    next(isSymmetricError)
+  }
   this.size = this.booleanMatrix.length
   this.rank = determineRank(this.booleanMatrix)
   this.binaryRepresentation = findBinaryRepresentation(this.booleanMatrix)
   this.base10Representation = parseInt(this.binaryRepresentation, 2)
-  // console.log('base10representation', this.base10Representation)
-  this.approximateEigenvalues = findEigenValues(this.booleanMatrix)
-  const characteristicPolynomial = findCharacteristicEquation(this.booleanMatrix)
-  this.characteristicPolynomial = characteristicPolynomial
-  this.characteristicPolynomialString = characteristicPolynomial.toString()
-  this.characteristicPolynomialHtml = prettyPrintPolynomial(characteristicPolynomial)
-  // console.log(this)
+  this.pseudoSkewSymmetryScore = pseudoSkewSymmetryScore(this.booleanMatrix)
   next()
+})
+
+graphSchema.method('classify', function (cb) {
+  console.log('classifying graph %s', this.id)
+  const characteristicPolynomial = findCharacteristicEquation(this.booleanMatrix)
+  const characteristicPolynomialString = characteristicPolynomial.toString()
+  Morph.findOne({ characteristicPolynomialString }).populate('bestExample').exec((err, existingMorph) => {
+    if (err) {
+      console.log(err)
+      return
+    }
+    if (!existingMorph) {
+      const newMorph = new Morph({
+        name: '',
+        size: this.size,
+        characteristicPolynomial: characteristicPolynomial,
+        characteristicPolynomialString: characteristicPolynomialString,
+        characteristicPolynomialHtml: prettyPrintPolynomial(characteristicPolynomial),
+        approximateEigenvalues: findEigenValues(this.booleanMatrix),
+        bestExample: this._id,
+        notes: ''
+      })
+      newMorph.save((err, savedNewMorph) => {
+        if (err) {
+          console.log(err)
+          return
+        }
+        console.log('new morph', savedNewMorph)
+        this.morphIdentified = savedNewMorph._id
+        this.save(cb)
+      })
+    } else {
+      // need to improve 'best example' here
+      if (this.pseudoSkewSymmetryScore < existingMorph.bestExample.pseudoSkewSymmetryScore) {
+        existingMorph.bestExample = this._id
+      }
+      existingMorph.exampleCount++
+      existingMorph.save((err, updatedMorph) => {
+        if (err) {
+          console.log(err)
+          return
+        }
+        console.log('updated morph', updatedMorph)
+        this.morphIdentified = updatedMorph._id
+        this.save(cb)
+      })
+    }
+  })
 })
 
 function findBinaryRepresentation (booleanMatrix) {
@@ -193,26 +237,29 @@ function nonSquare (booleanMatrix) {
   }
 }
 
-// storySchema.methods.isLive = function () {
-//   if ((this.goLive.getTime() < Date.now()) && (Date.now() < this.expire.getTime())) {
-//     return true
-//   }
-//   return false
-// }
+function isSymmetric (booleanMatrix) {
+  const A = booleanMatrix
+  const n = booleanMatrix.length
+  for (let i = 0; i < n; i++) {
+    for (let j = i; j < n; j++) {
+      if (A[i][j] !== A[j][i])
+        return new Error('matrix is not symmetric')
+    }
+  }
+  return true
+}
 
-// storySchema.virtual('hasSchedule').get(function () {
-//   if (!this.goLive || !this.expire) return false
-//   if (this.goLive.getTime() === this.expire.getTime()) return false
-//   return true
-// })
-
-// function makeHtmlDateString (d) {
-//   let month = d.getMonth() + 1
-//   if (month < 10) { month = '0' + month }
-//   let day = d.getDate()
-//   if (day < 10) { day = '0' + day }
-//   return `${d.getFullYear()}-${month}-${day}`
-// }
+function pseudoSkewSymmetryScore (booleanMatrix) {
+  const A = booleanMatrix
+  const n = booleanMatrix.length
+  let score = 0
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n - i; j++) {
+     score += Math.abs(A[i][j] - A[n - j - 1][n - i - 1])
+    }
+  }
+  return score
+}
 
 const Graph = mongoose.model('Graph', graphSchema)
 

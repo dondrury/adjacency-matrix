@@ -32,6 +32,7 @@
             } %>
     </svg>
     <div><b>Graph #<%= graph.base10Representation %></b></div>
+    <div><b>Graph pseudoSkewSymmetry Score = <%= graph.pseudoSkewSymmetryScore %></b></div>
     <div><b><%- graph.characteristicPolynomialHtml %></b></div>
     <div class="cytoscape-visualization" style="height: <%= overallWidth %>px; width:<%= overallWidth %>px;display:none;border:1px solid black;"></div>
     <button>Render As Wireframe</button>

@@ -4,9 +4,9 @@
 
 <% morphs.forEach(m => { %>
   <div>
-    <h3>There are <%= m.exampleCount %> <%= m.name %></h3>
+    <h3> <%= m.name %></h3>
     <p><%- m.characteristicPolynomialHtml %></p>
-    <%- include('graph', { graph: m.example, 
+    <%- include('graph', { graph: m.bestExample, 
       width: 400
     }) %>
   </div>

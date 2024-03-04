@@ -13,13 +13,20 @@ exports.afterConnectionTasks = function () {
   find4x4FundamentalModes()
   find4Tuples()
   findAllMorphs()
+
+  setTimeout(function () {
+  //  import16x16Graphs(3)
+   
+    classifyNextUnclassifiedGraph()
+    // importAllFundamentalModes()
+  }, 1000)
+  
+  
   // updateExampleCount()
-  // setInterval(updateExampleCount, 1000)
-  // classifyNextGraph()
   // setInterval(classifyNextGraph, 500)
-  // setTimeout(import16x16Graphs, 1000)
+  
  // anything we need to run once, like imports
-//  importAllFundamentalModes()
+
   // importFirstFourCompositions()
   // importAllFourTuples()
 }
@@ -162,12 +169,30 @@ function flattenNestedMatrix (composed) {
 
 /* initialization functions */
 
+function classifyNextUnclassifiedGraph () {
+  Graph.findOne({ morphIdentified: {$exists: false } }).exec((err, unclassifiedGraph) => {
+    if (err) {
+      console.log(err)
+      return
+    }
+    if (!unclassifiedGraph) {
+      console.log('all graphs classified, stopping search')
+      return
+    }
+    unclassifiedGraph.classify(() => {
+      console.log('classified')
+      classifyNextUnclassifiedGraph()
+    })
+  })
+}
+
 function find4x4Compositions () {
   Composition.find({ size: 4 }).sort({ base10Representation: 1 }).exec((err, compositions) => {
     if (err) {
       console.log(err)
       return
     }
+    console.log('initilizing with %s compositions', compositions.length)
     // console.log(compositions)
     Compositions4x4 = compositions
   })
@@ -179,6 +204,7 @@ function find4x4FundamentalModes () {
       console.log(err)
       return
     }
+    console.log('initilizing with %s fundamental modes', fundamentalModes.length)
     FundamentalModes4x4 = fundamentalModes
   })
 }
@@ -189,22 +215,19 @@ function find4Tuples () {
       console.log(err)
       return
     }
+    console.log('initilizing with %s tuples', tuples.length)
     Tuples4x4 = tuples
     // console.log(tuples)
   })
 }
 
 function findAllMorphs () {
-  Morph.find().populate('example').exec((err, morphs) => {
+  Morph.find().populate('bestExample').exec((err, morphs) => {
     if (err) {
       console.log(err)
       return
     }
-    // morphs = morphs.map(m => {
-    //   const ob = m.toObject()
-    //   ob.examples = ob.examples.length
-    //   return ob
-    // })
+    console.log('initilizing with %s morphs', morphs.length)
     Morphs = morphs
     // console.log('Morphs', Morphs)
   })
@@ -213,95 +236,33 @@ function findAllMorphs () {
 /* Archive of functions used to develop this list */
 /* eslint-disable */
 
-function updateExampleCount () {
-  Morph.findOne({ exampleCount: { $exists: false }}).exec((err, morph) => {
-    if (err) {
-      console.log(err)
-      return
-    }
-    if (!morph) {
-      console.log('all morphs updated')
-      return
-    }
-    console.log(morph.examples)
-    morph.exampleCount = morph.examples.length
-    morph.example = morph.examples[0]
-    morph.examples = []
-    morph.save((err, updatedMorph) => {
-      if (err) {
-        console.log(err)
-        return
-      }
-      console.log('morph updated', updatedMorph)
-    })
-  })
-}
-function classifyNextGraph () {
-  Graph.findOne({ morphIdentified: {$exists: false }}).exec((err, graph) => {
-    if (err) {
-      console.log(err)
-      return
-    }
-    if (!graph) {
-      console.log('end of graphs, all classified')
-      process.exit()
-    }
-    console.log('found graph with polynomial ' + graph.characteristicPolynomialString)
-    Morph.findOne({ characteristicPolynomialString: graph.characteristicPolynomialString }).exec((err, existingMorph) => {
-      if (err) {
-        console.log(err)
-        return
-      }
-      if (!existingMorph) {
-        const newMorph = new Morph({
-          name: '',
-          size: graph.size,
-          characteristicPolynomial: graph.characteristicPolynomial,
-          characteristicPolynomialString: graph.characteristicPolynomialString,
-          characteristicPolynomialHtml: graph.characteristicPolynomialHtml,
-          approximateEigenvalues: graph.approximateEigenvalues,
-          examples: [graph._id],
-          notes: ''
-        })
-        newMorph.save((err, savedNewMorph) => {
-          if (err) {
-            console.log(err)
-            return
-          }
-          console.log('new morph', savedNewMorph)
-          graph.morphIdentified = savedNewMorph._id
-          graph.save((err) => console.log)
-        })
-      } else {
-        existingMorph.examples.push(graph._id)
-        existingMorph.save((err, updatedMorph) => {
-          if (err) {
-            console.log(err)
-            return
-          }
-          console.log('updated morph', updatedMorph)
-          graph.morphIdentified = updatedMorph._id
-          graph.save((err) => console.log)
-        })
-      }
-    })
-    
-  })
-}
-
-function import16x16Graphs () {
-  let compositionNumber = 3
+function import16x16Graphs (compositionNumber) {
+  let collisions = 0
   let tupleNumber = 0
   import16x16Graph(tupleNumber, compositionNumber)
   function import16x16Graph (tupleNumber, compositionNumber) {
     console.log('composting tuple number ' + tupleNumber + ' with compositionNumber ' + compositionNumber)
+    console.log('%s tuples present to choose from', Tuples4x4.length)
     const tuple = Tuples4x4[tupleNumber]
     const composition = Compositions4x4[compositionNumber]
+    if (!tuple) {
+      console.log('tuple ' + tupleNumber + ' does not exist, exiting')
+      return
+    }
     const composedGraph = composeFundamentalModes(composition, tuple)
     // console.log('composedMatrix', composedMatrix)
     composedGraph.save((err, after) => {
-      if (err) console.log(err)
-      console.log('afterSave', after)
+      if (err) {
+        console.log(err)
+        console.log('regarding tuple ', tuple)
+        console.log('and composition ', composition)
+        collisions++
+        console.log('this is the %sth collision', collisions)
+      }
+      if (after) {
+        console.log('afterSave', after.name)
+      }
+      
       tupleNumber++
       import16x16Graph(tupleNumber, compositionNumber)
     })
