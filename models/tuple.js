@@ -1,13 +1,14 @@
 const mongoose = require('mongoose')
 
 const requiredIntegerSum = {
+  2: 63,
   4: 63
 }
 
 const tupleSchema = new mongoose.Schema({
   size: { type: Number, required: true, index: true },
   rank: { type: Number, required: true },
-  numberArray: [Number],
+  numberArray: { type: [Number], required: true },
   stringRepresentation: { type: String, required: true, unique: true},
 }, {
   toObject: {

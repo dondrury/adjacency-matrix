@@ -1,11 +1,22 @@
 const mongoose = require('mongoose')
+const Graph = require('./graph')
+var FundamentalModes4x4 = [] 
+Graph.find({ size: 4 }).sort({ base10Representation: 1 }).exec((err, fundamentalModes) => {
+  if (err) {
+    console.log(err)
+    return
+  }
+  console.log('composition engine initializing with %s fundamental modes', fundamentalModes.length)
+  FundamentalModes4x4 = fundamentalModes
+})
+
 
 const compositionSchema = new mongoose.Schema({
   name: { type: String, index: true, required: true },
   size: { type: Number, required: true },
   stringRepresentation: { type: String, required: true, unique: true },
   rank: Number,
-  numericMatrix: [[Number]],
+  numericMatrix: { type: [[Number]], required: true },
   notes: { type: String }
 }, {
   toObject: {
@@ -40,6 +51,64 @@ compositionSchema.pre('validate', function (next) {
   this.rank = determineRank(this.numericMatrix)
   next()
 })
+
+compositionSchema.method('compose', function (tuple) {
+  // console.log('from method' , tuple)
+  // console.log(this)
+  const composedGraph = composeFundamentalModes(this, tuple)
+  // console.log(composedGraph)
+  return composedGraph
+})
+
+function composeFundamentalModes (compositionObject, tupleObject) {
+  const composition = compositionObject.numericMatrix
+  const tuple = tupleObject.numberArray
+  // console.log('composition', composition)
+  // console.log('tuple', tuple)
+  const composed = []
+  for (let i = 0; i < composition.length; i++) {
+    const row = []
+    for (let j = 0; j < composition[i].length; j++) {
+      if (composition[i][j] === false) {
+        row.push(FundamentalModes4x4[0])
+        // console.log('composed mode 0', FundamentalModes[0])
+      } else {
+        const indexOfTuple = composition[i][j]
+        const modeNumber = tuple[indexOfTuple]
+        // console.log('composed mode ' + modeNumber, FundamentalModes4x4[modeNumber].booleanMatrix)
+        row.push(FundamentalModes4x4[modeNumber].booleanMatrix)
+      }
+    }
+    composed.push(row)
+  }
+  const booleanMatrix = flattenNestedMatrix(composed)
+  const newGraph = new Graph({
+    name: '[' + tuple.toString() + '] via ' + compositionObject.name,
+    phylogeny: {
+      composition: compositionObject._id,
+      tuple: tuple.map(value => FundamentalModes4x4[value]._id) // graph ids for later
+    },
+    booleanMatrix
+  })
+  // console.log('newGraph', newGraph)
+  return newGraph
+}
+
+function flattenNestedMatrix (composed) {
+  const flattened = []
+  for (let i = 0; i < composed.length; i++) { // row of composed
+    for (let m = 0; m < 4; m++) { // m is choice of row in sub-matrix
+      let flattenedRow = []
+      for (let j = 0; j < composed.length; j++) { // j is column of composed matrix
+        const subRow = composed[i][j][m]
+        flattenedRow = flattenedRow.concat(subRow)
+      }
+      flattened.push(flattenedRow)
+    }
+  }
+  // console.log('flattened', flattened)
+  return flattened
+}
 
 function checkFirstRow (numericMatrix) {
   const firstRow = numericMatrix[0]
