@@ -1,4 +1,4 @@
-const FourTuples = require('./fourTuples')
+
 const Composition = require('../models/composition')
 const Graph = require('../models/graph')
 const Tuple = require('../models/tuple')
@@ -79,98 +79,6 @@ exports.getFundamentalMode = (req, res) => {
     return res.render('layout', { view: 'fundamentalMode', title: 'Fundamental Mode ' + number, fundamentalMode })
   })
 }
-
-// exports.getFourByFourComposition = (req, res) => {
-//   const compositionNumber = req.params.compositionNumber
-//   const fourTupleNumber = req.params.fourTupleNumber
-//   console.log(`Composed C4,${compositionNumber}(${fourTupleNumber})`)
-//   const Composition = Compositions[compositionNumber]
-//   const Tuple = FourTuples[fourTupleNumber]
-//   const composedMatrix = composeTuple(Composition, Tuple)
-//   // console.log('composedMatrix', composedMatrix)
-//   return res.render('layout', { view: 'fourByFourComposition', title: 'Fundamental Modes', composedMatrix, Composition, Tuple, compositionNumber, fourTupleNumber, FundamentalModes })
-// }
-
-// exports.getComposeFundamentalModes = (req, res) => {
-//   const tupleId = req.params.tupleId
-//   const compositionId = req.params.compositionId
-//   Tuple.findById(tupleId).exec((err, tuple) => {
-//     if (err) {
-//       console.log(err)
-//       return res.render('layout', {view : 'error'}).status(404)
-//     }
-//     if (!tuple) {
-//       // console.log('missing tuple')
-//       return res.render('layout', {view : 'error'}).status(404)
-//     }
-    
-//     // console.log('using tuple', tuple)
-//     Composition.findById(compositionId).exec((err, composition) => {
-//       if (err) {
-//         console.log(err)
-//         return res.render('layout', {view : 'error'}).status(404)
-//       }
-//       if (!composition) {
-//         console.log('missing composition')
-//         return res.render('layout', {view : 'error'}).status(404)
-//       }
-//       // console.log('using composition', composition)
-//       const composedMatrix = composeFundamentalModes(composition, tuple)
-//       console.log('composedMatrix', composedMatrix)
-//       return res.render('layout', { view: 'graph', title: 'A Composition', graph: composedMatrix, width: 400 })
-//     })
-//   })
-// }
-
-// function composeFundamentalModes (compositionObject, tupleObject) {
-//   const composition = compositionObject.numericMatrix
-//   const tuple = tupleObject.numberArray
-//   // console.log('composition', composition)
-//   // console.log('tuple', tuple)
-//   const composed = []
-//   for (let i = 0; i < composition.length; i++) {
-//     const row = []
-//     for (let j = 0; j < composition[i].length; j++) {
-//       if (composition[i][j] === false) {
-//         row.push(FundamentalModes4x4[0])
-//         // console.log('composed mode 0', FundamentalModes[0])
-//       } else {
-//         const indexOfTuple = composition[i][j]
-//         const modeNumber = tuple[indexOfTuple]
-//         // console.log('composed mode ' + modeNumber, FundamentalModes4x4[modeNumber].booleanMatrix)
-//         row.push(FundamentalModes4x4[modeNumber].booleanMatrix)
-//       }
-//     }
-//     composed.push(row)
-//   }
-//   const booleanMatrix = flattenNestedMatrix(composed)
-//   const newGraph = new Graph({
-//     name: '[' + tuple.toString() + '] via ' + compositionObject.name,
-//     phylogeny: {
-//       composition: compositionObject._id,
-//       tuple: tuple.map(value => FundamentalModes4x4[value]._id) // graph ids for later
-//     },
-//     booleanMatrix
-//   })
-//   // console.log('newGraph', newGraph)
-//   return newGraph
-// }
-
-// function flattenNestedMatrix (composed) {
-//   const flattened = []
-//   for (let i = 0; i < composed.length; i++) { // row of composed
-//     for (let m = 0; m < 4; m++) { // m is choice of row in sub-matrix
-//       let flattenedRow = []
-//       for (let j = 0; j < composed.length; j++) { // j is column of composed matrix
-//         const subRow = composed[i][j][m]
-//         flattenedRow = flattenedRow.concat(subRow)
-//       }
-//       flattened.push(flattenedRow)
-//     }
-//   }
-//   // console.log('flattened', flattened)
-//   return flattened
-// }
 
 /* initialization functions */
 
@@ -266,7 +174,7 @@ function import16x16Graphs (compositionNumber) {
       console.log('tuple ' + tupleNumber + ' does not exist, exiting')
       return
     }
-    const composedGraph = composeFundamentalModes(composition, tuple)
+    const composedGraph = composition.compose(tuple)
     // console.log('composedMatrix', composedMatrix)
     composedGraph.save((err, after) => {
       if (err) {
@@ -322,6 +230,7 @@ function importFirstFourCompositions () {
 }
 
 function importAllFourTuples () {
+  const FourTuples = require('./fourTuples')
   let i = 0
   nextFourTuple()
   function nextFourTuple() {
