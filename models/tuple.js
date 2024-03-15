@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 
 const requiredIntegerSum = {
   2: 63,
+  3: 63,
   4: 63
 }
 

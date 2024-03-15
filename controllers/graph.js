@@ -8,22 +8,27 @@ var Compositions4x4 = []
 var FundamentalModes4x4 = []
 var Tuples4x4 = []
 var Tuples2x2 = []
+var Tuples3x3 = []
 var Morphs = []
 
 exports.afterConnectionTasks = function () {
   find4x4Compositions()
   find4x4FundamentalModes()
   find2Tuples()
+  find3Tuples()
   find4Tuples()
   findAllMorphs()
 
   setTimeout(function () {
+    // importAllThreeTuples()
+    // create3x3Compositions()
     // import16x16Graphs(3)
     classifyNextUnclassifiedGraph()
     // importAllFundamentalModes()
     // create2x2Compositions()
     // importAllTwoTuples()
     // compose8x8Graphs()
+    // compose12x12Graphs()
   }, 1000)
   
   
@@ -142,6 +147,18 @@ function find2Tuples () {
     }
     console.log('initilizing with %s two tuples', tuples.length)
     Tuples2x2 = tuples
+    // console.log(tuples)
+  })
+}
+
+function find3Tuples () {
+  Tuple.find({ size: 3}).exec((err, tuples) => {
+    if (err) {
+      console.log(err)
+      return
+    }
+    console.log('initilizing with %s three tuples', tuples.length)
+    Tuples3x3 = tuples
     // console.log(tuples)
   })
 }
@@ -283,6 +300,33 @@ function importAllTwoTuples () {
   }
 }
 
+function importAllThreeTuples () {
+  const threeTuples = require('./threeTuples')
+  let i = 0
+  nextTuple()
+  function nextTuple() {
+    if (i > threeTuples.length - 1) return
+    console.log('attemting the ' + i + 'th three tuple')
+    const ThreeTuple = threeTuples[i]
+    console.log('threeTuple before', ThreeTuple)
+    const tuple = new Tuple({
+      numberArray: ThreeTuple
+    })
+    // tuple.numberArray = [20,10,12,21]
+    tuple.save((err, tupleAfter) => {
+      if (err) {
+        console.log(err)
+        i++
+        nextTuple()
+        return
+      }
+      console.log('tuple after', tupleAfter)
+      i++
+      nextTuple()
+    })
+  }
+}
+
 function create2x2Compositions () {
   console.log('create 2x2 compositions, only one though')
   const comp = new Composition({
@@ -291,6 +335,26 @@ function create2x2Compositions () {
       [1, 0]
     ],
     name: '2x2 Compositon'
+  })
+  comp.save((err, composition) => {
+    if (err) {
+      console.log(err)
+    }
+    if (composition) {
+      console.log('composition', composition)
+    }
+  })
+}
+
+function create3x3Compositions () {
+  console.log('create 3x3 compositions, only one though')
+  const comp = new Composition({
+    numericMatrix: [
+      [0, 1, 2],
+      [1, 2, 0],
+      [2, 0, 1]
+    ],
+    name: '3x3 Compositon'
   })
   comp.save((err, composition) => {
     if (err) {
@@ -322,10 +386,30 @@ function compose8x8Graphs () {
       createGraph()
     })
   }
+}
 
+function compose12x12Graphs () {
+  let Composition3x3 = {}
+  let i = 0
 
+  function createGraph () {
+    const tuple = Tuples3x3[i]
+    const newGraph = Composition3x3.compose(tuple)
+    newGraph.save((err, graph) => {
+      if (err) {
+        console.log(err)
+        return
+      }
+      if (!graph) {
+        console.log('new graph created')
+        return
+      }
+      i++
+      createGraph()
+    })
+  }
 
-  Composition.findOne({ size: 2}).exec((err, composition) => {
+  Composition.findOne({ size: 3}).exec((err, composition) => {
     if (err) {
       console.log(err)
       return
@@ -334,7 +418,9 @@ function compose8x8Graphs () {
       console.log('no 2x2 composition found')
       return
     }
-    TwoByTwoComposition = composition
-    createGraph()
+    // console.log('3 composition found,', composition)
+    Composition3x3 = composition
+
+    // createGraph()
   })
 }

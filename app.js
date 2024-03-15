@@ -16,8 +16,11 @@ var connected = false
 
 connect()
 function connect () {
+  console.log('Attempting connection to MongoDB')
   mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true }, function (err, db) {
-    if (err) throw err
+    if (err) {
+      console.log(err)
+    }
   })
 }
 mongoose.connection.on('connected', init)
