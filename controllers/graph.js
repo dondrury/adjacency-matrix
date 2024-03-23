@@ -23,12 +23,13 @@ exports.afterConnectionTasks = function () {
     // importAllThreeTuples()
     // create3x3Compositions()
     // import16x16Graphs(3)
-    classifyNextUnclassifiedGraph()
+    // classifyNextUnclassifiedGraph()
     // importAllFundamentalModes()
     // create2x2Compositions()
     // importAllTwoTuples()
     // compose8x8Graphs()
     // compose12x12Graphs()
+    exhaustiveSearch(8)
   }, 1000)
   
   
@@ -177,6 +178,57 @@ function findAllMorphs () {
 
 /* Archive of functions used to develop this list */
 /* eslint-disable */
+
+function exhaustiveSearch (n) {
+  const binaryArrayLength = (n * (n - 1)) / 2
+  const exitNumber = Math.pow(2, binaryArrayLength)
+  const RelationsRequired = ( 3 * n ) / 2
+  let i = 71189960 // last stopped n=8 at 0110001111001001111100000000
+  createAndTestGraph()
+  function createAndTestGraph () {
+    const binaryString = i.toString(2).padStart(binaryArrayLength, '0')
+    // console.log('binaryString', binaryString)
+    let binaryArray = binaryString.split('')
+    let relationCount = 0
+    binaryArray.forEach(function (el) {
+      if (el === '1') relationCount++
+    })
+    if (relationCount === RelationsRequired) {
+      console.log('found one', binaryString)
+      let matrix = []
+      for (let j = 0; j < n; j++) {
+        let rowArray = (new Array(j + 1).fill(false))
+        for (let k = 0; j + k < n - 1; k++) {
+          rowArray.push(binaryArray.pop() === '1')
+        }
+        matrix.push(rowArray)
+      }
+      // console.log(matrix) // matrix created, upper right only
+      for (let j = 0; j < n; j++ ) {
+        for (let k = j; k < n; k++) {
+          matrix[k][j] = matrix[j][k]
+        }
+      }
+      // console.log('matrix after')
+      // console.log(matrix)
+      const newGraph = new Graph({
+        name: 'exhaustive search #' + i,
+        booleanMatrix: matrix
+      })
+      newGraph.save((err, graph) => {
+        if (err) {
+          console.log('non compliant graph')
+        }
+        if (graph) {
+          console.log(graph)
+        }
+      })
+    }
+    i++
+    if (i < exitNumber) setTimeout(createAndTestGraph, 0)
+  }
+
+}
 
 function import16x16Graphs (compositionNumber) {
   let collisions = 0

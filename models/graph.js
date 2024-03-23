@@ -44,6 +44,7 @@ graphSchema.pre('validate', function (next) {
   }
   this.size = this.booleanMatrix.length
   this.rank = determineRank(this.booleanMatrix)
+  if (this.rank !== 3) next('Not rank three')
   this.binaryRepresentation = findBinaryRepresentation(this.booleanMatrix)
   this.base10Representation = parseInt(this.binaryRepresentation, 2)
   this.pseudoSkewSymmetryScore = pseudoSkewSymmetryScore(this.booleanMatrix)
