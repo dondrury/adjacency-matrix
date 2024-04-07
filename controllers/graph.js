@@ -23,13 +23,13 @@ exports.afterConnectionTasks = function () {
     // importAllThreeTuples()
     // create3x3Compositions()
     // import16x16Graphs(3)
-    // classifyNextUnclassifiedGraph()
+    classifyNextUnclassifiedGraph()
     // importAllFundamentalModes()
     // create2x2Compositions()
     // importAllTwoTuples()
     // compose8x8Graphs()
     // compose12x12Graphs()
-    exhaustiveSearch(8)
+    // exhaustiveSearch(10, 0)
   }, 1000)
   
   
@@ -46,8 +46,20 @@ exports.home = (req, res) => {
   return res.render('layout', { title: 'What is an adjacency graph?', view: 'home', compositions: Compositions4x4, fundamentalModes: FundamentalModes4x4})
 }
 
-exports.getMorphs = (req, res) => {
+exports.getAllMorphs = (req, res) => {
   return res.render('layout', { title: 'What Morphs Exist', view: 'morphs', morphs: Morphs })
+}
+
+exports.getMorphs = (req, res) => {
+  const size = req.params.size
+  Morph.find({size}).populate('bestExample').sort('size').exec((err, morphs) => {
+    if (err) {
+      console.log(err)
+      return
+    }
+    return res.render('layout', { title: 'What Morphs Exist', view: 'morphs', morphs, size })
+  })
+  
 }
 
 exports.getComposingModes = (req, res) => {
@@ -179,11 +191,10 @@ function findAllMorphs () {
 /* Archive of functions used to develop this list */
 /* eslint-disable */
 
-function exhaustiveSearch (n) {
+function exhaustiveSearch (n, i = 0) {
   const binaryArrayLength = (n * (n - 1)) / 2
   const exitNumber = Math.pow(2, binaryArrayLength)
   const RelationsRequired = ( 3 * n ) / 2
-  let i = 71189960 // last stopped n=8 at 0110001111001001111100000000
   createAndTestGraph()
   function createAndTestGraph () {
     const binaryString = i.toString(2).padStart(binaryArrayLength, '0')
@@ -194,7 +205,7 @@ function exhaustiveSearch (n) {
       if (el === '1') relationCount++
     })
     if (relationCount === RelationsRequired) {
-      console.log('found one', binaryString)
+      console.log('found one at i=', i, 100 * i / exitNumber, 'percent finished')
       let matrix = []
       for (let j = 0; j < n; j++) {
         let rowArray = (new Array(j + 1).fill(false))
@@ -217,7 +228,7 @@ function exhaustiveSearch (n) {
       })
       newGraph.save((err, graph) => {
         if (err) {
-          console.log('non compliant graph')
+          console.log(err)
         }
         if (graph) {
           console.log(graph)

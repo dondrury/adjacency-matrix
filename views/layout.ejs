@@ -2,7 +2,6 @@
 const _title = typeof title === 'string' ? title: 'No Page Title'
 const _view = typeof view === 'string' ? view : '404'
 
-
 %>
 
 <!DOCTYPE html>
@@ -13,6 +12,7 @@ const _view = typeof view === 'string' ? view : '404'
     <title><%= _title %></title>
     <link rel="stylesheet" href="/css/bootstrap.min.css">
     <link rel="stylesheet" href="/css/main-bundle.css">
+   
   </head>
   <body>
     <%- include('nav') %>
@@ -21,5 +21,7 @@ const _view = typeof view === 'string' ? view : '404'
     </div>
 
     <script type="text/javascript" src="/js/main-bundle.js"></script>
+    <script src ="/js/jquery.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
   </body>
 </html>
