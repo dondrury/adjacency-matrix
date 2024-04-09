@@ -59,6 +59,36 @@ exports.getMorphs = (req, res) => {
     }
     return res.render('layout', { title: 'What Morphs Exist', view: 'morphs', morphs, size })
   })
+}
+
+exports.postEditMorph = (req, res) => {
+  const id = req.params.id
+  Morph.findById(id).populate('bestExample').exec((err, morph) => {
+    if (err) {
+      console.log(err)
+      return
+    }
+    morph.name = req.body.name
+    for (let i = 0; i < morph.size; i++) {
+      morph.exactEigenvalues[i] = req.body['exact-eigenvalue-' + i]
+    }
+    // console.log(morph)
+    morph.save((err, morphAfter) => {
+      return res.render('layout', { title: 'What Morphs Exist', view: 'editMorph', morph: morphAfter })
+    })
+    
+  })
+}
+
+exports.getEditMorph = (req, res) => {
+  const id = req.params.id
+  Morph.findById(id).populate('bestExample').exec((err, morph) => {
+    if (err) {
+      console.log(err)
+      return
+    }
+    return res.render('layout', { title: 'Morph ' + id, view: 'editMorph', morph })
+  })
   
 }
 

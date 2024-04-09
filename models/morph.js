@@ -7,6 +7,7 @@ const morphSchema = new mongoose.Schema({
   characteristicPolynomialString: { type: String, required: true, index: true, unique: true },
   characteristicPolynomialHtml: String,
   approximateEigenvalues: [Number],
+  exactEigenvalues: [String],
   image: String,
   exampleCount: { type: Number, default: 1 },
   bestExample: { type: mongoose.Schema.Types.ObjectId, ref: 'Graph'},

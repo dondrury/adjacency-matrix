@@ -1,0 +1,32 @@
+<h1>Morph <%= morph._id %></h1>
+<form action="/morphs/edit/<%= morph._id %>" method="POST" >
+  <div>
+    <h3>There are <%= morph.exampleCount %> of these:</h3>
+    <h3>
+      <input type="text" value="<%= morph.name %>" name="name" <%= NODE_ENV === 'local' ? 'enabled' : 'disabled' %> style="width: 41rem;"></input>
+    </h3>
+  </div>
+  <div>
+    <p><%- morph.characteristicPolynomialHtml %></p>
+    <p>Approximate Eigenvalues: <%= morph.approximateEigenvalues %></p>
+    <p>Exact Eigenvalues:</p>
+    <ol>
+      <% for (let i = 0; i < morph.size; i++) {
+        let value = ''
+        if (morph.exactEigenvalues.length > i) value = morph.exactEigenvalues[i] 
+        %>
+        <li>
+          <input type="text" value="<%= value %>" name="exact-eigenvalue-<%= i %>"  <%= NODE_ENV === 'local' ? 'enabled' : 'disabled' %>/>
+        </li>
+      <% } %>
+    </ol>
+    <div>
+      <button type="submit">Submit</button>
+    </div>
+  </form>
+    <%- include('graph', { graph: morph.bestExample, 
+      width: 400
+    }) %>
+  </div>
+
+

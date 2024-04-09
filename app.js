@@ -58,12 +58,12 @@ app.use(bodyParser.urlencoded({ // to support URL-encoded bodies
   extended: true
 }))
 
+app.use((req, res, next) => {
+  res.locals.NODE_ENV = process.env.NODE_ENV
+  next()
+})
+
 app.get('/', graphController.home)
-// app.get('/graph/byId', graphController.getGraph)
-// app.get('/graph/new', graphController.newGraph)
-// app.get('/graph/all', graphController.getAllGraphs)
-// app.post('/graph/save', graphController.saveGraph)
-// app.post('/graph/bySubstring', graphController.getGraphFromSubstring)
 
 const publicServeOptions = {
   dotfiles: 'ignore',
@@ -79,6 +79,10 @@ app.get('/composingModes', graphController.getComposingModes)
 app.get('/fourTuples', graphController.getFourTuples)
 app.get('/morphs/all', graphController.getAllMorphs)
 app.get('/morphs/:size', graphController.getMorphs)
+app.get('/morphs/edit/:id', graphController.getEditMorph)
+if (process.env.NODE_ENV === 'local') {
+  app.post('/morphs/edit/:id', graphController.postEditMorph)
+}
 app.get('/fundamentalModes', graphController.getFundamentalModes)
 app.get('/fundamentalMode/:number', graphController.getFundamentalMode)
 // app.get('/composeFundamentalModes/tuple/:tupleId/composition/:compositionId', graphController.getComposeFundamentalModes)
