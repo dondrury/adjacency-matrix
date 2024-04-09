@@ -1,0 +1,35 @@
+<%
+const aspectRatio = 1 / 5
+const eigenValues = morph.approximateEigenvalues.map(eig => Math.round(eig * 100000) / 100000)
+const eigenObject = {}
+eigenValues.forEach((eig, i) => {
+  if (!eigenObject.hasOwnProperty(eig)) {
+    eigenObject[eig] = eigenValues.filter(ev => ev === eig)
+  }
+})
+//console.log(eigenObject)
+const size = morph.size
+const _width = typeof width === 'number' ? width: 400
+const leftOffset = eigenvalue => _width / 2 + (eigenvalue * _width / size)
+%>
+<div class="spectral-graph">
+  <h3>Spectral Graph</h3>
+
+  <div class="numberline" style="width: <%= _width %>px;height: <%= _width * aspectRatio %>px">
+    <% for (const eigenValueProperty in eigenObject ) { 
+         const duplicateCount = eigenObject[eigenValueProperty].length
+         const eigenvalue = Number(eigenValueProperty)
+         // console.log(eigenvalue, duplicateCount)
+         for (let i = 0; i < duplicateCount; i++) {
+      %>
+      <div class="eigenvalue" style="left: <%= leftOffset(eigenvalue) - 5 %>px;bottom:<%= 11 * i %>px;" data-eigenvalue="<%= eigenvalue %>"></div>
+    <% }} %>
+    <% for (let i = 0; i <= size; i++) { %>
+      <div class="tick" style="left: <%= leftOffset(i - size / 2) %>px;"><%= i - size / 2%></div>
+    <% } %>
+  </div>
+  <div class="eigen-object">
+    <%- JSON.stringify(eigenObject, null, '\n') %>
+  </div>
+</div>
+

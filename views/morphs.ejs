@@ -7,8 +7,8 @@
     
     <h3>There are <%= m.exampleCount %> of these:</h3>
     <a href="/morphs/edit/<%= m._id %>"><h3> <%= m.name ? m.name: 'Unnamed' %></h3></a>
-    <p><%- m.characteristicPolynomialHtml %></p>
-    <p>Exact Eigenvalues: <%= m.exactEigenvalues %></p>
+    <h4><%- m.characteristicPolynomialHtml %></h4>
+    <%- include('spectralGraph', { morph: m }) %>
     <%- include('graph', { graph: m.bestExample, 
       width: 400
     }) %>

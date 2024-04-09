@@ -1,0 +1,30 @@
+.spectral-graph {
+  .numberline {
+    border-bottom: 1px solid black;
+    position: relative;
+    margin-bottom:20px;
+    .eigenvalue {
+      width: 10px;
+      height: 10px;
+      border-radius: 10px;
+      background-color: blue;
+      position:absolute;
+    }
+
+    .tick {
+      width: 1px;
+      height: 10px;
+      bottom: -10px;
+      position: absolute;
+      border-left:1px solid black;
+      padding-top:7px;
+    }
+  }
+
+  .eigen-object {
+
+  }
+  & {
+    margin-bottom: 40px;
+  }
+}

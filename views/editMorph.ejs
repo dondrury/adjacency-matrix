@@ -5,24 +5,14 @@
     <h3>
       <input type="text" value="<%= morph.name %>" name="name" <%= NODE_ENV === 'local' ? 'enabled' : 'disabled' %> style="width: 41rem;"></input>
     </h3>
-  </div>
-  <div>
-    <p><%- morph.characteristicPolynomialHtml %></p>
-    <p>Approximate Eigenvalues: <%= morph.approximateEigenvalues %></p>
-    <p>Exact Eigenvalues:</p>
-    <ol>
-      <% for (let i = 0; i < morph.size; i++) {
-        let value = ''
-        if (morph.exactEigenvalues.length > i) value = morph.exactEigenvalues[i] 
-        %>
-        <li>
-          <input type="text" value="<%= value %>" name="exact-eigenvalue-<%= i %>"  <%= NODE_ENV === 'local' ? 'enabled' : 'disabled' %>/>
-        </li>
-      <% } %>
-    </ol>
     <div>
       <button type="submit">Submit</button>
     </div>
+  </div>
+  <div>
+    <h4><%- morph.characteristicPolynomialHtml %></h4>
+    <%- include('spectralGraph', { morph }) %>
+    
   </form>
     <%- include('graph', { graph: morph.bestExample, 
       width: 400
