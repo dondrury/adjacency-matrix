@@ -22,7 +22,11 @@
         }) %>
         
       </form>
-      <h2>All <%= graphs.length %> Graphs that have this Morphology</h2>
+      
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <h2>All <%= graphs.length %> Graphs that have this Morphology</h2>
       <ol>
         <% graphs.forEach((graph, i) => { %>
           <li>
@@ -30,10 +34,6 @@
           </li>
         <% }) %>
       </ol>
-    </div>
-  </div>
-  <div class="col-lg-6">
-    <h2>Object Lineage</h2>
   </div>
 </div>
 

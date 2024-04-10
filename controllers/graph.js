@@ -103,17 +103,27 @@ exports.getGraph = (req, res) => {
 exports.getGraphLineage = (req, res) => {
   const id = req.params.id
   Graph.findById(id)
-  .populate('phylogeny.composition')
-  // .populate('morphIdentified')
-  .populate('phylogeny.tuple')
-  .populate('phylogeny.tuple.morphIdentified')
+    .populate('phylogeny.composition')
+    .populate('morphIdentified')
   .exec((err, graph) => {
     if (err) {
       console.log(err)
       return
     }
-    console.log(graph.phylogeny.tuple)
-    return res.render('layout', { title: 'Graph ' + graph.name, view: 'graph', graph, width: 300 })
+    const tuple = graph.phylogeny.tuple
+    // console.log(tuple)
+    Graph.find({ _id: tuple}).populate('morphIdentified').exec((err, tupleContents) => {
+      if (err) {
+        console.log(err)
+        return
+      }
+      // console.log(tupleContents)
+      graph.phylogeny.tuple = tupleContents
+      // console.log(graph.phylogeny.tuple[0])
+      return res.render('layout', { title: 'Graph ' + graph.name, view: 'graphLineage', graph })
+    })
+    
+    
   })
 }
 

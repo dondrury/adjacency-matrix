@@ -2,10 +2,12 @@
 const aspectRatio = 1 / 5
 const eigenValues = morph.approximateEigenvalues.map(eig => Math.round(eig * 100000) / 100000)
 const eigenObject = {}
+let sum = 0
 eigenValues.forEach((eig, i) => {
   if (!eigenObject.hasOwnProperty(eig)) {
     eigenObject[eig] = eigenValues.filter(ev => ev === eig)
   }
+  sum = sum + eig
 })
 //console.log(eigenObject)
 const size = morph.size
@@ -28,6 +30,7 @@ const leftOffset = eigenvalue => _width / 2 + (eigenvalue * _width / size)
       <div class="tick" style="left: <%= leftOffset(i - size / 2) %>px;"><%= i - size / 2%></div>
     <% } %>
   </div>
+  <b>Sum of Eigenvalues = <%= sum %></b>
   <div class="eigen-object">
     <%- JSON.stringify(eigenObject, null, '\n') %>
   </div>
