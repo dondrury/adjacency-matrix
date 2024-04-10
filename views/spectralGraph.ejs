@@ -15,7 +15,7 @@ const leftOffset = eigenvalue => _width / 2 + (eigenvalue * _width / size)
 <div class="spectral-graph">
   <h3>Spectral Graph</h3>
 
-  <div class="numberline" style="width: <%= _width %>px;height: <%= _width * aspectRatio %>px">
+  <div class="numberline" style="width: <%= _width %>px;height: 120px">
     <% for (const eigenValueProperty in eigenObject ) { 
          const duplicateCount = eigenObject[eigenValueProperty].length
          const eigenvalue = Number(eigenValueProperty)

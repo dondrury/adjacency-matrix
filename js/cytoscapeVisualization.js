@@ -13,8 +13,19 @@ function prepare(el, i) {
   const container = el.querySelector('div.cytoscape-visualization')
   // const svg = el.querySelector('svg')
   button.onclick = function () {
-    visualize(matrix, container)
+    const cy = visualize(matrix, container)
     container.style.display = 'block'
+    if (window.location.pathname.indexOf('/morphs/edit/') !== -1) {
+      const saveButtonEl = el.querySelector('button[name="saveImage"]')
+      saveButtonEl.style.display = 'block'
+      cy.on('render', function() {
+        const imageSrc = cy.png({ full: true, maxWidth: 300, maxHeight: 300 })
+        // console.log('imageSrc', imageSrc)
+        el.querySelector('input[name="imageSrc"]').value = imageSrc
+        console.log('wireframe rendered and image loaded into form')
+      })
+      
+    }
   }
 }
 
@@ -41,7 +52,7 @@ function visualize (matrix, container) {
   }
   // console.log('nodes', nodes)
   // console.log('connections', connections)
-  cytoscape({
+  return cytoscape({
     container: container, // container to render in
     elements: nodes.concat(connections),
     style: [ // the stylesheet for the graph

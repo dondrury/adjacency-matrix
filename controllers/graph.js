@@ -69,14 +69,51 @@ exports.postEditMorph = (req, res) => {
       return
     }
     morph.name = req.body.name
-    for (let i = 0; i < morph.size; i++) {
-      morph.exactEigenvalues[i] = req.body['exact-eigenvalue-' + i]
-    }
-    // console.log(morph)
     morph.save((err, morphAfter) => {
-      return res.render('layout', { title: 'What Morphs Exist', view: 'editMorph', morph: morphAfter })
+      return res.redirect('/morphs/edit/' + id)
     })
-    
+  })
+}
+
+exports.postEditSaveImageMorph = (req, res) => {
+  const id = req.params.id
+  Morph.findById(id).populate('bestExample').exec((err, morph) => {
+    if (err) {
+      console.log(err)
+      return
+    }
+    morph.image = req.body.imageSrc
+    morph.save((err, morphAfter) => {
+      return res.redirect('/morphs/edit/' + id)
+    })
+  })
+}
+
+exports.getGraph = (req, res) => {
+  const id = req.params.id
+  Graph.findById(id).exec((err, graph) => {
+    if (err) {
+      console.log(err)
+      return
+    }
+    return res.render('layout', { title: 'Graph ' + graph.name, view: 'graph', graph, width: 300 })
+  })
+}
+
+exports.getGraphLineage = (req, res) => {
+  const id = req.params.id
+  Graph.findById(id)
+  .populate('phylogeny.composition')
+  // .populate('morphIdentified')
+  .populate('phylogeny.tuple')
+  .populate('phylogeny.tuple.morphIdentified')
+  .exec((err, graph) => {
+    if (err) {
+      console.log(err)
+      return
+    }
+    console.log(graph.phylogeny.tuple)
+    return res.render('layout', { title: 'Graph ' + graph.name, view: 'graph', graph, width: 300 })
   })
 }
 
@@ -87,7 +124,15 @@ exports.getEditMorph = (req, res) => {
       console.log(err)
       return
     }
-    return res.render('layout', { title: 'Morph ' + id, view: 'editMorph', morph })
+    // console.log(morph)
+    Graph.find({ morphIdentified: id }).select('name').exec((err, graphs) => {
+      if (err) {
+        console.log(err)
+        return
+      }
+      // console.log(graphs)
+      return res.render('layout', { title: 'Morph ' + id, view: 'editMorph', morph, graphs })
+    })
   })
   
 }

@@ -9,7 +9,7 @@
   const xOffset = n => n * squareSize
   %>
   <div class="graph-container" data-matrix="<%= JSON.stringify(matrix) %>">
-    <%- _description %>
+    <p><%= graph.name %></p>
     <svg viewBox="0 0 <%= overallWidth %> <%= overallWidth %>" 
          class="sparse-matrix"
          style="height: <%= overallWidth + 1 %>px; width:<%= overallWidth %>px;" >
@@ -36,5 +36,7 @@
     <div><b><%- graph.characteristicPolynomialHtml %></b></div>
     <div class="cytoscape-visualization" style="height: <%= overallWidth %>px; width:<%= overallWidth %>px;display:none;border:1px solid black;"></div>
     <button type="button">Render As Wireframe</button>
+    <input type="text" hidden value="" name="imageSrc"/>
+    <button type="submit" name="saveImage" style="display:none;" class="pull-right">Update Image</button>
   </div>
 <% } %>

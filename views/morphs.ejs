@@ -5,12 +5,16 @@
 <% morphs.forEach(m => { %>
   <div>
     
-    <h3>There are <%= m.exampleCount %> of these:</h3>
-    <a href="/morphs/edit/<%= m._id %>"><h3> <%= m.name ? m.name: 'Unnamed' %></h3></a>
-    <h4><%- m.characteristicPolynomialHtml %></h4>
-    <%- include('spectralGraph', { morph: m }) %>
-    <%- include('graph', { graph: m.bestExample, 
-      width: 400
-    }) %>
+    <h3>There are <%= m.exampleCount %> of <a href="/morphs/edit/<%= m._id %>"><%= m.name ? m.name: 'Unnamed' %></a>:</h3>
+    <div class="row">
+      <div class="col-lg-6">
+        
+        <h4><%- m.characteristicPolynomialHtml %></h4>
+        <img src="<%= m.image %>" alt="cannonical image of graph" class="img-responsive" style="max-width:300px;max-height:300px;">
+      </div>
+      <div class="col-lg-6">
+        <%- include('spectralGraph', { morph: m }) %>
+      </div>
+    </div>
   </div>
 <% }) %>
