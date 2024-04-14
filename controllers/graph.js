@@ -46,18 +46,25 @@ exports.home = (req, res) => {
   return res.render('layout', { title: 'What is an adjacency graph?', view: 'home', compositions: Compositions4x4, fundamentalModes: FundamentalModes4x4})
 }
 
-exports.getAllMorphs = (req, res) => {
-  return res.render('layout', { title: 'What Morphs Exist', view: 'morphs', morphs: Morphs })
+exports.getAllSpaces = (req, res) => {
+  return res.render('layout', { title: 'What Morphs Exist', view: 'spaces', morphs: Morphs })
 }
 
-exports.getMorphs = (req, res) => {
+exports.getSpaces = (req, res) => {
   const size = req.params.size
   Morph.find({size}).populate('bestExample').sort('size').exec((err, morphs) => {
     if (err) {
       console.log(err)
       return
     }
-    return res.render('layout', { title: 'What Morphs Exist', view: 'morphs', morphs, size })
+    Graph.count({size}).exec((err, counted) => {
+      if (err) {
+        console.log(err)
+        return
+      }
+      return res.render('layout', { title: 'What Morphs Exist', view: 'spaces', morphs, size, graphsInSpace: counted })
+    })
+    
   })
 }
 

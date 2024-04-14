@@ -21,8 +21,8 @@
     <% graph.phylogeny.tuple.forEach(g => { %>
       <div class="row">
         <div class="col-xs-4">
-          <h4><%= g.name %></h4>
-          <p><%- g.characteristicPolynomialHtml %></p>
+          <h4><%= g.morphIdentified.name %></h4>
+          <p><%- g.morphIdentified.characteristicPolynomialHtml %></p>
           <img src="<%= g.morphIdentified.image %>" alt="cannonical image of graph" class="img-responsive" style="width:100px;">
         </div>
         <div class="col-xs-8">
