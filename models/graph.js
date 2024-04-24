@@ -261,6 +261,68 @@ function pseudoSkewSymmetryScore (booleanMatrix) {
   }
   return score
 }
+graphSchema.virtual('relationsObject').get(function() {
+   /*
+    { 0 : {
+            1 : true,
+            4: true,
+            5: true
+          },
+      1: {
+            0: true,
+            7: true,
+            9:true
+          }
+      ...
+    }
+    */
+    const relationsObject = {}
+    for (let j = 0; j < this.booleanMatrix.length; j++ ) {
+      for (let i = 0; i < this.booleanMatrix[j].length; i++) {
+        if (this.booleanMatrix[j][i]) {
+          if (typeof relationsObject[j] !== 'object' ) {
+            relationsObject[j] = {}
+          }
+          relationsObject[j][i] = true
+        }
+      }
+    }
+    totalPredictedCompliantGraphs(this.size)
+    function totalPredictedCompliantGraphs (size) {
+      let graphs = 0
+      for (let i = size; i >= 0; i--) {
+        graphs += ( Math.ceil(1, i - 1 ) * Math.ceil(1, i - 2) * Math.ceil(1, i - 3) )
+      }
+      console.log('totalCompliantGraphs', graphs)
+      return graphs
+    }
+    return relationsObject
+})
+
+graphSchema.virtual('relationArray').get(function() {
+  /*
+   [
+  [ 0, 5 ], [ 0, 10 ], [ 0, 11 ],
+  [ 1, 4 ], [ 1, 6 ],  [ 1, 7 ],
+  [ 2, 5 ], [ 2, 8 ],  [ 2, 11 ],
+  [ 3, 5 ], [ 3, 8 ],  [ 3, 10 ],
+  [ 4, 6 ], [ 4, 7 ],  [ 6, 7 ],
+  [ 8, 9 ], [ 9, 10 ], [ 9, 11 ]
+]
+   */
+   const relationArray = []
+   for (let j = 0; j < this.booleanMatrix.length; j++ ) {
+     for (let i = 0; i < this.booleanMatrix[j].length; i++) {
+       if (i > j) {
+         if (this.booleanMatrix[j][i]) {
+          relationArray.push([j, i])
+         }
+       }
+     }
+    }
+
+   return relationArray
+})
 
 const Graph = mongoose.model('Graph', graphSchema)
 

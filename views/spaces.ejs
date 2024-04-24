@@ -1,8 +1,19 @@
-<% if (typeof size === 'string') {
+<% const notes = {
+  4: 'Space has been fully spanned, not all of these graphs are rank-3. Many are modes of the tetrahedron',
+  6: 'Space has been fully spanned',
+  8: 'Space has been fully spanned',
+  10: 'Space has not been fully spanned',
+  12: 'Space has not been fully spanned',
+  16: 'Space has not been fully spanned'
+}
+%>
+
+<% if (typeof size === 'string' && size !== 'all') {
   const _size = parseInt(size, 10) %>
 
 <h1>Space, size n = <%= _size %></h1>
 <div class="well well-sm">
+  <p><b>Notes:</b><span> <%= notes[_size] %></span></p>
   <p>
     <b>Total Matrices:</b>
     <span><%= Math.pow(2, _size * _size).toExponential(2) %></span>
@@ -35,7 +46,10 @@
   <div>
     
     <h3>There are <%= m.exampleCount %> of <a href="/morphs/edit/<%= m._id %>"><%= m.name ? m.name: 'Unnamed' %></a>:</h3>
-    <h4>Partial Probability: <%= m.exampleCount / graphsInSpace %></h4>
+    <% if (typeof graphsInSpace === 'number') { %>
+      <h4>Partial Probability: <%= m.exampleCount / graphsInSpace %></h4>
+    <% } %>
+    
     <div class="row">
       <div class="col-lg-6">
         

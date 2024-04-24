@@ -1,0 +1,25 @@
+.mapping {
+  position: relative;
+  width: 200px;
+  border: 1px solid black;
+  padding:5px;
+
+  .circle {
+    height: 14px;
+    width: 14px;
+    margin: 4px;
+    border: none;
+    border-radius: 14px;
+    background-color: #000000;
+    color: white;
+    padding-left: -2px;
+    position: absolute;
+    font-size: 12px;
+
+    span {
+      position: relative;
+      left:3px;
+      bottom:1px;
+    }
+  }
+}

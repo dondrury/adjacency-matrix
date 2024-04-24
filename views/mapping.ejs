@@ -1,0 +1,15 @@
+<%
+console.log(graph.relationArray)
+const SCALE = 20
+
+%>
+<div class="mapping" style="height: <%= graph.size * SCALE + 5%>px">
+  <% for (let i = 0; i < graph.size; i++) { %>
+    <div class="circle" style="top:<%= i * SCALE %>px;left:10px;">
+      <span><%= i %></span>
+    </div>
+    <div class="circle" style="top:<%= i * SCALE %>px;right:10px">
+      <span><%= i %></span>
+    </div>
+  <% } %>
+</div>

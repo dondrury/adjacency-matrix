@@ -1,6 +1,7 @@
 <% if ( typeof graph !== 'object') { %>
   <b>Error: Empty Matrix</b>
 <% } else {
+  console.log(graph.relationsObject)
   const _description = typeof description === 'string' ? description: ''
   const matrix = graph.booleanMatrix
   const overallWidth = typeof width === 'number' ? width : 100
