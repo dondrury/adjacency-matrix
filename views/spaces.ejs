@@ -19,12 +19,17 @@
     <span><%= Math.pow(2, _size * _size).toExponential(2) %></span>
   </p>
   <p>
+    <% const symmetricMatrixCount = Math.pow(2, _size * (_size - 1) / 2).toExponential(2)  %>
     <b>Symmetric Matrices:</b>
-    <span><%= Math.pow(2, _size * (_size - 1) / 2).toExponential(2) %></span>
+    <span><%= symmetricMatrixCount %></span>
   </p>
   <p>
     <b>Total Rank-3 Graphs Found:</b>
     <span><%= graphsInSpace %></span>
+  </p>
+  <p>
+    <b>Compliant Graph Density in Space of Symmetric Graphs:</b>
+    <span><%=  graphsInSpace / symmetricMatrixCount %></span>
   </p>
   <p>
     <b>Total Morphs Found:</b>

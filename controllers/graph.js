@@ -20,14 +20,23 @@ exports.afterConnectionTasks = function () {
   findAllMorphs()
 
   setTimeout(function () {
-    // importAllThreeTuples()
-    // create3x3Compositions()
-    // import16x16Graphs(3)
-    classifyNextUnclassifiedGraph()
-    // importAllFundamentalModes()
-    // create2x2Compositions()
     // importAllTwoTuples()
-    // compose8x8Graphs()
+    // importAllThreeTuples()
+    // importAllFourTuples()
+
+    // importAllFundamentalModes()
+
+    // create2x2Compositions()
+    // create3x3Compositions()
+    // importFirstFourCompositions()
+
+    
+    
+    // import16x16Graphs(3)
+    // classifyNextUnclassifiedGraph()
+    
+    
+    compose8x8Graphs()
     // compose12x12Graphs()
     // exhaustiveSearch(10, 0)
   }, 1000)
@@ -38,8 +47,6 @@ exports.afterConnectionTasks = function () {
   
  // anything we need to run once, like imports
 
-  // importFirstFourCompositions()
-  // importAllFourTuples()
 }
 
 exports.home = (req, res) => {
@@ -524,7 +531,6 @@ function create3x3Compositions () {
 function compose8x8Graphs () {
   let TwoByTwoComposition = {}
   let i = 0
-
   function createGraph () {
     const tuple = Tuples2x2[i]
     const newGraph = TwoByTwoComposition.compose(tuple)
@@ -537,6 +543,7 @@ function compose8x8Graphs () {
         console.log('new graph created')
         return
       }
+      // console.log('graph saved', graph)
       i++
       createGraph()
     })
