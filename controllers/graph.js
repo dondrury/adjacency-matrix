@@ -24,19 +24,19 @@ exports.afterConnectionTasks = function () {
     // importAllThreeTuples()
     // importAllFourTuples()
 
-    // importAllFundamentalModes()
+    // importAllFundamentalModes() // requires turning off rank:3 requirement
 
     // create2x2Compositions()
     // create3x3Compositions()
     // importFirstFourCompositions()
 
-    
+    compose8x8Graphs()
     
     // import16x16Graphs(3)
     // classifyNextUnclassifiedGraph()
     
     
-    compose8x8Graphs()
+    
     // compose12x12Graphs()
     // exhaustiveSearch(10, 0)
   }, 1000)
@@ -531,6 +531,7 @@ function create3x3Compositions () {
 function compose8x8Graphs () {
   let TwoByTwoComposition = {}
   let i = 0
+
   function createGraph () {
     const tuple = Tuples2x2[i]
     const newGraph = TwoByTwoComposition.compose(tuple)
@@ -548,6 +549,21 @@ function compose8x8Graphs () {
       createGraph()
     })
   }
+
+  Composition.findOne({ size: 2}).exec((err, composition) => {
+    if (err) {
+      console.log(err)
+      return
+    }
+    if (!composition) {
+      console.log('no 2x2 composition found')
+      return
+    }
+    // console.log('3 composition found,', composition)
+    TwoByTwoComposition = composition
+
+    createGraph()
+  })
 }
 
 function compose12x12Graphs () {
@@ -577,12 +593,12 @@ function compose12x12Graphs () {
       return
     }
     if (!composition) {
-      console.log('no 2x2 composition found')
+      console.log('no 3x3 composition found')
       return
     }
     // console.log('3 composition found,', composition)
     Composition3x3 = composition
 
-    // createGraph()
+    createGraph()
   })
 }
