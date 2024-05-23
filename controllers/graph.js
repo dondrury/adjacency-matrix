@@ -20,33 +20,31 @@ exports.afterConnectionTasks = function () {
   findAllMorphs()
 
   setTimeout(function () {
+   
     // importAllTwoTuples()
     // importAllThreeTuples()
     // importAllFourTuples()
-
-    // importAllFundamentalModes() // requires turning off rank:3 requirement
+   
+    // importAllFundamentalModes()
 
     // create2x2Compositions()
     // create3x3Compositions()
     // importFirstFourCompositions()
 
-    compose8x8Graphs()
-    
-    // import16x16Graphs(3)
-    // classifyNextUnclassifiedGraph()
-    
-    
-    
+    // compose8x8Graphs()
     // compose12x12Graphs()
-    // exhaustiveSearch(10, 0)
-  }, 1000)
-  
-  
-  // updateExampleCount()
-  // setInterval(classifyNextGraph, 500)
-  
- // anything we need to run once, like imports
+    // import16x16Graphs(0)
+    // import16x16Graphs(1)
+    // import16x16Graphs(2)
+    // import16x16Graphs(3)
 
+    // exhaustiveSearch(8, 134364406)
+
+    classifyNextUnclassifiedGraph()
+    
+    
+   
+  }, 1000)
 }
 
 exports.home = (req, res) => {
@@ -210,8 +208,9 @@ function classifyNextUnclassifiedGraph () {
       return
     }
     unclassifiedGraph.classify(() => {
-      console.log('classified')
-      classifyNextUnclassifiedGraph()
+      console.log('classified' )
+      setTimeout(classifyNextUnclassifiedGraph, 0)
+      // classifyNextUnclassifiedGraph()
     })
   })
 }
@@ -534,6 +533,7 @@ function compose8x8Graphs () {
 
   function createGraph () {
     const tuple = Tuples2x2[i]
+    // console.log('compose8x8graph', tuple, TwoByTwoComposition)
     const newGraph = TwoByTwoComposition.compose(tuple)
     newGraph.save((err, graph) => {
       if (err) {
@@ -541,10 +541,10 @@ function compose8x8Graphs () {
         return
       }
       if (!graph) {
-        console.log('new graph created')
+        console.log('no new graph')
         return
       }
-      // console.log('graph saved', graph)
+      console.log('graph saved', graph)
       i++
       createGraph()
     })

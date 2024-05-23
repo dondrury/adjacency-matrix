@@ -44,7 +44,8 @@ graphSchema.pre('validate', function (next) {
   }
   this.size = this.booleanMatrix.length
   this.rank = determineRank(this.booleanMatrix)
-  if (this.rank !== 3) next('Not rank three')
+  console.log('rank=' + this.rank + ' size=' + this.size)
+  if (this.rank !== 3 && this.size !== 4) next('Not rank three and bigger than N=4')
   this.binaryRepresentation = findBinaryRepresentation(this.booleanMatrix)
   this.base10Representation = parseInt(this.binaryRepresentation, 2)
   this.pseudoSkewSymmetryScore = pseudoSkewSymmetryScore(this.booleanMatrix)
@@ -55,7 +56,7 @@ graphSchema.method('classify', function (cb) {
   console.log('classifying graph %s', this.id)
   const characteristicPolynomial = findCharacteristicEquation(this.booleanMatrix)
   const characteristicPolynomialString = characteristicPolynomial.toString()
-  Morph.findOne({ characteristicPolynomialString }).populate('bestExample').exec((err, existingMorph) => {
+  Morph.findOne({ characteristicPolynomialString }).populate('bestExample').select('-image').exec((err, existingMorph) => {
     if (err) {
       console.log(err)
       return
@@ -78,7 +79,11 @@ graphSchema.method('classify', function (cb) {
         }
         console.log('new morph', savedNewMorph)
         this.morphIdentified = savedNewMorph._id
-        this.save(cb)
+        this.save((err, graphAfter) => {
+          if (err) console.log(err)
+          if (!graphAfter) console.log('failed to save')
+          cb()
+        })
       })
     } else {
       // need to improve 'best example' here
@@ -93,7 +98,11 @@ graphSchema.method('classify', function (cb) {
         }
         console.log('updated morph', updatedMorph)
         this.morphIdentified = updatedMorph._id
-        this.save(cb)
+        this.save((err, graphAfter) => {
+          if (err) console.log(err)
+          if (!graphAfter) console.log('failed to save')
+          cb()
+        })
       })
     }
   })
@@ -293,7 +302,7 @@ graphSchema.virtual('relationsObject').get(function() {
       for (let i = size; i >= 0; i--) {
         graphs += ( Math.ceil(1, i - 1 ) * Math.ceil(1, i - 2) * Math.ceil(1, i - 3) )
       }
-      console.log('totalCompliantGraphs', graphs)
+      // console.log('totalCompliantGraphs', graphs)
       return graphs
     }
     return relationsObject
