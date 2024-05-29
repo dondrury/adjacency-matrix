@@ -38,9 +38,12 @@ exports.afterConnectionTasks = function () {
     // import16x16Graphs(2)
     // import16x16Graphs(3)
 
-    // exhaustiveSearch(8, 134364406)
-
-    classifyNextUnclassifiedGraph()
+    // exhaustiveSearch(8, 5207440)
+    // const graph = new Graph({ size: 10 })
+    // console.log('graph', graph)
+    // const graphAfter = graph.createWithBinaryRepresentation('0001011010011001111100100000')
+    // console.log('graphAfter', graphAfter)
+    // classifyNextUnclassifiedGraph()
     
     
    

@@ -31,6 +31,11 @@ const graphSchema = new mongoose.Schema({
   timestamps: true
 })
 
+graphSchema.method('createWithBinaryRepresentation', function (binaryString) {
+  console.log({ binaryString})
+  
+})
+
 graphSchema.pre('validate', function (next) {
   // console.log('before validating', this)
   const nonSquareError = nonSquare(this.booleanMatrix)
