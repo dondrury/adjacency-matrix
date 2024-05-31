@@ -14,7 +14,7 @@
     </form>
     <div>
       <h4><%- morph.characteristicPolynomialHtml %></h4>
-      <%- include('spectralGraph', { morph }) %>
+     
       <img src="<%= morph.image %>" alt="cannonical image of graph" class="img-responsive" style="max-width:300px;max-height:300px;">
       <form action="/morphs/saveImage/<%= morph._id %>" method="POST" >
         <%- include('graph', { graph: morph.bestExample, 

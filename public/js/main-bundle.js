@@ -46,7 +46,7 @@ function visualize(matrix, container) {
     // i is for rows
     for (var j = 0; j < matrix[_i].length; j++) {
       // j is for columns
-      if (j > _i && matrix[_i][j]) {
+      if (matrix[_i][j]) {
         // above the diagonal, and "true"
         connections.push({
           data: {
@@ -78,7 +78,7 @@ function visualize(matrix, container) {
         'width': 3,
         'line-color': '#ccc',
         'target-arrow-color': '#ccc',
-        'target-arrow-shape': 'none',
+        'target-arrow-shape': 'triangle',
         'curve-style': 'bezier'
       }
     }],

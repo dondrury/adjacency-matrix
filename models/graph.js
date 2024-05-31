@@ -10,8 +10,7 @@ const graphSchema = new mongoose.Schema({
   size: { type: Number, required: true, index: true },
   rank: { type: Number, required: true },
   booleanMatrix: [[Boolean]],
-  binaryRepresentation: { type: String, required: true, unique: true },
-  base10Representation: { type: Number, required: true },
+  binaryString: { type: String, required: true, unique: true },
   morphIdentified: { type: mongoose.Schema.Types.ObjectId, ref: 'Morph'},
   pseudoSkewSymmetryScore: Number,
   phylogeny: {
@@ -31,9 +30,17 @@ const graphSchema = new mongoose.Schema({
   timestamps: true
 })
 
-graphSchema.method('createWithBinaryRepresentation', function (binaryString) {
-  console.log({ binaryString})
-  
+graphSchema.method('createFromBinaryString', function (binaryString) {
+  // console.log({ binaryString})
+  this.size = Math.sqrt(binaryString.length)
+  this.booleanMatrix = []
+  for (let i = 0; i < this.size; i++) {  // i is for rows
+    const row = binaryString.substring(i * this.size, (i + 1) * this.size).split('').map(char => char === '1')
+    // console.log(row)
+    this.booleanMatrix.push(row)
+  }
+  this.binaryString = binaryString
+  return this
 })
 
 graphSchema.pre('validate', function (next) {
@@ -43,16 +50,17 @@ graphSchema.pre('validate', function (next) {
     next(nonSquareError)
     return
   }
-  const isSymmetricError = isSymmetric(this.booleanMatrix)
-  if (!isSymmetricError) {
-    next(isSymmetricError)
-  }
+  // const isSymmetricError = isSymmetric(this.booleanMatrix)
+  // if (!isSymmetricError) {
+  //   next(isSymmetricError)
+  // }
   this.size = this.booleanMatrix.length
   this.rank = determineRank(this.booleanMatrix)
-  console.log('rank=' + this.rank + ' size=' + this.size)
-  if (this.rank !== 3 && this.size !== 4) next('Not rank three and bigger than N=4')
-  this.binaryRepresentation = findBinaryRepresentation(this.booleanMatrix)
-  this.base10Representation = parseInt(this.binaryRepresentation, 2)
+  if (typeof this.rank !== 'number' ) next('inconsistent rank')
+  // console.log('rank=' + this.rank + ' size=' + this.size)
+  // if (this.rank !== 3 && this.size !== 4) next('Not rank three and bigger than N=4')
+  // this.binaryRepresentation = findBinaryRepresentation(this.booleanMatrix)
+  // this.base10Representation = parseInt(this.binaryRepresentation, 2)
   this.pseudoSkewSymmetryScore = pseudoSkewSymmetryScore(this.booleanMatrix)
   next()
 })
@@ -70,10 +78,11 @@ graphSchema.method('classify', function (cb) {
       const newMorph = new Morph({
         name: '',
         size: this.size,
+        rank: this.rank,
         characteristicPolynomial: characteristicPolynomial,
         characteristicPolynomialString: characteristicPolynomialString,
         characteristicPolynomialHtml: prettyPrintPolynomial(characteristicPolynomial),
-        approximateEigenvalues: findEigenValues(this.booleanMatrix),
+        // approximateEigenvalues: findEigenValues(this.booleanMatrix),
         bestExample: this._id,
         notes: ''
       })
@@ -142,11 +151,16 @@ function prettyPrintPolynomial (poly) {
   }
   // console.log('prettyHtml', prettyHtml)
   if (prettyHtml.charAt(0) === '+') prettyHtml = prettyHtml.substring(1)
+  // console.log(prettyHtml, typeof prettyHtml)
+  if (prettyHtml === '') prettyHtml = '0'
   return prettyHtml + ' = 0'
 }
 
 function findCharacteristicEquation (matrix) {
   const polynomialMatrix = createPolynomialMatrix(matrix)
+  if (matrix.length === 1) {
+    return new Polynomial([matrix[0][0] ? 1 : 0])
+  }
   return detByLaplace(polynomialMatrix)
  }
 
@@ -199,8 +213,7 @@ function createPolynomialMatrix (matrix) {
     const row = []
     for (let j = 0; j < matrix[i].length; j++) { // j is for columns
       let element = new Polynomial([0])
-      if (matrix[i][j]) element = new Polynomial([1])
-      if (i === j) element = new Polynomial([0, -1])
+      element = new Polynomial([matrix[i][j] ? 1 : 0, i === j ? -1 : 0])
       row.push(element)
     }
     polynomialMatrix.push(row)
@@ -221,26 +234,42 @@ function findEigenValues (matrix) {
   // console.log('matrix', matrix)
   // console.log('numericalMatrix', numericalMatrix)
   // console.log('eigenvalues', eigs(numericalMatrix, { eigenvectors: false }))
-  return eigs(numericalMatrix, { eigenvectors: false }).values.sort((a,b) => a - b)
+  const eigenvalues = []
+  try {
+    eigenvalues = eigs(numericalMatrix, { eigenvectors: false }).values.sort((a,b) => a - b)
+  } catch (e) {
+    console.log(e)
+  }
+  return eigenvalues
 }
 
 function determineRank (booleanMatrix) {
-  let maximumRank  = 0
+  let rowRank  = []
   for (let i = 0; i < booleanMatrix.length; i++) {
-    let rowRank = 0
+    let rank = 0
     for (let j = 0; j < booleanMatrix[i].length; j++) {
-      if (booleanMatrix[i][j]) rowRank++
+      if (booleanMatrix[i][j]) rank++
     }
-    if (rowRank > maximumRank) maximumRank = rowRank
+    rowRank.push(rank)
   }
+  let columnRank = []
   for (let i = 0; i < booleanMatrix.length; i++) {
-    let rowRank = 0
+    let rank = 0
     for (let j = 0; j < booleanMatrix[i].length; j++) {
-      if (booleanMatrix[j][i]) rowRank++
+      if (booleanMatrix[j][i]) rank++
     }
-    if (rowRank > maximumRank) maximumRank = rowRank
+    columnRank.push(rank)
   }
-  return maximumRank
+  console.log(booleanMatrix)
+  console.log(rowRank)
+  console.log(columnRank)
+  const testRank = rowRank[0]
+  console.log({ testRank})
+  if (rowRank.every(el => el === testRank) && columnRank.every(el => el === testRank) ) {
+    console.log('consistent rank')
+    return testRank
+  }
+  return null // will throw error
 }
 
 function nonSquare (booleanMatrix) {
@@ -301,15 +330,15 @@ graphSchema.virtual('relationsObject').get(function() {
         }
       }
     }
-    totalPredictedCompliantGraphs(this.size)
-    function totalPredictedCompliantGraphs (size) {
-      let graphs = 0
-      for (let i = size; i >= 0; i--) {
-        graphs += ( Math.ceil(1, i - 1 ) * Math.ceil(1, i - 2) * Math.ceil(1, i - 3) )
-      }
-      // console.log('totalCompliantGraphs', graphs)
-      return graphs
-    }
+    // totalPredictedCompliantGraphs(this.size)
+    // function totalPredictedCompliantGraphs (size) {
+    //   let graphs = 0
+    //   for (let i = size; i >= 0; i--) {
+    //     graphs += ( Math.ceil(1, i - 1 ) * Math.ceil(1, i - 2) * Math.ceil(1, i - 3) )
+    //   }
+    //   // console.log('totalCompliantGraphs', graphs)
+    //   return graphs
+    // }
     return relationsObject
 })
 

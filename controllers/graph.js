@@ -20,13 +20,14 @@ exports.afterConnectionTasks = function () {
   findAllMorphs()
 
   setTimeout(function () {
-   
+  //  createFundamentalModes(1, 0)
+
     // importAllTwoTuples()
     // importAllThreeTuples()
     // importAllFourTuples()
    
     // importAllFundamentalModes()
-
+    
     // create2x2Compositions()
     // create3x3Compositions()
     // importFirstFourCompositions()
@@ -43,7 +44,8 @@ exports.afterConnectionTasks = function () {
     // console.log('graph', graph)
     // const graphAfter = graph.createWithBinaryRepresentation('0001011010011001111100100000')
     // console.log('graphAfter', graphAfter)
-    // classifyNextUnclassifiedGraph()
+    classifyNextUnclassifiedGraph()
+  
     
     
    
@@ -58,19 +60,21 @@ exports.getAllSpaces = (req, res) => {
   return res.render('layout', { title: 'What Morphs Exist', view: 'spaces', morphs: Morphs })
 }
 
-exports.getSpaces = (req, res) => {
-  const size = req.params.size
-  Morph.find({size}).populate('bestExample').sort('size').exec((err, morphs) => {
+exports.getMorphs = (req, res) => { // /morph/size/:size/rank/:rank
+  const size = Number(req.params.size)
+  const rank = Number(req.params.rank)
+  console.log(size, rank)
+  Morph.find({size, rank}).populate('bestExample').sort('size').exec((err, morphs) => {
     if (err) {
       console.log(err)
       return
     }
-    Graph.count({size}).exec((err, counted) => {
+    Graph.count({size, rank}).exec((err, counted) => {
       if (err) {
         console.log(err)
         return
       }
-      return res.render('layout', { title: 'What Morphs Exist', view: 'spaces', morphs, size, graphsInSpace: counted })
+      return res.render('layout', { title: 'What Morphs Exist', view: 'morphs', morphs, size, rank, graphsInSpace: counted })
     })
     
   })
@@ -376,7 +380,7 @@ function import16x16Graphs (compositionNumber) {
 }
 
 function importAllFundamentalModes () {
-  // console.log('Graph Controller connected')
+  console.log('Graph Controller connected')
   const FundamentalModes = require('./fundamentalModes')
   for (let i = 0; i < FundamentalModes.length; i++) {
     const graph = new Graph({
@@ -388,6 +392,36 @@ function importAllFundamentalModes () {
       if (err) console.log(err)
       console.log('saved graph' , savedGraph)
     })
+  }
+}
+
+function createFundamentalModes (size, i = 0) {
+  console.log('creating fundamental modes at size ' + size)
+  const elementCount = size * size
+  const totalModes = Math.pow(2, elementCount)
+  console.log('expecting ' + totalModes + ' graphs')
+  createFundamentalMode(i)
+
+  function createFundamentalMode () {
+    if (i >= totalModes) {
+      console.log('all done with creating fundamental modes at size ' + size)
+      return
+    }
+    const binaryString = i.toString(2).padStart(elementCount, '0')
+    console.log('i=' + i + ' progressPercent=' + 100 * i / totalModes)
+    const graph = new Graph({
+      name: 'Fundamental Mode ' + i,
+      binaryString
+    })
+    graphAfter = graph.createFromBinaryString(binaryString)
+    graph.save((err, savedGraph) => {
+      if (err) console.log(err)
+      if (savedGraph) console.log('saved graph' , savedGraph)
+      
+      i++
+      setTimeout(createFundamentalMode, 0)
+    })
+   
   }
 }
 

@@ -39,7 +39,7 @@ function visualize (matrix, container) {
   const connections = []
   for (let i = 0; i < matrix.length; i++) {  // i is for rows
     for (let j = 0; j < matrix[i].length; j++) { // j is for columns
-      if ( j > i && matrix[i][j]) { // above the diagonal, and "true"
+      if (matrix[i][j]) { // above the diagonal, and "true"
         connections.push({
           data: {
             id: i + ',' + j,
@@ -69,7 +69,7 @@ function visualize (matrix, container) {
           'width': 3,
           'line-color': '#ccc',
           'target-arrow-color': '#ccc',
-          'target-arrow-shape': 'none',
+          'target-arrow-shape': 'triangle',
           'curve-style': 'bezier'
         }
       }
