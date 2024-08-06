@@ -46,20 +46,33 @@ function visualize(matrix, container) {
     // i is for rows
     for (var j = 0; j < matrix[_i].length; j++) {
       // j is for columns
-      if (matrix[_i][j]) {
-        // above the diagonal, and "true"
+      if (matrix[_i][j] && matrix[j][_i]) {
+        // symmetrical, "undirected edge"
+        var x = Math.min(_i, j);
+        var y = Math.max(_i, j); // y > x
         connections.push({
           data: {
-            id: _i + ',' + j,
+            id: x + '<=>' + y,
+            source: x.toString(),
+            target: y.toString(),
+            directed: false
+          }
+        });
+      } else if (matrix[_i][j]) {
+        // "directed edge"
+        connections.push({
+          data: {
+            id: _i + '=>' + j,
             source: _i.toString(),
-            target: j.toString()
+            target: j.toString(),
+            directed: true
           }
         });
       }
     }
   }
-  // console.log('nodes', nodes)
-  // console.log('connections', connections)
+  console.log('nodes', nodes);
+  console.log('connections', connections);
   return cytoscape({
     container: container,
     // container to render in
@@ -73,13 +86,34 @@ function visualize(matrix, container) {
         'label': 'data(id)'
       }
     }, {
-      selector: 'edge',
+      selector: 'edge[!directed]',
+      // selector for "undirected (symmetrical) connections"
+      style: {
+        'width': 4,
+        'line-color': '#000000',
+        // 'target-arrow-color': '#ccc',
+        'target-arrow-shape': 'none'
+        // 'curve-style': 'bezier'
+      }
+    }, {
+      selector: 'edge[?directed]',
       style: {
         'width': 3,
         'line-color': '#ccc',
         'target-arrow-color': '#ccc',
         'target-arrow-shape': 'triangle',
         'curve-style': 'bezier'
+      }
+    }, {
+      selector: 'edge:loop',
+      style: {
+        'width': 3,
+        'line-color': 'red',
+        'target-arrow-color': 'red',
+        'target-arrow-shape': 'triangle',
+        'curve-style': 'bezier',
+        'loop-direction': '0deg',
+        'loop-sweep': '-45deg'
       }
     }],
     layout: {

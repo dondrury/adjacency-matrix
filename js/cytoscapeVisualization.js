@@ -39,19 +39,31 @@ function visualize (matrix, container) {
   const connections = []
   for (let i = 0; i < matrix.length; i++) {  // i is for rows
     for (let j = 0; j < matrix[i].length; j++) { // j is for columns
-      if (matrix[i][j]) { // above the diagonal, and "true"
+      if (matrix[i][j] && matrix[j][i]) { // symmetrical, "undirected edge"
+        const x = Math.min(i, j)
+        const y = Math.max(i, j) // y > x
         connections.push({
           data: {
-            id: i + ',' + j,
+            id: x + '<=>' + y,
+            source: x.toString(),
+            target: y.toString(),
+            directed: false
+          }
+        })
+      } else if (matrix[i][j]) { // "directed edge"
+        connections.push({
+          data: {
+            id: i + '=>' + j,
             source: i.toString(),
-            target: j.toString()
+            target: j.toString(),
+            directed: true
           }
         })
       }
     }
   }
-  // console.log('nodes', nodes)
-  // console.log('connections', connections)
+  console.log('nodes', nodes)
+  console.log('connections', connections)
   return cytoscape({
     container: container, // container to render in
     elements: nodes.concat(connections),
@@ -64,13 +76,35 @@ function visualize (matrix, container) {
         }
       },
       {
-        selector: 'edge',
+        selector: 'edge[!directed]', // selector for "undirected (symmetrical) connections"
+        style: {
+          'width': 4,
+          'line-color': '#000000',
+          // 'target-arrow-color': '#ccc',
+          'target-arrow-shape': 'none',
+          // 'curve-style': 'bezier'
+        }
+      },
+      {
+        selector: 'edge[?directed]',
         style: {
           'width': 3,
           'line-color': '#ccc',
           'target-arrow-color': '#ccc',
           'target-arrow-shape': 'triangle',
           'curve-style': 'bezier'
+        }
+      },
+      {
+        selector: 'edge:loop',
+        style: {
+          'width': 3,
+          'line-color': 'red',
+          'target-arrow-color': 'red',
+          'target-arrow-shape': 'triangle',
+          'curve-style': 'bezier',
+          'loop-direction' : '0deg',
+          'loop-sweep' : '-45deg'
         }
       }
     ],

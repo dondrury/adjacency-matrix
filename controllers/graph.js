@@ -20,7 +20,7 @@ exports.afterConnectionTasks = function () {
   findAllMorphs()
 
   setTimeout(function () {
-  //  createFundamentalModes(1, 0)
+   createFundamentalModes(6, 116481343) // last stopped at 116481343
 
     // importAllTwoTuples()
     // importAllThreeTuples()
@@ -39,7 +39,7 @@ exports.afterConnectionTasks = function () {
     // import16x16Graphs(2)
     // import16x16Graphs(3)
 
-    // exhaustiveSearch(8, 5207440)
+    // exhaustiveSearch(6, 10367) // this is for symmetrical graphs only
     // const graph = new Graph({ size: 10 })
     // console.log('graph', graph)
     // const graphAfter = graph.createWithBinaryRepresentation('0001011010011001111100100000')
@@ -63,7 +63,7 @@ exports.getAllSpaces = (req, res) => {
 exports.getMorphs = (req, res) => { // /morph/size/:size/rank/:rank
   const size = Number(req.params.size)
   const rank = Number(req.params.rank)
-  console.log(size, rank)
+  // console.log(size, rank)
   Morph.find({size, rank}).populate('bestExample').sort('size').exec((err, morphs) => {
     if (err) {
       console.log(err)
@@ -296,7 +296,7 @@ function findAllMorphs () {
 /* Archive of functions used to develop this list */
 /* eslint-disable */
 
-function exhaustiveSearch (n, i = 0) {
+function exhaustiveSearch (n, i = 0) { // this is for symmetrical graphs only
   const binaryArrayLength = (n * (n - 1)) / 2
   const exitNumber = Math.pow(2, binaryArrayLength)
   const RelationsRequired = ( 3 * n ) / 2
@@ -329,7 +329,8 @@ function exhaustiveSearch (n, i = 0) {
       // console.log(matrix)
       const newGraph = new Graph({
         name: 'exhaustive search #' + i,
-        booleanMatrix: matrix
+        booleanMatrix: matrix,
+        binaryString
       })
       newGraph.save((err, graph) => {
         if (err) {
@@ -401,26 +402,37 @@ function createFundamentalModes (size, i = 0) {
   const totalModes = Math.pow(2, elementCount)
   console.log('expecting ' + totalModes + ' graphs')
   createFundamentalMode(i)
-
   function createFundamentalMode () {
     if (i >= totalModes) {
       console.log('all done with creating fundamental modes at size ' + size)
       return
     }
     const binaryString = i.toString(2).padStart(elementCount, '0')
-    console.log('i=' + i + ' progressPercent=' + 100 * i / totalModes)
-    const graph = new Graph({
-      name: 'Fundamental Mode ' + i,
-      binaryString
+    let binaryArray = binaryString.split('')
+    let relationCount = 0
+    binaryArray.forEach(function (el) {
+      if (el === '1') relationCount++
     })
-    graphAfter = graph.createFromBinaryString(binaryString)
-    graph.save((err, savedGraph) => {
-      if (err) console.log(err)
-      if (savedGraph) console.log('saved graph' , savedGraph)
-      
+    
+    if (relationCount % size === 0) { // this is a candidate for consistent rank
+      console.log(`i=${i} (${binaryString}) \nis a candidate for consistent rank, calculating... total progress in this space = ${100 * i / totalModes}`)
+      const graph = new Graph({
+        name: 'Fundamental Mode ' + i,
+        binaryString
+      })
+      graphAfter = graph.createFromBinaryString(binaryString)
+      graph.save((err, savedGraph) => {
+        if (err) console.log(err)
+        if (savedGraph) console.log('saved graph' , savedGraph)
+        
+        i++
+        setTimeout(createFundamentalMode, 0)
+      })
+    } else { // not a candidate
       i++
       setTimeout(createFundamentalMode, 0)
-    })
+    }
+    
    
   }
 }

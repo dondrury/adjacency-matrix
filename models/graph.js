@@ -10,6 +10,7 @@ const graphSchema = new mongoose.Schema({
   size: { type: Number, required: true, index: true },
   rank: { type: Number, required: true },
   booleanMatrix: [[Boolean]],
+  isSymmetric: Boolean,
   binaryString: { type: String, required: true, unique: true },
   morphIdentified: { type: mongoose.Schema.Types.ObjectId, ref: 'Morph'},
   pseudoSkewSymmetryScore: Number,
@@ -50,10 +51,8 @@ graphSchema.pre('validate', function (next) {
     next(nonSquareError)
     return
   }
-  // const isSymmetricError = isSymmetric(this.booleanMatrix)
-  // if (!isSymmetricError) {
-  //   next(isSymmetricError)
-  // }
+  this.isSymmetric = isSymmetric(this.booleanMatrix)
+
   this.size = this.booleanMatrix.length
   this.rank = determineRank(this.booleanMatrix)
   if (typeof this.rank !== 'number' ) next('inconsistent rank')
@@ -251,6 +250,10 @@ function determineRank (booleanMatrix) {
       if (booleanMatrix[i][j]) rank++
     }
     rowRank.push(rank)
+    if (i > 0 && rowRank[i] !== rowRank[i - 1]) {
+      console.log('inconsistent adjascent row ranks, exiting determineRank')
+      return null
+    }
   }
   let columnRank = []
   for (let i = 0; i < booleanMatrix.length; i++) {
@@ -259,12 +262,16 @@ function determineRank (booleanMatrix) {
       if (booleanMatrix[j][i]) rank++
     }
     columnRank.push(rank)
+    if (i > 0 && rowRank[i] !== rowRank[i - 1]) {
+      console.log('inconsistent adjascent column ranks, exiting determineRank')
+      return null
+    }
   }
-  console.log(booleanMatrix)
-  console.log(rowRank)
-  console.log(columnRank)
+  // console.log(booleanMatrix)
+  // console.log(rowRank)
+  // console.log(columnRank)
   const testRank = rowRank[0]
-  console.log({ testRank})
+  // console.log({ testRank})
   if (rowRank.every(el => el === testRank) && columnRank.every(el => el === testRank) ) {
     console.log('consistent rank')
     return testRank
@@ -287,7 +294,7 @@ function isSymmetric (booleanMatrix) {
   for (let i = 0; i < n; i++) {
     for (let j = i; j < n; j++) {
       if (A[i][j] !== A[j][i])
-        return new Error('matrix is not symmetric')
+        return false
     }
   }
   return true
