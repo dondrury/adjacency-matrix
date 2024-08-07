@@ -14,13 +14,14 @@ var Morphs = []
 exports.afterConnectionTasks = function () {
   find4x4Compositions()
   find4x4FundamentalModes()
-  find2Tuples()
-  find3Tuples()
-  find4Tuples()
+  // find2Tuples()
+  // find3Tuples()
+  // find4Tuples()
   findAllMorphs()
-
+  // rankAllPossibleRowsOfSize(8)
   setTimeout(function () {
-   createFundamentalModes(6, 116481343) // last stopped at 116481343
+    findAllGraphsOfSizeAndRank(6, 2)
+  //  createFundamentalModes(6, 1104317344) // last stopped at 1104317344
 
     // importAllTwoTuples()
     // importAllThreeTuples()
@@ -51,6 +52,7 @@ exports.afterConnectionTasks = function () {
    
   }, 1000)
 }
+
 
 exports.home = (req, res) => {
   return res.render('layout', { title: 'What is an adjacency graph?', view: 'home', compositions: Compositions4x4, fundamentalModes: FundamentalModes4x4})
@@ -396,11 +398,101 @@ function importAllFundamentalModes () {
   }
 }
 
+function rankAllPossibleRowsOfSize(size) {
+  // console.log('generatingAllPossibleRowsOfSizeAndRank', { size })
+  const allPossibleRowsByRank = {}
+  for (let i = 0; i <= size; i++ ) {
+    allPossibleRowsByRank[i] = []
+  }
+  for (i = 0; i < Math.pow(2, size); i++) {
+    const binaryString = i.toString(2).padStart(size, '0')
+    // console.log('binaryString ' + binaryString)
+    const binaryArray = binaryString.split('')
+    let onesCount = 0
+    binaryArray.forEach(function (el) {
+      if (el === '1') onesCount++
+    })
+    // console.log({binaryString, onesCount})
+    allPossibleRowsByRank[onesCount].push(binaryString)
+  }
+  // console.log(allPossibleRowsByRank)
+  return allPossibleRowsByRank
+}
+
+function findAllGraphsOfSizeAndRank (size, rank) {
+  /* Error 8-6-24 needs sorted
+  { binaryString: '001100001100001100001100001100001100' } inconsistent rank
+  { binaryString: '000101000011000011000011000011000011000011' } Error: matrix is not square
+  */
+  const allPossibleRowsByRank = rankAllPossibleRowsOfSize(size)
+  const allPossibleRows = allPossibleRowsByRank[rank]
+  console.log('findAllModesOfRankAndSize', { allPossibleRows, size, rank })
+  const iteratingArray = (new Array(size)).fill(0)
+  // const exitCondition = (new Array(size)).fill(allPossibleRows.length)
+  // console.log({iteratingArray})
+  constructBinaryStringsRecursively()
+
+  function constructBinaryStringsRecursively() {
+    let binaryString = ''
+    iteratingArray.forEach(v => {
+      binaryString += allPossibleRows[v]
+    }) // getting matrix not square
+    console.log({iteratingArray, binaryString})
+    const graph = new Graph({
+      name: 'Created by Iterating on Possible Rows',
+      binaryString
+    })
+    graph.createFromBinaryString(binaryString)
+    graph.save((err, savedGraph) => {
+      if (err) console.log({binaryString}, err)
+      if (savedGraph) console.log('saved graph' , savedGraph)
+      // here we need to "iterate" the array of indexes, and start the recursion again
+      iterateArrayAndKeepGoing()
+    })
+  }
+
+  function iterateArrayAndKeepGoing () {
+    console.log('before', {iteratingArray})
+    for (let i = 0; i < iteratingArray.length; i++) {
+      if (iteratingArray[i] === allPossibleRows.length - 1) {
+        if (i === iteratingArray.length - 1 ) { // exit condition
+           console.log('exit on', {iteratingArray})
+           return
+        }
+        iteratingArray[i + 1]++ // then all before have to also zero
+
+        console.log('after if (iteratingArray[i] >= allPossibleRows.length - 1)', {iteratingArray})
+        setTimeout(constructBinaryStringsRecursively, 1000)
+        return
+      } else {
+        iteratingArray[i]++
+        console.log('after else', {iteratingArray})
+        setTimeout(constructBinaryStringsRecursively, 1000)
+        return
+      }
+    }
+  }
+
+}
+
 function createFundamentalModes (size, i = 0) {
   console.log('creating fundamental modes at size ' + size)
   const elementCount = size * size
   const totalModes = Math.pow(2, elementCount)
   console.log('expecting ' + totalModes + ' graphs')
+  // const minimumIndexForRankOtherThanZero = Math.pow(2, size * (size - 1))
+  let minimumIndexForRankOtherThanZero = 0
+  for (let j = 0; j < size; j++) {
+    const contributionToMinimum = Math.pow(2, size * j)
+    minimumIndexForRankOtherThanZero += contributionToMinimum
+  }
+  console.log({minimumIndexForRankOtherThanZero})
+  console.log({asString: minimumIndexForRankOtherThanZero.toString(2).padStart(elementCount, '0')})
+  // some indexes are preceeded with so many zeros they can't be rank other than zero
+  i = i === 0 ? i : Math.max(i, minimumIndexForRankOtherThanZero) // no reason to start prior to minimum worthwhile, but zero does need to be included
+  const allZerosRowString = (new Array(size)).fill('0').join('')
+  const allOnesRowString = (new Array(size)).fill('1').join('')
+  // console.log({allOnesRowString, allZerosRowString})
   createFundamentalMode(i)
   function createFundamentalMode () {
     if (i >= totalModes) {
@@ -408,14 +500,26 @@ function createFundamentalModes (size, i = 0) {
       return
     }
     const binaryString = i.toString(2).padStart(elementCount, '0')
-    let binaryArray = binaryString.split('')
+    // first check if all of first row or second row are ones
+    for (let j = 0; j < size; j++) {
+      let rowString = binaryString.slice(j * size, (j + 1) * size)
+      // console.log({ i, binaryString, rowString, j})
+      if (rowString === allZerosRowString || rowString === allOnesRowString) {
+        // console.log('skipping', { i, binaryString, rowString, j})
+        i++
+        setTimeout(createFundamentalMode, 0)
+        return
+      }
+    }
+    // now check to see if it has the correct amount of 1s in the whole array, should be divisible by size
+    let binaryArray = binaryString.split('') 
     let relationCount = 0
     binaryArray.forEach(function (el) {
       if (el === '1') relationCount++
     })
     
     if (relationCount % size === 0) { // this is a candidate for consistent rank
-      console.log(`i=${i} (${binaryString}) \nis a candidate for consistent rank, calculating... total progress in this space = ${100 * i / totalModes}`)
+      console.log(`Total progress in this space = ${100 * i / totalModes}%\ni=${i} (${binaryString})\nis a candidate for consistent rank, calculating...`)
       const graph = new Graph({
         name: 'Fundamental Mode ' + i,
         binaryString
