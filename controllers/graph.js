@@ -20,7 +20,7 @@ exports.afterConnectionTasks = function () {
   findAllMorphs()
   // rankAllPossibleRowsOfSize(8)
   setTimeout(function () {
-    findAllGraphsOfSizeAndRank(6, 2)
+    // findAllGraphsOfSizeAndRank(6, 4, 0) // let's try to do this by inverting down from existing
   //  createFundamentalModes(6, 1104317344) // last stopped at 1104317344
 
     // importAllTwoTuples()
@@ -46,10 +46,6 @@ exports.afterConnectionTasks = function () {
     // const graphAfter = graph.createWithBinaryRepresentation('0001011010011001111100100000')
     // console.log('graphAfter', graphAfter)
     classifyNextUnclassifiedGraph()
-  
-    
-    
-   
   }, 1000)
 }
 
@@ -419,127 +415,140 @@ function rankAllPossibleRowsOfSize(size) {
   return allPossibleRowsByRank
 }
 
-function findAllGraphsOfSizeAndRank (size, rank) {
-  /* Error 8-6-24 needs sorted
-  { binaryString: '001100001100001100001100001100001100' } inconsistent rank
-  { binaryString: '000101000011000011000011000011000011000011' } Error: matrix is not square
-  */
+function findAllGraphsOfSizeAndRank (size, rank, i = 0) {
   const allPossibleRowsByRank = rankAllPossibleRowsOfSize(size)
   const allPossibleRows = allPossibleRowsByRank[rank]
-  console.log('findAllModesOfRankAndSize', { allPossibleRows, size, rank })
-  const iteratingArray = (new Array(size)).fill(0)
-  // const exitCondition = (new Array(size)).fill(allPossibleRows.length)
-  // console.log({iteratingArray})
-  constructBinaryStringsRecursively()
+  console.log('findAllGraphsOfSizeAndRank', { allPossibleRows, size, rank })
+  // maybe try constructing from rows directly, instead of starting with the binaryString
+  // okay we need to iterate a counting in base (allPossibleRows.length) accross an array like this
+  // [0, 0, 0, 14, 12, 3]
+  const exitValue = Math.pow(allPossibleRows.length, size)
+  console.log({exitValue})
+  // let i = 0
+  createMatrixIterativelyFromAllPossibleRows()
 
-  function constructBinaryStringsRecursively() {
-    let binaryString = ''
-    iteratingArray.forEach(v => {
-      binaryString += allPossibleRows[v]
-    }) // getting matrix not square
-    console.log({iteratingArray, binaryString})
-    const graph = new Graph({
-      name: 'Created by Iterating on Possible Rows',
-      binaryString
-    })
-    graph.createFromBinaryString(binaryString)
-    graph.save((err, savedGraph) => {
-      if (err) console.log({binaryString}, err)
-      if (savedGraph) console.log('saved graph' , savedGraph)
-      // here we need to "iterate" the array of indexes, and start the recursion again
-      iterateArrayAndKeepGoing()
-    })
-  }
-
-  function iterateArrayAndKeepGoing () {
-    console.log('before', {iteratingArray})
-    for (let i = 0; i < iteratingArray.length; i++) {
-      if (iteratingArray[i] === allPossibleRows.length - 1) {
-        if (i === iteratingArray.length - 1 ) { // exit condition
-           console.log('exit on', {iteratingArray})
-           return
-        }
-        iteratingArray[i + 1]++ // then all before have to also zero
-
-        console.log('after if (iteratingArray[i] >= allPossibleRows.length - 1)', {iteratingArray})
-        setTimeout(constructBinaryStringsRecursively, 1000)
-        return
-      } else {
-        iteratingArray[i]++
-        console.log('after else', {iteratingArray})
-        setTimeout(constructBinaryStringsRecursively, 1000)
-        return
-      }
-    }
-  }
-
-}
-
-function createFundamentalModes (size, i = 0) {
-  console.log('creating fundamental modes at size ' + size)
-  const elementCount = size * size
-  const totalModes = Math.pow(2, elementCount)
-  console.log('expecting ' + totalModes + ' graphs')
-  // const minimumIndexForRankOtherThanZero = Math.pow(2, size * (size - 1))
-  let minimumIndexForRankOtherThanZero = 0
-  for (let j = 0; j < size; j++) {
-    const contributionToMinimum = Math.pow(2, size * j)
-    minimumIndexForRankOtherThanZero += contributionToMinimum
-  }
-  console.log({minimumIndexForRankOtherThanZero})
-  console.log({asString: minimumIndexForRankOtherThanZero.toString(2).padStart(elementCount, '0')})
-  // some indexes are preceeded with so many zeros they can't be rank other than zero
-  i = i === 0 ? i : Math.max(i, minimumIndexForRankOtherThanZero) // no reason to start prior to minimum worthwhile, but zero does need to be included
-  const allZerosRowString = (new Array(size)).fill('0').join('')
-  const allOnesRowString = (new Array(size)).fill('1').join('')
-  // console.log({allOnesRowString, allZerosRowString})
-  createFundamentalMode(i)
-  function createFundamentalMode () {
-    if (i >= totalModes) {
-      console.log('all done with creating fundamental modes at size ' + size)
+  function createMatrixIterativelyFromAllPossibleRows () {
+    if (i === exitValue) {
+      console.log('createMatrixIterativelyFromAllPossibleRows finished at ' + exitValue)
       return
     }
-    const binaryString = i.toString(2).padStart(elementCount, '0')
-    // first check if all of first row or second row are ones
-    for (let j = 0; j < size; j++) {
-      let rowString = binaryString.slice(j * size, (j + 1) * size)
-      // console.log({ i, binaryString, rowString, j})
-      if (rowString === allZerosRowString || rowString === allOnesRowString) {
-        // console.log('skipping', { i, binaryString, rowString, j})
-        i++
-        setTimeout(createFundamentalMode, 0)
-        return
-      }
-    }
-    // now check to see if it has the correct amount of 1s in the whole array, should be divisible by size
-    let binaryArray = binaryString.split('') 
-    let relationCount = 0
-    binaryArray.forEach(function (el) {
-      if (el === '1') relationCount++
+    const sourceBase = 10
+    const iteratorDigits = i.toString(sourceBase).split('').map(n => Number(n))
+    const destinationBase = allPossibleRows.length
+    const newBaseDigits = baseConvertBigInt(iteratorDigits, sourceBase, destinationBase)
+    const prependArrayOfZeroes = (new Array(size - newBaseDigits.length)).fill(0)
+    const arrayOfRowIndexes = prependArrayOfZeroes.concat(newBaseDigits) // now it's the correct length
+    // console.log({iteratorDigits, sourceBase, destinationBase, newBaseDigits, prependArrayOfZeroes, arrayOfRowIndexes})
+    let binaryString = ''
+    const booleanMatrix = arrayOfRowIndexes.map(rowIndex => {
+      const rowAsString = allPossibleRows[rowIndex]
+      binaryString += rowAsString
+      const rowAsBooleanArray = rowAsString.split('').map(character => character === '1')
+      return rowAsBooleanArray
     })
-    
-    if (relationCount % size === 0) { // this is a candidate for consistent rank
-      console.log(`Total progress in this space = ${100 * i / totalModes}%\ni=${i} (${binaryString})\nis a candidate for consistent rank, calculating...`)
-      const graph = new Graph({
-        name: 'Fundamental Mode ' + i,
-        binaryString
-      })
-      graphAfter = graph.createFromBinaryString(binaryString)
-      graph.save((err, savedGraph) => {
-        if (err) console.log(err)
-        if (savedGraph) console.log('saved graph' , savedGraph)
-        
-        i++
-        setTimeout(createFundamentalMode, 0)
-      })
-    } else { // not a candidate
+    // console.log({binaryString, booleanMatrix})
+    console.log(`Total progress in this space = ${100 * i / exitValue}%\ni=${i} (${binaryString})\nis a candidate for consistent rank, calculating...`)
+    const graph = new Graph({
+      name: 'Iteratively by Possible Rows ' + i,
+      binaryString,
+      booleanMatrix
+    })
+    graph.save((err, savedGraph) => {
+      if (err) console.log(err)
+      if (savedGraph) console.log('saved graph' , savedGraph)
+      
       i++
-      setTimeout(createFundamentalMode, 0)
-    }
-    
-   
+      setTimeout(createMatrixIterativelyFromAllPossibleRows, 0)
+    })
   }
 }
+
+
+function baseConvertBigInt(digits, srcb, destb){
+  // https://gist.github.com/antimatter15/2bf0fcf5b924b4387174d5f84f35277c
+  // arbitrary base conversion function
+  // By Kevin Kwok (antimatter15@gmail.com)
+  // Released under MIT License in 2021 
+  let val = 0n
+  srcb = BigInt(srcb)
+  destb = BigInt(destb)
+  for(let i = 0; i < digits.length; i++){
+      val = val * srcb + BigInt(digits[i])
+  }
+  let res = []
+  while(val !== 0n){
+      res.unshift(Number(val % destb))
+      val = val / destb
+  }
+  return res
+}
+
+
+// function createFundamentalModes (size, i = 0) {
+//   console.log('creating fundamental modes at size ' + size)
+//   const elementCount = size * size
+//   const totalModes = Math.pow(2, elementCount)
+//   console.log('expecting ' + totalModes + ' graphs')
+//   // const minimumIndexForRankOtherThanZero = Math.pow(2, size * (size - 1))
+//   let minimumIndexForRankOtherThanZero = 0
+//   for (let j = 0; j < size; j++) {
+//     const contributionToMinimum = Math.pow(2, size * j)
+//     minimumIndexForRankOtherThanZero += contributionToMinimum
+//   }
+//   console.log({minimumIndexForRankOtherThanZero})
+//   console.log({asString: minimumIndexForRankOtherThanZero.toString(2).padStart(elementCount, '0')})
+//   // some indexes are preceeded with so many zeros they can't be rank other than zero
+//   i = i === 0 ? i : Math.max(i, minimumIndexForRankOtherThanZero) // no reason to start prior to minimum worthwhile, but zero does need to be included
+//   const allZerosRowString = (new Array(size)).fill('0').join('')
+//   const allOnesRowString = (new Array(size)).fill('1').join('')
+//   // console.log({allOnesRowString, allZerosRowString})
+//   createFundamentalMode(i)
+//   function createFundamentalMode () {
+//     if (i >= totalModes) {
+//       console.log('all done with creating fundamental modes at size ' + size)
+//       return
+//     }
+//     const binaryString = i.toString(2).padStart(elementCount, '0')
+//     // first check if all of first row or second row are ones
+//     for (let j = 0; j < size; j++) {
+//       let rowString = binaryString.slice(j * size, (j + 1) * size)
+//       // console.log({ i, binaryString, rowString, j})
+//       if (rowString === allZerosRowString || rowString === allOnesRowString) {
+//         // console.log('skipping', { i, binaryString, rowString, j})
+//         i++
+//         setTimeout(createFundamentalMode, 0)
+//         return
+//       }
+//     }
+//     // now check to see if it has the correct amount of 1s in the whole array, should be divisible by size
+//     let binaryArray = binaryString.split('') 
+//     let relationCount = 0
+//     binaryArray.forEach(function (el) {
+//       if (el === '1') relationCount++
+//     })
+    
+//     if (relationCount % size === 0) { // this is a candidate for consistent rank
+//       console.log(`Total progress in this space = ${100 * i / totalModes}%\ni=${i} (${binaryString})\nis a candidate for consistent rank, calculating...`)
+//       const graph = new Graph({
+//         name: 'Fundamental Mode ' + i,
+//         binaryString
+//       })
+//       graphAfter = graph.createFromBinaryString(binaryString)
+//       graph.save((err, savedGraph) => {
+//         if (err) console.log(err)
+//         if (savedGraph) console.log('saved graph' , savedGraph)
+        
+//         i++
+//         setTimeout(createFundamentalMode, 0)
+//       })
+//     } else { // not a candidate
+//       i++
+//       setTimeout(createFundamentalMode, 0)
+//     }
+    
+   
+//   }
+// }
 
 function importFirstFourCompositions () {
   const Compositions = require('./compositions')

@@ -273,7 +273,7 @@ function determineRank (booleanMatrix) {
   const testRank = rowRank[0]
   // console.log({ testRank})
   if (rowRank.every(el => el === testRank) && columnRank.every(el => el === testRank) ) {
-    console.log('consistent rank')
+    console.log('consistent rank of ' + testRank)
     return testRank
   }
   return null // will throw error
