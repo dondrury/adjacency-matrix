@@ -7,8 +7,10 @@ const morphSchema = new mongoose.Schema({
   characteristicPolynomial: Object,
   characteristicPolynomialString: { type: String, required: true, index: true, unique: true },
   characteristicPolynomialHtml: String,
-  // approximateEigenvalues: [Number],
-  exactEigenvalues: [String],
+  isSymmetric: Boolean,
+  selfReferences: Number,
+  // processed: Boolean,
+  approximateEigenvalues: [Number],
   image: String,
   exampleCount: { type: Number, default: 1 },
   bestExample: { type: mongoose.Schema.Types.ObjectId, ref: 'Graph'},
@@ -24,9 +26,11 @@ const morphSchema = new mongoose.Schema({
 })
 
 morphSchema.pre('validate', function (next) {
-
   next()
 })
+
+
+
 
 const Morph = mongoose.model('Morph', morphSchema)
 

@@ -4,6 +4,8 @@ const Graph = require('../models/graph')
 const Tuple = require('../models/tuple')
 const Morph = require('../models/morph')
 const { composition } = require('mathjs')
+const { count } = require('../models/morph')
+const eigs = require('mathjs').eigs
 var Compositions4x4 = []
 var FundamentalModes4x4 = []
 var Tuples4x4 = []
@@ -46,6 +48,7 @@ exports.afterConnectionTasks = function () {
     // const graphAfter = graph.createWithBinaryRepresentation('0001011010011001111100100000')
     // console.log('graphAfter', graphAfter)
     classifyNextUnclassifiedGraph()
+    processNextUnprocessedMorph()
   }, 1000)
 }
 
@@ -219,6 +222,86 @@ function classifyNextUnclassifiedGraph () {
     })
   })
 }
+
+// function processNextUnprocessedMorph () {
+//   Morph.findOne({ processed: { $exists: false } }).populate('bestExample').exec((err, unprocessedMorph) => {
+//     if (err) {
+//       console.log(err)
+//       return
+//     }
+//     if (!unprocessedMorph) {
+//       console.log('all morphs processed, stopping search')
+//       return
+//     }
+    
+//     let approximateEigenvalues = []
+//     let selfReferences = countSelfReferences(unprocessedMorph.bestExample.booleanMatrix)
+//     let symmetrical = isSymmetric(unprocessedMorph.bestExample.booleanMatrix)
+//     if (symmetrical) approximateEigenvalues = findEigenValues(unprocessedMorph.bestExample.booleanMatrix)
+//     unprocessedMorph.isSymmetric = symmetrical
+//     unprocessedMorph.selfReferences = selfReferences
+//     unprocessedMorph.approximateEigenvalues = approximateEigenvalues
+//     unprocessedMorph.processed = true
+//     unprocessedMorph.save((err, processedMorph) => {
+//       if (err) {
+//         console.log(err)
+//         return
+//       } 
+//       if (processedMorph) {
+//         console.log({
+//           binaryStringUnprocessedGraph: unprocessedMorph.bestExample.binaryString,
+//           symmetrical,
+//           selfReferences,
+//           approximateEigenvalues
+//         })
+//         setTimeout(processNextUnprocessedMorph, 50)
+//         return
+//       }
+//       console.log('all morphs processed')
+//     })
+//   })
+
+//   // temporary use
+//   function countSelfReferences (booleanMatrix) { // temporary
+//     const size = booleanMatrix.length
+//     let selfReferences = 0
+//     for (let i = 0; i < size; i++) {
+//       if (booleanMatrix[i][i]) selfReferences++
+//     }
+//     return selfReferences
+//   }
+//   function findEigenValues (matrix) {
+//     const numericalMatrix = []
+//     for (let i = 0; i < matrix.length; i++) {  // i is for rows
+//       const row = []
+//       for (let j = 0; j < matrix[i].length; j++) { // j is for columns
+//         row.push(matrix[i][j] ? 1: 0)
+//       }
+//       numericalMatrix.push(row)
+//     }
+//     // console.log('matrix', matrix)
+//     // console.log('numericalMatrix', numericalMatrix)
+//     // console.log('eigenvalues', eigs(numericalMatrix, { eigenvectors: false }))
+//     let eigenvalues = []
+//     try {
+//       eigenvalues = eigs(numericalMatrix, { eigenvectors: false }).values.sort((a,b) => a - b)
+//     } catch (e) {
+//       console.log(e)
+//     }
+//     return eigenvalues
+//   }
+//   function isSymmetric (booleanMatrix) {
+//     const A = booleanMatrix
+//     const n = booleanMatrix.length
+//     for (let i = 0; i < n; i++) {
+//       for (let j = i; j < n; j++) {
+//         if (A[i][j] !== A[j][i])
+//           return false
+//       }
+//     }
+//     return true
+//   }
+// }
 
 function find4x4Compositions () {
   Composition.find({ size: 4 }).sort({ base10Representation: 1 }).exec((err, compositions) => {

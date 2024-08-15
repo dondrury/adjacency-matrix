@@ -1,16 +1,14 @@
 const mongoose = require('mongoose')
 const Polynomial = require('polynomial')
-const eigs = require('mathjs').eigs
 const Morph = require('./morph')
-// import { eigs } from 'mathjs'
+const eigs = require('mathjs').eigs
 // graph is given only name and booleanArray when init, all other values are calculated internally
 
 const graphSchema = new mongoose.Schema({
   name: { type: String, index: true },
   size: { type: Number, required: true, index: true },
-  rank: { type: Number, required: true },
+  rank: { type: Number, required: true, index: true },
   booleanMatrix: [[Boolean]],
-  isSymmetric: Boolean,
   binaryString: { type: String, required: true, unique: true },
   morphIdentified: { type: mongoose.Schema.Types.ObjectId, ref: 'Morph'},
   pseudoSkewSymmetryScore: Number,
@@ -51,15 +49,10 @@ graphSchema.pre('validate', function (next) {
     next(nonSquareError)
     return
   }
-  this.isSymmetric = isSymmetric(this.booleanMatrix)
 
   this.size = this.booleanMatrix.length
   this.rank = determineRank(this.booleanMatrix)
   if (typeof this.rank !== 'number' ) next('inconsistent rank')
-  // console.log('rank=' + this.rank + ' size=' + this.size)
-  // if (this.rank !== 3 && this.size !== 4) next('Not rank three and bigger than N=4')
-  // this.binaryRepresentation = findBinaryRepresentation(this.booleanMatrix)
-  // this.base10Representation = parseInt(this.binaryRepresentation, 2)
   this.pseudoSkewSymmetryScore = pseudoSkewSymmetryScore(this.booleanMatrix)
   next()
 })
@@ -74,14 +67,19 @@ graphSchema.method('classify', function (cb) {
       return
     }
     if (!existingMorph) {
+      let approximateEigenvalues = []
+      let symmetrical = isSymmetric(this.booleanMatrix)
+      if (symmetrical) approximateEigenvalues = findEigenValues(this.booleanMatrix)
       const newMorph = new Morph({
         name: '',
         size: this.size,
         rank: this.rank,
+        isSymmetric: symmetrical,
+        selfReferences: countSelfReferences(this.booleanMatrix),
+        approximateEigenvalues,
         characteristicPolynomial: characteristicPolynomial,
         characteristicPolynomialString: characteristicPolynomialString,
         characteristicPolynomialHtml: prettyPrintPolynomial(characteristicPolynomial),
-        // approximateEigenvalues: findEigenValues(this.booleanMatrix),
         bestExample: this._id,
         notes: ''
       })
@@ -120,6 +118,36 @@ graphSchema.method('classify', function (cb) {
     }
   })
 })
+
+function countSelfReferences (booleanMatrix) { // temporary
+  const size = booleanMatrix.length
+  let selfReferences = 0
+  for (let i = 0; i < size; i++) {
+    if (booleanMatrix[i][i]) selfReferences++
+  }
+  return selfReferences
+}
+
+function findEigenValues (matrix) {
+  const numericalMatrix = []
+  for (let i = 0; i < matrix.length; i++) {  // i is for rows
+    const row = []
+    for (let j = 0; j < matrix[i].length; j++) { // j is for columns
+      row.push(matrix[i][j] ? 1: 0)
+    }
+    numericalMatrix.push(row)
+  }
+  // console.log('matrix', matrix)
+  // console.log('numericalMatrix', numericalMatrix)
+  // console.log('eigenvalues', eigs(numericalMatrix, { eigenvectors: false }))
+  let eigenvalues = []
+  try {
+    eigenvalues = eigs(numericalMatrix, { eigenvectors: false }).values.sort((a,b) => a - b)
+  } catch (e) {
+    console.log(e)
+  }
+  return eigenvalues
+}
 
 function findBinaryRepresentation (booleanMatrix) {
   let arrayOfBooleans = []
@@ -221,26 +249,7 @@ function createPolynomialMatrix (matrix) {
   return polynomialMatrix
 }
 
-function findEigenValues (matrix) {
-  const numericalMatrix = []
-  for (let i = 0; i < matrix.length; i++) {  // i is for rows
-    const row = []
-    for (let j = 0; j < matrix[i].length; j++) { // j is for columns
-      row.push(matrix[i][j] ? 1: 0)
-    }
-    numericalMatrix.push(row)
-  }
-  // console.log('matrix', matrix)
-  // console.log('numericalMatrix', numericalMatrix)
-  // console.log('eigenvalues', eigs(numericalMatrix, { eigenvectors: false }))
-  const eigenvalues = []
-  try {
-    eigenvalues = eigs(numericalMatrix, { eigenvectors: false }).values.sort((a,b) => a - b)
-  } catch (e) {
-    console.log(e)
-  }
-  return eigenvalues
-}
+
 
 function determineRank (booleanMatrix) {
   let rowRank  = []
@@ -298,6 +307,15 @@ function isSymmetric (booleanMatrix) {
     }
   }
   return true
+}
+
+function countSelfReferences (booleanMatrix) {
+  const size = booleanMatrix.length
+  let selfReferences = 0
+  for (let i = 0; i < size; i++) {
+    if (booleanMatrix[i][i]) selfReferences++
+  }
+  return selfReferences
 }
 
 function pseudoSkewSymmetryScore (booleanMatrix) {
