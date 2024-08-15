@@ -6,23 +6,23 @@ const Morph = require('../models/morph')
 const { composition } = require('mathjs')
 const { count } = require('../models/morph')
 const eigs = require('mathjs').eigs
-var Compositions4x4 = []
-var FundamentalModes4x4 = []
-var Tuples4x4 = []
-var Tuples2x2 = []
-var Tuples3x3 = []
-var Morphs = []
+// var Compositions4x4 = []
+// var FundamentalModes4x4 = []
+// var Tuples4x4 = []
+// var Tuples2x2 = []
+// var Tuples3x3 = []
+// var Morphs = []
 
 exports.afterConnectionTasks = function () {
-  find4x4Compositions()
-  find4x4FundamentalModes()
+  // find4x4Compositions()
+  // find4x4FundamentalModes()
   // find2Tuples()
   // find3Tuples()
   // find4Tuples()
-  findAllMorphs()
+  // findAllMorphs()
   // rankAllPossibleRowsOfSize(8)
   setTimeout(function () {
-    // findAllGraphsOfSizeAndRank(6, 4, 0) // let's try to do this by inverting down from existing
+    // findAllGraphsOfSizeAndRank(6, 3, 0) // let's try to do this by inverting down from existing
   //  createFundamentalModes(6, 1104317344) // last stopped at 1104317344
 
     // importAllTwoTuples()
@@ -48,24 +48,24 @@ exports.afterConnectionTasks = function () {
     // const graphAfter = graph.createWithBinaryRepresentation('0001011010011001111100100000')
     // console.log('graphAfter', graphAfter)
     classifyNextUnclassifiedGraph()
-    processNextUnprocessedMorph()
+    // processNextUnprocessedMorph()
   }, 1000)
 }
 
 
 exports.home = (req, res) => {
-  return res.render('layout', { title: 'What is an adjacency graph?', view: 'home', compositions: Compositions4x4, fundamentalModes: FundamentalModes4x4})
+  return res.render('layout', { title: 'What is an adjacency graph?', view: 'home' })
 }
 
-exports.getAllSpaces = (req, res) => {
-  return res.render('layout', { title: 'What Morphs Exist', view: 'spaces', morphs: Morphs })
-}
+// exports.getAllSpaces = (req, res) => {
+//   return res.render('layout', { title: 'What Morphs Exist', view: 'spaces', morphs: Morphs })
+// }
 
-exports.getMorphs = (req, res) => { // /morph/size/:size/rank/:rank
+exports.getMorphs = (req, res) => { 
   const size = Number(req.params.size)
   const rank = Number(req.params.rank)
   // console.log(size, rank)
-  Morph.find({size, rank}).populate('bestExample').sort('size').exec((err, morphs) => {
+  Morph.find({size, rank}).populate('bestExample').sort('selfReferences -isSymmetric').exec((err, morphs) => {
     if (err) {
       console.log(err)
       return
@@ -77,7 +77,6 @@ exports.getMorphs = (req, res) => { // /morph/size/:size/rank/:rank
       }
       return res.render('layout', { title: 'What Morphs Exist', view: 'morphs', morphs, size, rank, graphsInSpace: counted })
     })
-    
   })
 }
 
@@ -167,10 +166,10 @@ exports.getEditMorph = (req, res) => {
   
 }
 
-exports.getComposingModes = (req, res) => {
-  // console.log({ compositions: Compositions4x4})
-  return res.render('layout', { title: 'Composing Fundamental Modes', view: 'composingModes', compositions: Compositions4x4 })
-}
+// exports.getComposingModes = (req, res) => {
+//   // console.log({ compositions: Compositions4x4})
+//   return res.render('layout', { title: 'Composing Fundamental Modes', view: 'composingModes', compositions: Compositions4x4 })
+// }
 
 exports.getComposition = (req, res) => {
   Composition.findById(req.params.id).exec((err, composition) => {
@@ -182,26 +181,26 @@ exports.getComposition = (req, res) => {
   })
 }
 
-exports.getFourTuples = (req, res) => {
-  return res.render('layout', { view: 'fourTuples', title: 'All Four-Tuples', tuples: Tuples4x4, compositions: Compositions4x4 })
-}
+// exports.getFourTuples = (req, res) => {
+//   return res.render('layout', { view: 'fourTuples', title: 'All Four-Tuples', tuples: Tuples4x4, compositions: Compositions4x4 })
+// }
 
-exports.getFundamentalModes = (req, res) => {
-  return res.render('layout', { view: 'fundamentalModes', title: 'Fundamental Modes', fundamentalModes: FundamentalModes4x4 })
-}
+// exports.getFundamentalModes = (req, res) => {
+//   return res.render('layout', { view: 'fundamentalModes', title: 'Fundamental Modes', fundamentalModes: FundamentalModes4x4 })
+// }
 
-exports.getFundamentalMode = (req, res) => {
-  const number = req.params.number
-  // console.log('get fundamental mode ', number)
-  Graph.findOne({ base10Representation: number}).exec((err, fundamentalMode) => {
-    if (err) {
-      console.log(err)
-      return res.render('layout', {view : 'error'}).status(404)
-    }
-    // console.log('fundamentalModes', fundamentalModes)
-    return res.render('layout', { view: 'fundamentalMode', title: 'Fundamental Mode ' + number, fundamentalMode })
-  })
-}
+// exports.getFundamentalMode = (req, res) => {
+//   const number = req.params.number
+//   // console.log('get fundamental mode ', number)
+//   Graph.findOne({ base10Representation: number}).exec((err, fundamentalMode) => {
+//     if (err) {
+//       console.log(err)
+//       return res.render('layout', {view : 'error'}).status(404)
+//     }
+//     // console.log('fundamentalModes', fundamentalModes)
+//     return res.render('layout', { view: 'fundamentalMode', title: 'Fundamental Mode ' + number, fundamentalMode })
+//   })
+// }
 
 /* initialization functions */
 

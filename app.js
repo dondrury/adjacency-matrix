@@ -75,8 +75,8 @@ const publicServeOptions = {
   }
 }
 app.use('/', express.static(path.join(__dirname, 'public'), publicServeOptions))
-app.get('/composingModes', graphController.getComposingModes)
-app.get('/fourTuples', graphController.getFourTuples)
+// app.get('/composingModes', graphController.getComposingModes)
+// app.get('/fourTuples', graphController.getFourTuples)
 app.get('/graph/:id', graphController.getGraph)
 app.get('/graph/lineage/:id', graphController.getGraphLineage)
 // app.get('/spaces/all', graphController.getAllSpaces)
@@ -86,8 +86,8 @@ if (process.env.NODE_ENV === 'local') {
   app.post('/morphs/edit/:id', graphController.postEditMorph)
   app.post('/morphs/saveImage/:id', graphController.postEditSaveImageMorph)
 }
-app.get('/fundamentalModes', graphController.getFundamentalModes)
-app.get('/fundamentalMode/:number', graphController.getFundamentalMode)
+// app.get('/fundamentalModes', graphController.getFundamentalModes)
+// app.get('/fundamentalMode/:number', graphController.getFundamentalMode)
 // app.get('/composeFundamentalModes/tuple/:tupleId/composition/:compositionId', graphController.getComposeFundamentalModes)
 // app.get('/fourByFourComposition/c4/:compositionNumber/:fourTupleNumber', graphController.getFourByFourComposition)
 app.get('/composition/:id', graphController.getComposition)
