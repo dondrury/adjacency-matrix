@@ -186,7 +186,7 @@ function prettyPrintPolynomial (poly) {
 function findCharacteristicEquation (matrix) {
   const polynomialMatrix = createPolynomialMatrix(matrix)
   if (matrix.length === 1) {
-    return new Polynomial([matrix[0][0] ? 1 : 0])
+    return new Polynomial([matrix[0][0] ? 1 : 0, -1])
   }
   return detByLaplace(polynomialMatrix)
  }

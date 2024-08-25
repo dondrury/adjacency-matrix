@@ -5,6 +5,7 @@ const chalk = require('chalk')
 const mongoose = require('mongoose')
 const bodyParser = require('body-parser')
 const graphController = require('./controllers/graph')
+const morphController = require('./controllers/morph')
 mongoose.set('strictQuery', true)
 const app = express()
 
@@ -63,7 +64,9 @@ app.use((req, res, next) => {
   next()
 })
 
-app.get('/', graphController.home)
+app.get('/', (req, res) => {
+  return res.render('layout', { title: 'What is an adjacency graph?', view: 'home' })
+})
 
 const publicServeOptions = {
   dotfiles: 'ignore',
@@ -75,16 +78,18 @@ const publicServeOptions = {
   }
 }
 app.use('/', express.static(path.join(__dirname, 'public'), publicServeOptions))
+
 // app.get('/composingModes', graphController.getComposingModes)
 // app.get('/fourTuples', graphController.getFourTuples)
 app.get('/graph/:id', graphController.getGraph)
 app.get('/graph/lineage/:id', graphController.getGraphLineage)
 // app.get('/spaces/all', graphController.getAllSpaces)
-app.get('/morph/size/:size/rank/:rank', graphController.getMorphs)
-app.get('/morphs/edit/:id', graphController.getEditMorph)
+app.get('/morph/size/:size/rank/:rank', morphController.getMorphs)
+app.get('/morphs/edit/:id', morphController.getEditMorph)
+app.get('/morphsTableView', morphController.getMorphsTableView)
 if (process.env.NODE_ENV === 'local') {
-  app.post('/morphs/edit/:id', graphController.postEditMorph)
-  app.post('/morphs/saveImage/:id', graphController.postEditSaveImageMorph)
+  app.post('/morphs/edit/:id', morphController.postEditMorph)
+  app.post('/morphs/saveImage/:id', morphController.postEditSaveImageMorph)
 }
 // app.get('/fundamentalModes', graphController.getFundamentalModes)
 // app.get('/fundamentalMode/:number', graphController.getFundamentalMode)

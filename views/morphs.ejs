@@ -1,8 +1,8 @@
 <h1>Rank = <%= rank %>, n = <%= size %></h1>
 <div class="well well-sm">
   <p>
-    <b>Total Matrices:</b>
-    <span><%= Math.pow(2, size * size).toExponential(2) %></span>
+    <b>Total Matrices in Space:</b>
+    <span><%= Math.pow(2, size * size).toString(10) %></span>
   </p>
   <p>
     <b>Total Graphs of Consistent Rank:</b>
@@ -14,12 +14,11 @@
   </p>
 </div>
 
-<p>"Morphs" are what we call the shape of the graph, and it turns out that even though there are many thousands of graphs, when their characteristic polynomial is found, many are shared. In fact, some morphs have thousands of different graphs that produce the same morph, but each of those matrices shares the same characteristic polynomial</p>
+<p>"Morphs" are what we call the shape of the graph, and it turns out that even though there are many thousands of graphs, when their characteristic polynomial is found, many are shared. In fact, some morphs have thousands of different graphs that produce the same morph, but each of those matrices shares the same characteristic polynomial. The characteristic polynomial and it's roots represent the "shape" of the structure, and each graph is a different permutation of numbering of the vertices.</p>
 <p>Here are all currently identified morphs, and how many there are, with an example of each one:</p>
 <div class="row">
   <% morphs.forEach(m => { %>
     <div class="col-xs-12 col-sm-6 col-md-4">
-      
       <h3>There are <%= m.exampleCount %> of <a href="/morphs/edit/<%= m._id %>"><%= m.name ? m.name: 'Unnamed' %></a>:</h3>
       <% if (typeof graphsInSpace === 'number') { %>
         <h4>Partial Probability: <%= Math.round(100 * m.exampleCount / graphsInSpace) %>%</h4>

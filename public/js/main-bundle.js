@@ -190,31 +190,55 @@ exports.init = init;
 
 // const adjacencyGraph = require('./adjacencyGraph')
 var cytoscapeVisualization = require('./cytoscapeVisualization');
-var spectralGraph = require('./spectralGraph');
+var morphsDataTable = require('./morphsDataTable');
 document.addEventListener('DOMContentLoaded', function () {
   console.log('Start');
-  spectralGraph.init();
+  morphsDataTable.init();
   cytoscapeVisualization.init();
 });
 
-},{"./cytoscapeVisualization":1,"./spectralGraph":3}],3:[function(require,module,exports){
+},{"./cytoscapeVisualization":1,"./morphsDataTable":3}],3:[function(require,module,exports){
 "use strict";
 
 function init() {
-  console.log('started spectral graph');
   // Array.from(document.getElementsByClassName('cytoscape-visualization')).forEach(create)
-  Array.from(document.getElementsByClassName('spectral-graph')).forEach(prepare);
+  if (document.getElementById('morphsDataTable') && window.morphsObject) {
+    console.log('morphsDataTable');
+    console.log(morphsObject);
+    create();
+  }
 }
-function prepare(el, i) {
-  // const eigenEls = Array.from(el.querySelectorAll('.eigenvalue'))
-  // console.log(eigenEls)
-  // eigenEls.forEach((el) => {
-  //   eigenEls.forEach((otherEig) => {
-  //     if (el.style.bottom === otherEig.style.bottom) {
-  //       el.style.bottom = (parseInt(el.style.bottom.replace('px',''), 10) + 10 ) + 'px'
-  //     }
-  //   })
-  // })
+function create() {
+  var dataSet = [];
+  morphsObject.forEach(function (m) {
+    var morph = [m.id, m.characteristicPolynomialHtml, m.size, m.isSymmetric, m.selfReferences, m.rank, m.image];
+    dataSet.push(morph);
+  });
+  var table = new DataTable('#morphsDataTable', {
+    columns: [{
+      title: 'ID',
+      render: function render(id) {
+        return "<a href=\"/morphs/edit/".concat(id, "\" target=\"_blank\">").concat(id, "</a>");
+      }
+    }, {
+      title: 'Characteristic Polynomial'
+    }, {
+      title: 'Size'
+    }, {
+      title: 'isSymmetric'
+    }, {
+      title: 'selfReferences'
+    }, {
+      title: 'Rank'
+    }, {
+      title: 'Image',
+      render: function render(imageData) {
+        return "<img src=\"".concat(imageData, "\" width=\"50px\"/>");
+      }
+    }],
+    data: dataSet,
+    paging: false
+  });
 }
 exports.init = init;
 

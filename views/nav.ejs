@@ -25,12 +25,12 @@
         
         
         
-        <!-- <li><a href="/plank-graph ">Plank Graph</a></li> -->
+        <li><a href="/morphsTableView">Morphs Table View</a></li>
         <% for (let rank = 0; rank <= 3; rank++) { %>
           <li class="dropdown">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Rank <%= rank %><span class="caret"></span></a>
             <ul class="dropdown-menu">
-              <% for (let size = rank; size <= 6; size++ ) { %>
+              <% for (let size = rank === 0 ? 1 : rank; size <= 6 ; size++ ) { %>
                 <li><a href="/morph/size/<%= size %>/rank/<%= rank %>">n = <%= size %></a></li>
               <% } %>
             </ul>

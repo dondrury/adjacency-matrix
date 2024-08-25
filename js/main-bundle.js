@@ -1,9 +1,9 @@
 'use strict'
 // const adjacencyGraph = require('./adjacencyGraph')
 const cytoscapeVisualization = require('./cytoscapeVisualization')
-const spectralGraph = require('./spectralGraph')
+const morphsDataTable = require('./morphsDataTable')
 document.addEventListener('DOMContentLoaded', () => {
   console.log('Start')
-  spectralGraph.init()
+  morphsDataTable.init()
   cytoscapeVisualization.init()
 })
