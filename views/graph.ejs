@@ -10,25 +10,24 @@
   const xOffset = n => n * squareSize
   %>
   <div class="graph-container" data-matrix="<%= JSON.stringify(matrix) %>">
-    <p><%= graph.name %></p>
+    <p>Graph of <%= graph.name %></p>
     <svg viewBox="0 0 <%= overallWidth %> <%= overallWidth %>" 
          class="sparse-matrix"
          style="height: <%= overallWidth + 1 %>px; width:<%= overallWidth %>px;" >
          <% for (let j = 0; j < matrix.length; j++) { // rows
               for (let i = 0; i < matrix[j].length; i++) { // columns
                 const value = matrix[j][i]
+                let color = 'white'
+                if (value === true) color = 'darkgrey'
+                if (value === true &&  matrix[i][j] === true) color = 'black'
+                if (value === true && i === j) color = 'red'
                 %>
                 <rect y="<%= yOffset(j) %>" 
                       x="<%= xOffset(i) %>" 
                       width="<%= squareSize %>" 
                       height="<%= squareSize %>" 
                       stroke="black"
-                      fill="<%= (value === true || typeof value === 'number' || typeof value === 'string') ? 'darkgrey' : 'white' %>"></rect>
-                <text y="<%= yOffset(j + 1) - squareSize / 5 %>" 
-                      x="<%= xOffset(i) + squareSize / 10 %>" 
-                      font-size="<%= squareSize * 0.8 %>px" 
-                      style="display:<%= (typeof value === 'number' || typeof value === 'string') ? 'inline-block' : 'none' %>;"
-                      fill="white"><%- value %></text>
+                      fill="<%= color %>"></rect>
             <% }
             } %>
     </svg>

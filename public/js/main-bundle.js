@@ -99,8 +99,8 @@ function visualize(matrix, container) {
       selector: 'edge[?directed]',
       style: {
         'width': 3,
-        'line-color': '#ccc',
-        'target-arrow-color': '#ccc',
+        'line-color': 'darkgrey',
+        'target-arrow-color': 'darkgrey',
         'target-arrow-shape': 'triangle',
         'curve-style': 'bezier'
       }
