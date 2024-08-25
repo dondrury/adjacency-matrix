@@ -14,12 +14,11 @@
     </form>
     <div>
       <h4><%- morph.characteristicPolynomialHtml %></h4>
-     
-      <img src="<%= morph.image %>" alt="cannonical image of graph" class="img-responsive" style="max-width:300px;max-height:300px;margin-bottom:20px;">
+      <img src="<%= morph.image %>" alt="cannonical image of graph" class="img-responsive" style="max-width:200px;max-height:200px;margin-bottom:20px;">
       <p>This is a cannonical image. It's vertex numbers represent <i>only this one permutation</i> of the <%= morph.exampleCount %> permutations of this graph.</p>
       <form action="/morphs/saveImage/<%= morph._id %>" method="POST" >
         <%- include('graph', { graph: morph.bestExample, 
-          width: 400
+          width: 200
         }) %>
         
       </form>
@@ -29,9 +28,13 @@
   <div class="col-lg-6">
     <h2>All <%= graphs.length %> Graphs that have this Morphology</h2>
       <ol>
-        <% graphs.forEach((graph, i) => { %>
+        <% graphs.forEach((graph, i) => { 
+          let isBestExample = graph.id === morph.bestExample.id
+          %>
           <li>
-            <a href="/graph/lineage/<%= graph.id %>"><%= graph.name %></a>
+            <a href="/graph/lineage/<%= graph.id %>" style="font-weight: <%= isBestExample ? '700' : '400' %>;">
+              <%= graph.name %> <%= isBestExample ? '- Best Example' : '' %>
+            </a>
           </li>
         <% }) %>
       </ol>

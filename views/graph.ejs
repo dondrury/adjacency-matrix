@@ -10,11 +10,22 @@
   const xOffset = n => n * squareSize
   %>
   <div class="graph-container" data-matrix="<%= JSON.stringify(matrix) %>">
-    <p>Graph of <%= graph.name %></p>
-    <svg viewBox="0 0 <%= overallWidth %> <%= overallWidth %>" 
+    <p>Matrix Representation of <%= graph.name %></p>
+    <svg viewBox="-<%= squareSize %> -<%=squareSize %> <%= overallWidth + squareSize %> <%= overallWidth + squareSize %>" 
          class="sparse-matrix"
          style="height: <%= overallWidth + 1 %>px; width:<%= overallWidth %>px;" >
-         <% for (let j = 0; j < matrix.length; j++) { // rows
+         <% for (let i = 0; i < matrix.length; i++) { // i for columns, print column label %>
+          <text y="-<%= squareSize / 4 %>" 
+                x="<%= xOffset(i) + squareSize / 3 %>" 
+                font-size="<%= squareSize * 0.6 %>px" 
+                fill="black"><%- i %></text>
+         <% } %> 
+         <% for (let j = 0; j < matrix.length; j++) { // j for rows, print row label %>
+                <text y="<%= yOffset(j + 1) - squareSize / 3 %>" 
+                      x="-<%= squareSize / 1.8 %>" 
+                      font-size="<%= squareSize * 0.6 %>px" 
+                      fill="black"><%- j %></text>
+          <%
               for (let i = 0; i < matrix[j].length; i++) { // columns
                 const value = matrix[j][i]
                 let color = 'white'
