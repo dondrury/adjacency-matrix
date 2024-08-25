@@ -12,21 +12,26 @@
         </div>
       </div>
     </form>
-    <div>
-      <h4><%- morph.characteristicPolynomialHtml %></h4>
-      <img src="<%= morph.image %>" alt="cannonical image of graph" class="img-responsive" style="max-width:200px;max-height:200px;margin-bottom:20px;">
-      <p>This is a cannonical image. It's vertex numbers represent <i>only this one permutation</i> of the <%= morph.exampleCount %> permutations of this graph.</p>
-      <form action="/morphs/saveImage/<%= morph._id %>" method="POST" >
-        <%- include('graph', { graph: morph.bestExample, 
-          width: 200
-        }) %>
-        
-      </form>
+    <div class="row">
+      <div class="col-lg-6">
+        <h4><%- morph.characteristicPolynomialHtml %></h4>
+        <img src="<%= morph.image %>" alt="cannonical image of graph" class="img-responsive" style="max-width:200px;max-height:200px;margin-bottom:20px;">
+        <p>This is a cannonical image. It's vertex numbers represent <i>only this one permutation</i> of the <%= morph.exampleCount %> permutations of this graph.</p>
+      </div>
+      <div class="col-lg-6">
+        <form action="/morphs/saveImage/<%= morph._id %>" method="POST" >
+          <%- include('graph', { graph: morph.bestExample, 
+            width: 200
+          }) %>
+        </form>
+      </div>
       
+     
     </div>
   </div>
   <div class="col-lg-6">
-    <h2>All <%= graphs.length %> Graphs that have this Morphology</h2>
+    <%- include('superpositionMatrix', { superpositionMatrix: morph.superpositionMatrix, width: 200 }) %>
+    <h3>All <%= graphs.length %> graphs that have this Morphology</h3>
       <ol>
         <% graphs.forEach((graph, i) => { 
           let isBestExample = graph.id === morph.bestExample.id

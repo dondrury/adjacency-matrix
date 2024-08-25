@@ -1,6 +1,36 @@
 const Morph = require('../models/morph')
 const Graph = require('../models/graph')
 
+exports.afterConnectionTasks = function () {
+  setTimeout(function () {
+   console.log('morph controller after connection tasks')
+  //  updateAllSuperpositionMatrices() // this also serves to update "exampleCount to match actual matrices. During the search process some errors caused double counting"
+  }, 1000)
+}
+
+
+function updateAllSuperpositionMatrices () {
+  Morph.find().exec((err, allMorphs) => {
+    if (err) {
+      console.log(err)
+      return
+    }
+    console.log('updateAllSuperpositionMatrices has found %s morphs', allMorphs.length)
+    let i = 0
+    updateNextSuperpositionMatrix()
+    function updateNextSuperpositionMatrix () {
+      if (i === allMorphs.length) {
+        console.log('updateAllSuperpositionMatrices is done')
+        return
+      }
+      allMorphs[i].updateSuperPositionMatrix(() => {
+        i++
+        setTimeout(updateNextSuperpositionMatrix, 0)
+      })
+    }
+  })
+}
+
 exports.getMorphsTableView = (req, res) => {
   Morph.find().exec((err, morphs) => {
     if (err || !morphs) {

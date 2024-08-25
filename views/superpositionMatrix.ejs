@@ -1,0 +1,32 @@
+<% if ( typeof superpositionMatrix !== 'object') { %>
+  <b>Error: Empty Matrix</b>
+<% } else {
+  const overallWidth = typeof width === 'number' ? width : 100
+  const squareSize = Math.floor(overallWidth / superpositionMatrix.length)
+  const yOffset = m => m * squareSize
+  const xOffset = n => n * squareSize
+  %>
+  <div class="matrix-svg-container" data-matrix="<%= JSON.stringify(superpositionMatrix) %>">
+    <h3>Superposition matrix of all graphs for this morph:</h3>
+    <svg viewBox="0 0 <%= overallWidth %> <%= overallWidth %>" 
+         class="sparse-matrix"
+         style="height: <%= overallWidth + 1 %>px; width:<%= overallWidth %>px;" >
+         <% for (let j = 0; j < superpositionMatrix.length; j++) { // rows
+              for (let i = 0; i < superpositionMatrix[j].length; i++) { // columns
+                const value = superpositionMatrix[j][i]
+                %>
+                <rect y="<%= yOffset(j) %>" 
+                      x="<%= xOffset(i) %>" 
+                      width="<%= squareSize %>" 
+                      height="<%= squareSize %>" 
+                      stroke="black"
+                      fill="white"></rect>
+                <text y="<%= yOffset(j + 1) - squareSize / 5 %>" 
+                      x="<%= xOffset(i) + squareSize / 4 %>" 
+                      font-size="<%= squareSize / 3 %>px" 
+                      fill="black"><%- value %></text>
+            <% }
+            } %>
+    </svg>
+  </div>
+<% } %>

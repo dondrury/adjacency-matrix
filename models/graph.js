@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 const Polynomial = require('polynomial')
-const Morph = require('./morph')
+// const Morph = require('./morph')
 const eigs = require('mathjs').eigs
 // graph is given only name and booleanArray when init, all other values are calculated internally
 
@@ -58,6 +58,7 @@ graphSchema.pre('validate', function (next) {
 })
 
 graphSchema.method('classify', function (cb) {
+  const Morph = require('./morph')
   console.log('classifying graph %s', this.id)
   const characteristicPolynomial = findCharacteristicEquation(this.booleanMatrix)
   const characteristicPolynomialString = characteristicPolynomial.toString()

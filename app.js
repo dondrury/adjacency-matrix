@@ -105,4 +105,5 @@ app.listen(process.env.PORT, () => {
 
 function afterConnectionTasks () {
   graphController.afterConnectionTasks()
+  morphController.afterConnectionTasks()
 }

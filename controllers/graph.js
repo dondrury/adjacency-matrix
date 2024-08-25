@@ -1,15 +1,16 @@
 
 const Composition = require('../models/composition')
 const Graph = require('../models/graph')
-const Tuple = require('../models/tuple')
-const Morph = require('../models/morph')
-const { composition } = require('mathjs')
-const { count } = require('../models/morph')
-const eigs = require('mathjs').eigs
+// const Tuple = require('../models/tuple')
+// const Morph = require('../models/morph')
+// const { composition } = require('mathjs')
+// const { count } = require('../models/morph')
+// const eigs = require('mathjs').eigs
 
 
 exports.afterConnectionTasks = function () {
   setTimeout(function () {
+    console.log('graph controller after connection tasks')
     // findAllGraphsOfSizeAndRank(1, 0) // let's try to do this by inverting down from existing
     // symmetricalGraphSearch(6, 10367) // this is for symmetrical graphs only
     classifyNextUnclassifiedGraph()

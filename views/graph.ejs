@@ -10,7 +10,8 @@
   const xOffset = n => n * squareSize
   %>
   <div class="graph-container" data-matrix="<%= JSON.stringify(matrix) %>">
-    <p>Colored Matrix Representation of <%= graph.name %></p>
+    <div>Colored matrix representation of:</div>
+    <div>"<%= graph.name %>"</div>
     <svg viewBox="-<%= squareSize %> -<%=squareSize %> <%= overallWidth + squareSize %> <%= overallWidth + squareSize %>" 
          class="sparse-matrix"
          style="height: <%= overallWidth + 1 %>px; width:<%= overallWidth %>px;margin-bottom:20px;" >
