@@ -10,10 +10,10 @@
   const xOffset = n => n * squareSize
   %>
   <div class="graph-container" data-matrix="<%= JSON.stringify(matrix) %>">
-    <p>Matrix Representation of <%= graph.name %></p>
+    <p>Colored Matrix Representation of <%= graph.name %></p>
     <svg viewBox="-<%= squareSize %> -<%=squareSize %> <%= overallWidth + squareSize %> <%= overallWidth + squareSize %>" 
          class="sparse-matrix"
-         style="height: <%= overallWidth + 1 %>px; width:<%= overallWidth %>px;" >
+         style="height: <%= overallWidth + 1 %>px; width:<%= overallWidth %>px;margin-bottom:20px;" >
          <% for (let i = 0; i < matrix.length; i++) { // i for columns, print column label %>
           <text y="-<%= squareSize / 4 %>" 
                 x="<%= xOffset(i) + squareSize / 3 %>" 
@@ -37,14 +37,18 @@
                       x="<%= xOffset(i) %>" 
                       width="<%= squareSize %>" 
                       height="<%= squareSize %>" 
-                      stroke="black"
+                      stroke="<%= color === 'black' ? 'dimgrey' : 'black' %>"
                       fill="<%= color %>"></rect>
             <% }
             } %>
     </svg>
 
-    <div><b>Graph pseudoSkewSymmetry Score = <%= graph.pseudoSkewSymmetryScore %></b></div>
-    <div><b><%- graph.characteristicPolynomialHtml %></b></div>
+    <div style="margin-bottom:20px;"><b>Graph pseudoSkewSymmetry Score = <%= graph.pseudoSkewSymmetryScore %></b></div>
+    <ul style="list-style: none;">
+      <li><span style="color:white;background-color:black;padding:5px;line-height: 2;">Black cells are symmetric</span></li>
+      <li><span style="color:white;background-color:darkgrey;padding:5px;line-height: 2;">Dark Grey cells are not symmetric</span></li>
+      <li><span style="color:white;background-color:red;padding:5px;line-height: 2;">Red cells are self-referential</span></li>
+    </ul>
     <div class="cytoscape-visualization" style="height: <%= overallWidth %>px; width:<%= overallWidth %>px;display:none;border:1px solid black;"></div>
     <button type="button">Render As Wireframe</button>
     <input type="text" hidden value="" name="imageSrc"/>
