@@ -71,8 +71,8 @@ function visualize(matrix, container) {
       }
     }
   }
-  console.log('nodes', nodes);
-  console.log('connections', connections);
+  // console.log('nodes', nodes)
+  // console.log('connections', connections)
   return cytoscape({
     container: container,
     // container to render in
@@ -145,7 +145,7 @@ function visualize(matrix, container) {
       // Whether to fit the network view after when done
       fit: true,
       // Padding on fit
-      padding: 30,
+      padding: 5,
       // Constrain layout bounds; { x1, y1, x2, y2 } or { x1, y1, w, h }
       boundingBox: undefined,
       // Excludes the label when calculating node bounding boxes for the layout algorithm

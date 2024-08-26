@@ -38,8 +38,9 @@
           %>
           <li>
             <a href="/graph/lineage/<%= graph.id %>" style="font-weight: <%= isBestExample ? '700' : '400' %>;">
-              <%= graph.name %> <%= isBestExample ? '- Best Example' : '' %>
+              <%= graph.name %>
             </a>
+            <span>pseudoSkewSymmetryScore = <%= graph.pseudoSkewSymmetryScore %></span>
           </li>
         <% }) %>
       </ol>

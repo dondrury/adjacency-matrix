@@ -98,7 +98,7 @@ exports.getEditMorph = (req, res) => {
       return
     }
     // console.log(morph)
-    Graph.find({ morphIdentified: id }).select('name').exec((err, graphs) => {
+    Graph.find({ morphIdentified: id }).select('name pseudoSkewSymmetryScore').sort('pseudoSkewSymmetryScore').exec((err, graphs) => {
       if (err) {
         console.log(err)
         return

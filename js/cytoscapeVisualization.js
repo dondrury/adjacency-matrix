@@ -62,8 +62,8 @@ function visualize (matrix, container) {
       }
     }
   }
-  console.log('nodes', nodes)
-  console.log('connections', connections)
+  // console.log('nodes', nodes)
+  // console.log('connections', connections)
   return cytoscape({
     container: container, // container to render in
     elements: nodes.concat(connections),
@@ -145,7 +145,7 @@ function visualize (matrix, container) {
       fit: true,
 
       // Padding on fit
-      padding: 30,
+      padding: 5,
 
       // Constrain layout bounds; { x1, y1, x2, y2 } or { x1, y1, w, h }
       boundingBox: undefined,

@@ -43,15 +43,12 @@
             <% }
             } %>
     </svg>
-
-    <div style="margin-bottom:20px;"><b>Graph pseudoSkewSymmetry Score = <%= graph.pseudoSkewSymmetryScore %></b></div>
-    <ul style="list-style: none;">
-      <li><span style="color:white;background-color:black;padding:5px;line-height: 2;">Black cells are symmetric</span></li>
-      <li><span style="color:white;background-color:darkgrey;padding:5px;line-height: 2;">Dark Grey cells are not symmetric</span></li>
-      <li><span style="color:white;background-color:red;padding:5px;line-height: 2;">Red cells are self-referential</span></li>
-    </ul>
-    <div class="cytoscape-visualization" style="height: <%= overallWidth %>px; width:<%= overallWidth %>px;display:none;border:1px solid black;"></div>
-    <button type="button">Render As Wireframe</button>
+    <div style="color:white;background-color:black;padding:5px;line-height: 2;">Black cells are symmetrically related</div>
+    <div style="color:white;background-color:darkgrey;padding:5px;line-height: 2;">Dark Grey cells are asymmetrically related</div>
+    <div style="color:white;background-color:red;padding:5px;line-height: 2;">Red cells are self-related</div>
+    <div style="color:black;background-color:white;padding:5px;line-height: 2;border:1px solid black;margin-bottom:20px;">White cells represent no relation</div>
+    <div class="cytoscape-visualization" style="height: <%= 1.5 * overallWidth %>px; width:<%= 1.5 * overallWidth %>px;display:none;border:1px solid black;"></div>
+    <button type="button" style="margin-top:20px;">Render As Wireframe</button>
     <input type="text" hidden value="" name="imageSrc"/>
     <button type="submit" name="saveImage" style="display:none;" class="pull-right">Update Image</button>
   </div>
