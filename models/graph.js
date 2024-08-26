@@ -62,6 +62,7 @@ graphSchema.method('classify', function (cb) {
   console.log('classifying graph %s', this.id)
   const characteristicPolynomial = findCharacteristicEquation(this.booleanMatrix)
   const characteristicPolynomialString = characteristicPolynomial.toString()
+  // console.log(characteristicPolynomialString)
   Morph.findOne({ characteristicPolynomialString }).populate('bestExample').select('-image').exec((err, existingMorph) => {
     if (err) {
       console.log(err)
