@@ -30,40 +30,73 @@ function prepare(el, i) {
 }
 
 function visualize (matrix, container) {
+
+  const halfLength = Math.floor(matrix.length / 2)
+  function elementNumbering (k) {
+    if (k >= halfLength) {
+      return k - halfLength + 1
+    } else {
+      return k - halfLength
+    }
+  }
+
+  function coloring (i, j) {
+    const iSign = Math.sign(elementNumbering(i))
+    const jSign = Math.sign(elementNumbering(j))
+    let color = 'grey' // really an error
+    if (iSign === -1 && jSign === -1) color = 'MM' // #785ef0' // violet (male on male)
+    if (iSign === -1 && jSign === 1) color = 'MF' // #648fff' // baby blue (male on female)
+    if (iSign === 1 && jSign === -1) color = 'FM' // '#dc267f' // pink
+    if (iSign === 1 && jSign === 1) color = 'FF'// '#fe6100' // peach
+    return color
+  }
+
+  function gender (k) {
+    return Math.sign(elementNumbering(k)) === -1 ? 'M' : 'F'
+  }
+
   const nodes = []
   for ( let i = 0; i < matrix.length; i++) {
     nodes.push({
-      data: { id: i.toString() }
+      data: { 
+        id: elementNumbering(i).toString(),
+        gender: gender(i)
+      }
     })
   }
+  
   const connections = []
   for (let i = 0; i < matrix.length; i++) {  // i is for rows
     for (let j = 0; j < matrix[i].length; j++) { // j is for columns
       if (matrix[i][j] && matrix[j][i]) { // symmetrical, "undirected edge"
-        const x = Math.min(i, j)
-        const y = Math.max(i, j) // y > x
+        const x = elementNumbering(Math.min(i, j))
+        const y = elementNumbering(Math.max(i, j)) // y > x
         connections.push({
           data: {
             id: x + '<=>' + y,
             source: x.toString(),
             target: y.toString(),
-            directed: false
+            directed: false,
+            color: coloring(i, j)
           }
         })
       } else if (matrix[i][j]) { // "directed edge"
+        const x = elementNumbering(i)
+        const y = elementNumbering(j)
         connections.push({
           data: {
-            id: i + '=>' + j,
-            source: i.toString(),
-            target: j.toString(),
-            directed: true
+            id: x + '=>' + y,
+            source: x.toString(),
+            target: y.toString(),
+            directed: true,
+            color: coloring(i, j)
           }
         })
       }
     }
   }
-  // console.log('nodes', nodes)
-  // console.log('connections', connections)
+  console.log('nodes', nodes)
+  console.log('connections', connections)
   return cytoscape({
     container: container, // container to render in
     elements: nodes.concat(connections),
@@ -76,37 +109,69 @@ function visualize (matrix, container) {
         }
       },
       {
-        selector: 'edge[!directed]', // selector for "undirected (symmetrical) connections"
+        selector: 'node[gender = "M"]',
         style: {
-          'width': 4,
-          'line-color': '#000000',
-          // 'target-arrow-color': '#ccc',
-          'target-arrow-shape': 'none',
-          // 'curve-style': 'bezier'
+          'background-color': 'blue'
+        }
+      },
+      {
+        selector: 'node[gender = "F"]',
+        style: {
+          'background-color': 'red'
+        }
+      },
+      {
+        selector: 'edge', // selector for "undirected (symmetrical) connections"
+        style: {
+          'curve-style': 'bezier',
+          'width': 3,
+          'target-arrow-shape': 'triangle',
+          'loop-direction' : '0deg',
+          'loop-sweep' : '-45deg'
         }
       },
       {
         selector: 'edge[?directed]',
         style: {
-          'width': 3,
-          'line-color': 'darkgrey',
-          'target-arrow-color': 'darkgrey',
-          'target-arrow-shape': 'triangle',
-          'curve-style': 'bezier'
+          'target-arrow-shape': 'triangle'
         }
       },
       {
-        selector: 'edge:loop',
+        selector: 'edge[color = "MM"]',
         style: {
-          'width': 3,
-          'line-color': 'red',
-          'target-arrow-color': 'red',
-          'target-arrow-shape': 'triangle',
-          'curve-style': 'bezier',
-          'loop-direction' : '0deg',
-          'loop-sweep' : '-45deg'
+          'line-color': '#785ef0',
+          'target-arrow-color': '#785ef0'
         }
-      }
+      },
+      {
+        selector: 'edge[color = "MF"]',
+        style: {
+          'line-color': '#648fff',
+          'target-arrow-color': '#648fff',
+        }
+      },
+      {
+        selector: 'edge[color = "FM"]',
+        style: {
+          'line-color': '#dc267f',
+          'target-arrow-color': '#dc267f'
+        }
+      },
+      {
+        selector: 'edge[color = "FF"]',
+        style: {
+          'line-color': '#fe6100',
+          'target-arrow-color': '#fe6100'
+        }
+      },
+      {
+        selector: 'edge[!directed]', // selector for "undirected (symmetrical) connections"
+        style: {
+          'line-color': '#000000',
+          'target-arrow-color': '#000000',
+          'target-arrow-shape': 'none',
+        }
+      },
     ],
     layout: {
       name: 'cose',

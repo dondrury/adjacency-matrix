@@ -8,6 +8,15 @@
   const squareSize = Math.floor(overallWidth / matrix.length)
   const yOffset = m => m * squareSize
   const xOffset = n => n * squareSize
+  const halfLength = Math.floor(matrix.length / 2)
+  // console.log({halfLength})
+  function elementNumbering (k) {
+    if (k >= halfLength) {
+      return k - halfLength + 1
+    } else {
+      return k - halfLength
+    }
+  }
   %>
   <div class="graph-container" data-matrix="<%= JSON.stringify(matrix) %>">
     <div>Colored matrix representation of:</div>
@@ -19,20 +28,32 @@
           <text y="-<%= squareSize / 4 %>" 
                 x="<%= xOffset(i) + squareSize / 3 %>" 
                 font-size="<%= squareSize * 0.6 %>px" 
-                fill="black"><%- i %></text>
+                fill="black"><%- elementNumbering(i) %></text>
          <% } %> 
          <% for (let j = 0; j < matrix.length; j++) { // j for rows, print row label %>
                 <text y="<%= yOffset(j + 1) - squareSize / 3 %>" 
                       x="-<%= squareSize / 1.8 %>" 
                       font-size="<%= squareSize * 0.6 %>px" 
-                      fill="black"><%- j %></text>
+                      fill="black"><%-elementNumbering(j) %></text>
           <%
               for (let i = 0; i < matrix[j].length; i++) { // columns
                 const value = matrix[j][i]
                 let color = 'white'
-                if (value === true) color = 'darkgrey'
-                if (value === true &&  matrix[i][j] === true) color = 'black'
-                if (value === true && i === j) color = 'red'
+                if (value === true) {
+                  if (i > j) color = 'red'
+                  if (j > i) color = 'blue'
+                  if (matrix[i][j] === true) color = 'black'
+                  if (i === j) color = 'yellow'
+                  // new color scheme
+                  const iSign = Math.sign(elementNumbering(i))
+                  const jSign = Math.sign(elementNumbering(j))
+
+                  if (jSign === -1 && iSign === -1) color = '#785ef0' // violet (male on male)
+                  if (jSign === -1 && iSign === 1) color = '#648fff' // baby blue (male on female)
+                  if (jSign === 1 && iSign === -1) color = '#dc267f' // pink
+                  if (jSign === 1 && iSign === 1) color = '#fe6100' // peach
+                  if (matrix[i][j] === true) color = 'black'
+                }
                 %>
                 <rect y="<%= yOffset(j) %>" 
                       x="<%= xOffset(i) %>" 
@@ -43,9 +64,13 @@
             <% }
             } %>
     </svg>
-    <div style="color:white;background-color:black;padding:5px;line-height: 2;">Black cells are symmetrically related</div>
-    <div style="color:white;background-color:darkgrey;padding:5px;line-height: 2;">Dark Grey cells are asymmetrically related</div>
-    <div style="color:white;background-color:red;padding:5px;line-height: 2;">Red cells are self-related</div>
+    <div style="color:white;background-color:black;padding:5px;line-height: 2;">Black cells fully entangled</div>
+    <!-- <div style="color:white;background-color:red;padding:5px;line-height: 2;">Red cells are entangled Northward</div>
+    <div style="color:white;background-color:blue;padding:5px;line-height: 2;">Blue cells are entangled Southward</div>
+    <div style="color:black;background-color:yellow;padding:5px;line-height: 2;border:1px solid black;">Yellow cells are self entangled</div> -->
+    <div style="color:white;background-color:red;padding:5px;line-height: 2;">Red cells are entangled Northward</div>
+    <div style="color:white;background-color:blue;padding:5px;line-height: 2;">Blue cells are entangled Southward</div>
+    <div style="color:black;background-color:yellow;padding:5px;line-height: 2;border:1px solid black;">Yellow cells are self entangled</div>
     <div style="color:black;background-color:white;padding:5px;line-height: 2;border:1px solid black;margin-bottom:20px;">White cells represent no relation</div>
     <div class="cytoscape-visualization" style="height: <%= 1.5 * overallWidth %>px; width:<%= 1.5 * overallWidth %>px;display:none;border:1px solid black;"></div>
     <button type="button" style="margin-top:20px;">Render As Wireframe</button>
