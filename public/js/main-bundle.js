@@ -9,12 +9,14 @@ function init() {
 }
 function prepare(el, i) {
   var matrix = JSON.parse(el.dataset.matrix);
+  var colored = el.dataset.colored === 'true';
+  console.log('colored', el.dataset.colored);
   var button = el.querySelector('button');
   if (!button) return;
   var container = el.querySelector('div.cytoscape-visualization');
   // const svg = el.querySelector('svg')
   button.onclick = function () {
-    var cy = visualize(matrix, container);
+    var cy = visualize(matrix, container, colored);
     container.style.display = 'block';
     if (window.location.pathname.indexOf('/morphs/edit/') !== -1) {
       var saveButtonEl = el.querySelector('button[name="saveImage"]');
@@ -32,7 +34,7 @@ function prepare(el, i) {
     }
   };
 }
-function visualize(matrix, container) {
+function visualize(matrix, container, colored) {
   var halfLength = Math.floor(matrix.length / 2);
   function elementNumbering(k) {
     if (k >= halfLength) {
@@ -40,16 +42,6 @@ function visualize(matrix, container) {
     } else {
       return k - halfLength;
     }
-  }
-  function coloring(i, j) {
-    var iSign = Math.sign(elementNumbering(i));
-    var jSign = Math.sign(elementNumbering(j));
-    var color = 'grey'; // really an error
-    if (iSign === -1 && jSign === -1) color = 'MM'; // #785ef0' // violet (male on male)
-    if (iSign === -1 && jSign === 1) color = 'MF'; // #648fff' // baby blue (male on female)
-    if (iSign === 1 && jSign === -1) color = 'FM'; // '#dc267f' // pink
-    if (iSign === 1 && jSign === 1) color = 'FF'; // '#fe6100' // peach
-    return color;
   }
   function gender(k) {
     return Math.sign(elementNumbering(k)) === -1 ? 'M' : 'F';
@@ -77,8 +69,7 @@ function visualize(matrix, container) {
             id: x + '<=>' + y,
             source: x.toString(),
             target: y.toString(),
-            directed: false,
-            color: coloring(_i, j)
+            directed: false
           }
         });
       } else if (matrix[_i][j]) {
@@ -91,7 +82,7 @@ function visualize(matrix, container) {
             source: _x.toString(),
             target: _y.toString(),
             directed: true,
-            color: coloring(_i, j)
+            color: gender(_i)
           }
         });
       }
@@ -108,18 +99,18 @@ function visualize(matrix, container) {
     {
       selector: 'node',
       style: {
-        'background-color': '#666',
-        'label': 'data(id)'
+        'background-color': 'grey',
+        'label': colored ? 'data(id)' : ''
       }
     }, {
       selector: 'node[gender = "M"]',
       style: {
-        'background-color': 'blue'
+        'background-color': colored ? 'blue' : 'black'
       }
     }, {
       selector: 'node[gender = "F"]',
       style: {
-        'background-color': 'red'
+        'background-color': colored ? 'red' : 'black'
       }
     }, {
       selector: 'edge',
@@ -137,30 +128,33 @@ function visualize(matrix, container) {
         'target-arrow-shape': 'triangle'
       }
     }, {
-      selector: 'edge[color = "MM"]',
+      selector: 'edge[color = "M"]',
       style: {
-        'line-color': '#785ef0',
-        'target-arrow-color': '#785ef0'
+        'line-color': colored ? 'blue' : 'lightgrey',
+        'target-arrow-color': colored ? 'blue' : 'lightgrey'
       }
     }, {
-      selector: 'edge[color = "MF"]',
+      selector: 'edge[color = "F"]',
       style: {
-        'line-color': '#648fff',
-        'target-arrow-color': '#648fff'
+        'line-color': colored ? 'red' : 'lightgrey',
+        'target-arrow-color': colored ? 'red' : 'lightgrey'
       }
-    }, {
-      selector: 'edge[color = "FM"]',
-      style: {
-        'line-color': '#dc267f',
-        'target-arrow-color': '#dc267f'
-      }
-    }, {
-      selector: 'edge[color = "FF"]',
-      style: {
-        'line-color': '#fe6100',
-        'target-arrow-color': '#fe6100'
-      }
-    }, {
+    },
+    // {
+    //   selector: 'edge[color = "FM"]',
+    //   style: {
+    //     'line-color': '#dc267f',
+    //     'target-arrow-color': '#dc267f'
+    //   }
+    // },
+    // {
+    //   selector: 'edge[color = "FF"]',
+    //   style: {
+    //     'line-color': '#fe6100',
+    //     'target-arrow-color': '#fe6100'
+    //   }
+    // },
+    {
       selector: 'edge[!directed]',
       // selector for "undirected (symmetrical) connections"
       style: {

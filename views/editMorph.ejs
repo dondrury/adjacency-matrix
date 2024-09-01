@@ -21,7 +21,8 @@
       <div class="col-lg-6">
         <form action="/morphs/saveImage/<%= morph._id %>" method="POST" >
           <%- include('graph', { graph: morph.bestExample, 
-            width: 200
+            width: 200,
+            colored: false
           }) %>
         </form>
       </div>
