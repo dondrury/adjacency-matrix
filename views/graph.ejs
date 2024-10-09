@@ -20,7 +20,7 @@
   }
   %>
   <div class="graph-container" data-matrix="<%= JSON.stringify(matrix) %>" data-colored="<%= _colored %>">
-    <div>Colored matrix representation of:</div>
+    <div><%= colored ? 'Colored' : 'Uncolored' %> matrix representation of:</div>
     <div>"<%= graph.name %>"</div>
     <svg viewBox="-<%= squareSize %> -<%=squareSize %> <%= overallWidth + squareSize %> <%= overallWidth + squareSize %>" 
          class="sparse-matrix"

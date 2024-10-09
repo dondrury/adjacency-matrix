@@ -99,18 +99,18 @@ function visualize(matrix, container, colored) {
     {
       selector: 'node',
       style: {
-        'background-color': 'grey',
+        'background-color': '#666',
         'label': colored ? 'data(id)' : ''
       }
     }, {
       selector: 'node[gender = "M"]',
       style: {
-        'background-color': colored ? 'blue' : 'black'
+        'background-color': colored ? 'blue' : '#666'
       }
     }, {
       selector: 'node[gender = "F"]',
       style: {
-        'background-color': colored ? 'red' : 'black'
+        'background-color': colored ? 'red' : '#666'
       }
     }, {
       selector: 'edge',
@@ -130,14 +130,14 @@ function visualize(matrix, container, colored) {
     }, {
       selector: 'edge[color = "M"]',
       style: {
-        'line-color': colored ? 'blue' : 'lightgrey',
-        'target-arrow-color': colored ? 'blue' : 'lightgrey'
+        'line-color': colored ? 'blue' : 'darkgrey',
+        'target-arrow-color': colored ? 'blue' : 'darkgrey'
       }
     }, {
       selector: 'edge[color = "F"]',
       style: {
-        'line-color': colored ? 'red' : 'lightgrey',
-        'target-arrow-color': colored ? 'red' : 'lightgrey'
+        'line-color': colored ? 'red' : 'darkgrey',
+        'target-arrow-color': colored ? 'red' : 'darkgrey'
       }
     },
     // {
