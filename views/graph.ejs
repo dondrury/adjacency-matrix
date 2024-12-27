@@ -11,13 +11,13 @@
   const xOffset = n => n * squareSize
   const halfLength = Math.floor(matrix.length / 2)
   // console.log({halfLength})
-  function elementNumbering (k) {
+  /* function elementNumbering (k) {
     if (k >= halfLength) {
       return k - halfLength + 1
     } else {
       return k - halfLength
     }
-  }
+  } */
   %>
   <div class="graph-container" data-matrix="<%= JSON.stringify(matrix) %>" data-colored="<%= _colored %>">
     <div><%= colored ? 'Colored' : 'Uncolored' %> matrix representation of:</div>
@@ -29,13 +29,13 @@
           <text y="-<%= squareSize / 4 %>" 
                 x="<%= xOffset(i) + squareSize / 3 %>" 
                 font-size="<%= squareSize * 0.6 %>px" 
-                fill="black"><%- elementNumbering(i) %></text>
+                fill="black"><%- i %></text>
          <% } %> 
          <% for (let j = 0; j < matrix.length; j++) { // j for rows, print row label %>
                 <text y="<%= yOffset(j + 1) - squareSize / 3 %>" 
                       x="-<%= squareSize / 1.8 %>" 
                       font-size="<%= squareSize * 0.6 %>px" 
-                      fill="black"><%-elementNumbering(j) %></text>
+                      fill="black"><%- j %></text>
           <%
               for (let i = 0; i < matrix[j].length; i++) { // columns
                 const value = matrix[j][i]
