@@ -13,6 +13,15 @@ const _view = typeof view === 'string' ? view : '404'
     <link rel="stylesheet" href="/css/bootstrap.min.css">
     <link rel="stylesheet" href="/css/main-bundle.css">
     <link rel="stylesheet" href="/css/dataTables.css">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-J3ZX3LXJB1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-J3ZX3LXJB1');
+    </script>
   </head>
   <body>
     <%- include('nav') %>

@@ -11,7 +11,7 @@ const Graph = require('../models/graph')
 exports.afterConnectionTasks = function () {
   setTimeout(function () {
     console.log('graph controller after connection tasks')
-    // findAllGraphsOfSizeAndRank(1, 1) // let's try to do this by inverting down from existing
+    // findAllGraphsOfSizeAndRank(6, 4) // let's try to do this by inverting down from existing
     // symmetricalGraphSearch(6, 10367) // this is for symmetrical graphs only
     classifyNextUnclassifiedGraph()
     // processNextUnprocessedMorph()
