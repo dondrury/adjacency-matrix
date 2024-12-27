@@ -70,6 +70,8 @@
     <div class="cytoscape-visualization" style="height: <%= 1.5 * overallWidth %>px; width:<%= 1.5 * overallWidth %>px;display:none;border:1px solid black;"></div>
     <button type="button" style="margin-top:20px;">Render As Wireframe</button>
     <input type="text" hidden value="" name="imageSrc"/>
-    <button type="submit" name="saveImage" style="display:none;" class="pull-right">Update Image</button>
+    <% if (process.env.NODE_ENV === 'local') { %> 
+      <button type="submit" name="saveImage" style="display:none;" class="pull-right">Update Image</button>
+    <% } %>
   </div>
 <% } %>

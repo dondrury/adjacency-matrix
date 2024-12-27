@@ -8,7 +8,9 @@
           <input type="text" value="<%= morph.name %>" name="name" <%= NODE_ENV === 'local' ? 'enabled' : 'disabled' %> style="width: 41rem;"></input>
         </h3>
         <div>
+          <% if (process.env.NODE_ENV === 'local') { %> 
           <button type="submit">Submit</button>
+          <% } %>
         </div>
       </div>
     </form>
