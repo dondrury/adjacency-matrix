@@ -34,6 +34,7 @@
   </div>
   <div class="col-lg-6">
     <%- include('superpositionMatrix', { superpositionMatrix: morph.superpositionMatrix, width: 200 }) %>
+    <h3><a href="/morphs/edit/<%= morph.antiMorph.id %>">Anti Morph</a></h3>
     <h3>All <%= graphs.length %> graphs that have this Morphology</h3>
       <ol>
         <% graphs.forEach((graph, i) => { 

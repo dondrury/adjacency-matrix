@@ -14,6 +14,8 @@ function create () {
     const morph = [
       m.id,
       m.characteristicPolynomialHtml,
+      // m.sumOfCoefficients,
+      // m.alternatingSumOfCoefficients,
       m.size,
       m.isSymmetric,
       m.selfReferences,
@@ -30,6 +32,8 @@ function create () {
           }
         },
         { title: 'Characteristic Polynomial'},
+        // { title: 'Sum of Coefficients'},
+        // { title: 'Alternating Sum of Coefficients'},
         { title: 'Size' },
         { title: 'isSymmetric' },
         { title: 'selfReferences' },

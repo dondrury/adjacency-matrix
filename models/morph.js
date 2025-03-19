@@ -14,6 +14,7 @@ const morphSchema = new mongoose.Schema({
   image: String,
   exampleCount: { type: Number, default: 1 },
   bestExample: { type: mongoose.Schema.Types.ObjectId, ref: 'Graph'},
+  antiMorph: { type: mongoose.Schema.Types.ObjectId, ref: 'Morph'},
   superpositionMatrix: [[Number]],
   superpositionMatrixCount: Number, // this is a parity check to make sure that we have exampleCount === superpositionMatrixCount
   notes: { type: String }
@@ -54,13 +55,41 @@ morphSchema.method('updateSuperPositionMatrix', function (cb) {
         }
       }
     })
-    this.save((err, morphAfter) => {
+    this.save((err) => {
       if (err) console.log(err)
       if (cb) cb()
     })
     
   })
-  
+})
+
+morphSchema.method('findAndApplyAntiMorph', function (cb) {
+  console.log('findAndApplyAntiMorph for morph with characteristic polynomial ' + this.characteristicPolynomialString)
+  const Graph = require('./graph')
+  const antiBinaryString = this.bestExample.binaryString
+    .split('').map(c => c === '0' ? '1' : '0').join('')
+  console.log(this.bestExample.binaryString)
+  console.log(antiBinaryString)
+  Graph.findOne({ binaryString: antiBinaryString}).exec((err, antiGraph) => {
+    if (err) {
+      console.log(err)
+      return
+    }
+    if (!antiGraph) {
+      console.log('no anti-graph found for morph %s, this should not be possible. There must be a graph missing! Error!', this._id)
+      return
+    }
+    if (!antiGraph.morphIdentified) {
+      console.log('morph not originally identified for located anti-morph graph')
+      return
+    }
+    console.log('antiMorph found, it is %s', antiGraph.morphIdentified)
+    this.antiMorph = antiGraph.morphIdentified
+    this.save((err) => {
+      if (err) console.log(err)
+      if (cb) cb()
+    })
+  })
 })
 
 

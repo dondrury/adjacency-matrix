@@ -5,31 +5,54 @@ exports.afterConnectionTasks = function () {
   setTimeout(function () {
    console.log('morph controller after connection tasks')
   //  updateAllSuperpositionMatrices() // this also serves to update "exampleCount to match actual matrices. During the search process some errors caused double counting"
+  // findAllAntiMorphs()
   }, 1000)
 }
 
-
-function updateAllSuperpositionMatrices () {
-  Morph.find().exec((err, allMorphs) => {
+function findAllAntiMorphs () {
+  Morph.find({ antiMorph: { $exists: false }}).populate('bestExample').exec((err, allUndeterminedMorphs) => {
     if (err) {
       console.log(err)
       return
     }
-    console.log('updateAllSuperpositionMatrices has found %s morphs', allMorphs.length)
+    console.log('findAllAntiMorphs has found %s morphs', allUndeterminedMorphs.length)
     let i = 0
-    updateNextSuperpositionMatrix()
-    function updateNextSuperpositionMatrix () {
-      if (i === allMorphs.length) {
-        console.log('updateAllSuperpositionMatrices is done')
+    updateNextUndeterminedMorph()
+    function updateNextUndeterminedMorph () {
+      if (i === allUndeterminedMorphs.length) {
+        console.log('findAllAntiMorphs is done')
         return
       }
-      allMorphs[i].updateSuperPositionMatrix(() => {
+      allUndeterminedMorphs[i].findAndApplyAntiMorph(() => {
         i++
-        setTimeout(updateNextSuperpositionMatrix, 0)
+        setTimeout(updateNextUndeterminedMorph, 10)
       })
     }
   })
 }
+
+
+// function updateAllSuperpositionMatrices () {
+//   Morph.find({ superpositionMatrix : { $exists: false }}).exec((err, allMorphs) => {
+//     if (err) {
+//       console.log(err)
+//       return
+//     }
+//     console.log('updateAllSuperpositionMatrices has found %s morphs', allMorphs.length)
+//     let i = 0
+//     updateNextSuperpositionMatrix()
+//     function updateNextSuperpositionMatrix () {
+//       if (i === allMorphs.length) {
+//         console.log('updateAllSuperpositionMatrices is done')
+//         return
+//       }
+//       allMorphs[i].updateSuperPositionMatrix(() => {
+//         i++
+//         setTimeout(updateNextSuperpositionMatrix, 0)
+//       })
+//     }
+//   })
+// }
 
 exports.getMorphsTableView = (req, res) => {
   Morph.find().exec((err, morphs) => {
@@ -37,7 +60,36 @@ exports.getMorphsTableView = (req, res) => {
       console.log(err)
       return
     }
+    // morphs = morphs.map((m, i) => {
+    //   m = m.toObject()
+    //   const coeff = m.characteristicPolynomial.coeff
+    //   let sumOfCoefficients = 0
+    //   let alternatingSumOfCoefficients = 0
+    //   for (const exponent in coeff) { // add coefficients together just to see
+    //     sumOfCoefficients += coeff[exponent]
+    //   }
+    //   for (const exponent in coeff) { // add coefficients together just to see
+    //     if (exponent % 2) alternatingSumOfCoefficients += coeff[exponent]
+    //     else alternatingSumOfCoefficients -= coeff[exponent]
+    //   }
+    //   m.sumOfCoefficients = sumOfCoefficients
+    //   m.alternatingSumOfCoefficients = alternatingSumOfCoefficients
+    //   if (5 <= i && i <= 7) console.log(m)
+    //   return m
+    // })
+
     return res.render('layout', { title: 'Morphs Table View', view: 'morphsTableView', morphs })
+  })
+}
+
+exports.getMorphsJson = (req, res) => {
+  Morph.find().populate('bestExample').exec((err, morphs) => {
+    if (err || !morphs) {
+      console.log(err)
+      return
+    }
+    // console.log(morphs)
+    return res.json({ morphs })
   })
 }
 
@@ -92,7 +144,7 @@ exports.postEditSaveImageMorph = (req, res) => {
 
 exports.getEditMorph = (req, res) => {
   const id = req.params.id
-  Morph.findById(id).populate('bestExample').exec((err, morph) => {
+  Morph.findById(id).populate('bestExample antiMorph').exec((err, morph) => {
     if (err) {
       console.log(err)
       return

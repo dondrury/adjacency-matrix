@@ -227,7 +227,10 @@ function init() {
 function create() {
   var dataSet = [];
   morphsObject.forEach(function (m) {
-    var morph = [m.id, m.characteristicPolynomialHtml, m.size, m.isSymmetric, m.selfReferences, m.rank, m.image];
+    var morph = [m.id, m.characteristicPolynomialHtml,
+    // m.sumOfCoefficients,
+    // m.alternatingSumOfCoefficients,
+    m.size, m.isSymmetric, m.selfReferences, m.rank, m.image];
     dataSet.push(morph);
   });
   var table = new DataTable('#morphsDataTable', {
@@ -238,7 +241,10 @@ function create() {
       }
     }, {
       title: 'Characteristic Polynomial'
-    }, {
+    },
+    // { title: 'Sum of Coefficients'},
+    // { title: 'Alternating Sum of Coefficients'},
+    {
       title: 'Size'
     }, {
       title: 'isSymmetric'

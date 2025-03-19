@@ -119,7 +119,7 @@ function rankAllPossibleRowsOfSize(size) {
   for (let i = 0; i <= size; i++ ) {
     allPossibleRowsByRank[i] = []
   }
-  for (i = 0; i < Math.pow(2, size); i++) {
+  for (let i = 0; i < Math.pow(2, size); i++) {
     const binaryString = i.toString(2).padStart(size, '0')
     // console.log('binaryString ' + binaryString)
     const binaryArray = binaryString.split('')

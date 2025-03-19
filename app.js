@@ -87,9 +87,11 @@ app.get('/graph/lineage/:id', graphController.getGraphLineage)
 app.get('/morph/size/:size/rank/:rank', morphController.getMorphs)
 app.get('/morphs/edit/:id', morphController.getEditMorph)
 app.get('/morphsTableView', morphController.getMorphsTableView)
+
 if (process.env.NODE_ENV === 'local') {
   app.post('/morphs/edit/:id', morphController.postEditMorph)
   app.post('/morphs/saveImage/:id', morphController.postEditSaveImageMorph)
+  app.get('/morphs/json', morphController.getMorphsJson)
 }
 // app.get('/fundamentalModes', graphController.getFundamentalModes)
 // app.get('/fundamentalMode/:number', graphController.getFundamentalMode)
