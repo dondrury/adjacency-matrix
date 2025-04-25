@@ -290,19 +290,37 @@ function prepare(el, i) {
       cols = _normalizeMatrix.cols,
       rank = _normalizeMatrix.rank,
       numericalMatrix = _normalizeMatrix.numericalMatrix;
-    var iterations = iterateOnePulseNTimes(numericalMatrix, {
-      channel: 0,
-      stopAfter: 300
-    });
-    // const iterations = vibrateOnOneChannelNTimes(numericalMatrix,{
+
+    // const iterations = iterateOnePulseNTimes(numericalMatrix, {
     //   channel: 0,
-    //   wavelength: 3,
-    //   intensity: 0.00001,
-    //   stopAfter: 100,
-    //   stopForcingAfter: 5
+    //   stopAfter: 300
     // })
+    var iterations = vibrateOnOneChannelNTimes(numericalMatrix, {
+      channel: 0,
+      wavelength: 3,
+      intensity: 1,
+      stopAfter: 100,
+      stopForcingAfterWavelengths: 10
+    });
     console.log(iterations);
   };
+}
+function checkVectorSum(vector) {
+  var sum = 0;
+  vector.forEach(function (v) {
+    sum += v;
+  });
+  if (sum > 0.00000000001) {
+    throw new Error('vector sum not zero');
+  }
+  return sum;
+}
+function vectorRadius(vector) {
+  var sum = 0;
+  vector.forEach(function (v) {
+    sum += Math.pow(v, 2);
+  });
+  return sum;
 }
 function iterateOnePulseNTimes(numericalMatrix) {
   var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
@@ -311,12 +329,16 @@ function iterateOnePulseNTimes(numericalMatrix) {
   var stopAfter = options.stopAfter || 200;
   var initVector = new Array(numericalMatrix.length).fill(0);
   initVector[channel] = 1;
+  initVector[channel + 1] = -1;
+  checkVectorSum(initVector);
   var results = [initVector];
+  console.log("0:", initVector, 'radius', vectorRadius(initVector));
   addAnotherResult();
   function addAnotherResult() {
     if (results.length > stopAfter) return;
     var result = multiplyMatrixAndVector(numericalMatrix, results[results.length - 1]); // start with the latest result
-    console.log("".concat(results.length, ":"), result);
+    console.log("".concat(results.length, ":"), result, 'radius', vectorRadius(result));
+    checkVectorSum(result);
     results.push(result);
     addAnotherResult();
   }
@@ -327,22 +349,28 @@ function vibrateOnOneChannelNTimes(numericalMatrix) {
   var channel = options.channel || 0;
   var intensity = options.intensity || 0.000001;
   var stopAfter = options.stopAfter || 200;
-  var stopForcingAfter = options.stopForcingAfter || 10;
+  var stopForcingAfterWavelengths = options.stopForcingAfterWavelengths || 10;
   var initVector = new Array(numericalMatrix.length).fill(0);
   var wavelength = options.wavelength || 2;
   initVector[channel] = intensity;
+  initVector[channel + 1] = 0 - intensity;
+  checkVectorSum(initVector);
   var results = [initVector];
+  console.log("0: forcingVector ".concat(initVector.join(','), " to start"), initVector);
   addAnotherResult();
   function addAnotherResult() {
     if (results.length > stopAfter) return;
     var result = multiplyMatrixAndVector(numericalMatrix, results[results.length - 1]); // start with the latest result
     // let forcingFunction = results.length % 2 ? 0 : intensity
-    var forcingFunction = results.length % wavelength === 0 ? intensity : 0;
-    if (results.length >= stopForcingAfter) {
-      forcingFunction = 0;
+    var applyForcingVector = results.length % wavelength === 0 && results.length < stopForcingAfterWavelengths * wavelength;
+    if (applyForcingVector) {
+      result = addVectors(initVector, result);
+      console.log("".concat(results.length, ": forcingVector ").concat(initVector, " was applied"), result);
+    } else {
+      console.log("".concat(results.length, ": forcingVector not applied"), result);
     }
-    result[channel] += forcingFunction + result[channel];
-    console.log("".concat(results.length, ": forcingFunction ").concat(forcingFunction, " applied on channel ").concat(channel), result);
+    console.log('result vector radius', vectorRadius(result));
+    checkVectorSum(result);
     results.push(result);
     addAnotherResult();
   }
@@ -363,6 +391,15 @@ function multiplyMatrixAndVector(numericalMatrix, vector) {
     }
     resultVector[i] = cumulativeSumOfMultipliedPairs;
     // console.log('resultVector[i]', resultVector[i])
+  }
+  return resultVector;
+}
+function addVectors(v, w) {
+  if (v.length !== w.length) throw new Error('cannot add two different size vectors');
+  var length = w.length;
+  var resultVector = new Array(length).fill(null);
+  for (var i = 0; i < length; i++) {
+    resultVector[i] = v[i] + w[i];
   }
   return resultVector;
 }

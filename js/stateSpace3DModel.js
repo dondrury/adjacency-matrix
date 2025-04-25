@@ -15,19 +15,38 @@ function prepare(el, i) {
     // console.log('onlick event for state space 3d model')
     const  {rows, cols, rank, numericalMatrix} = normalizeMatrix(matrix)
   
-    const iterations = iterateOnePulseNTimes(numericalMatrix, {
-      channel: 0,
-      stopAfter: 300
-    })
-    // const iterations = vibrateOnOneChannelNTimes(numericalMatrix,{
+    // const iterations = iterateOnePulseNTimes(numericalMatrix, {
     //   channel: 0,
-    //   wavelength: 3,
-    //   intensity: 0.00001,
-    //   stopAfter: 100,
-    //   stopForcingAfter: 5
+    //   stopAfter: 300
     // })
+    const iterations = vibrateOnOneChannelNTimes(numericalMatrix,{
+      channel: 0,
+      wavelength: 3,
+      intensity: 1,
+      stopAfter: 100,
+      stopForcingAfterWavelengths: 10
+    })
     console.log(iterations)
   }
+}
+
+function checkVectorSum (vector) {
+  let sum = 0
+  vector.forEach(v => {
+    sum += v
+  })
+  if (sum > 0.00000000001) {
+    throw new Error('vector sum not zero')
+  }
+  return sum
+}
+
+function vectorRadius (vector) {
+  let sum = 0
+  vector.forEach(v => {
+    sum += Math.pow(v, 2)
+  })
+  return sum
 }
 
 function iterateOnePulseNTimes (numericalMatrix, options = {}) { // these just overdamped to equal portions!
@@ -35,12 +54,16 @@ function iterateOnePulseNTimes (numericalMatrix, options = {}) { // these just o
   const stopAfter = options.stopAfter || 200
   const initVector = (new Array(numericalMatrix.length)).fill(0)
   initVector[channel] = 1
+  initVector[channel + 1] = -1
+  checkVectorSum(initVector)
   const results = [initVector]
+  console.log(`0:`, initVector, 'radius', vectorRadius(initVector))
   addAnotherResult()
   function addAnotherResult() {
     if (results.length > stopAfter) return
     const result = multiplyMatrixAndVector(numericalMatrix, results[results.length - 1]) // start with the latest result
-    console.log(`${results.length}:`, result)
+    console.log(`${results.length}:`, result, 'radius', vectorRadius(result))
+    checkVectorSum(result)
     results.push(result)
     addAnotherResult()
   }
@@ -51,22 +74,28 @@ function vibrateOnOneChannelNTimes (numericalMatrix, options = {}) {
   const channel = options.channel || 0
   const intensity = options.intensity || 0.000001
   const stopAfter = options.stopAfter || 200
-  const stopForcingAfter = options.stopForcingAfter || 10
+  const stopForcingAfterWavelengths = options.stopForcingAfterWavelengths || 10
   const initVector = (new Array(numericalMatrix.length)).fill(0)
   const wavelength = options.wavelength || 2
   initVector[channel] = intensity
+  initVector[channel + 1] = 0 - intensity
+  checkVectorSum(initVector)
   const results = [ initVector ]
+  console.log(`0: forcingVector ${initVector.join(',')} to start`, initVector) 
   addAnotherResult()
   function addAnotherResult() {
     if (results.length > stopAfter) return
-    const result = multiplyMatrixAndVector(numericalMatrix, results[results.length - 1]) // start with the latest result
+    let result = multiplyMatrixAndVector(numericalMatrix, results[results.length - 1]) // start with the latest result
     // let forcingFunction = results.length % 2 ? 0 : intensity
-    let forcingFunction = (results.length % wavelength) === 0 ? intensity : 0
-    if  (results.length >= stopForcingAfter) {
-      forcingFunction = 0
+    let applyForcingVector = ((results.length % wavelength) === 0) && (results.length < (stopForcingAfterWavelengths * wavelength))
+    if  (applyForcingVector) {
+      result = addVectors(initVector, result)
+      console.log(`${results.length}: forcingVector ${initVector} was applied`, result) 
+    } else {
+      console.log(`${results.length}: forcingVector not applied`, result)
     }
-    result[channel] += forcingFunction + result[channel]
-    console.log(`${results.length}: forcingFunction ${forcingFunction} applied on channel ${channel}`, result) 
+    console.log('result vector radius', vectorRadius(result))
+    checkVectorSum(result)
     results.push(result)
     addAnotherResult()
   }
@@ -89,7 +118,15 @@ function multiplyMatrixAndVector (numericalMatrix, vector) { // this appears tru
   return resultVector
 }
 
-
+function addVectors (v, w) {
+  if (v.length !== w.length) throw new Error('cannot add two different size vectors')
+  const length = w.length
+  const resultVector = (new Array(length)).fill(null)
+  for (let i = 0; i < length; i++) {
+    resultVector[i] = v[i] + w[i]
+  }
+  return resultVector
+}
 
 function normalizeMatrix (matrix) {
   // console.log(matrix)
