@@ -10,8 +10,10 @@ function prepare(el, i) {
   const matrix = JSON.parse(el.dataset.matrix)
   // const colored = el.dataset.colored === 'true'
   // console.log('colored', el.dataset.colored)
-  const button = el.querySelector('button')
-  if (!button) return
+  const button = el.querySelector('button[name="wireframe"]')
+  if (!button) {
+    console.log('button[name="wireframe"] not found')
+  }
   const container = el.querySelector('div.cytoscape-visualization')
   // const svg = el.querySelector('svg')
   button.onclick = function () {

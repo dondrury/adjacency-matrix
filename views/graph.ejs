@@ -1,26 +1,16 @@
 <% if ( typeof graph !== 'object') { %>
   <b>Error: Empty Matrix</b>
 <% } else {
-  // console.log(graph.relationsObject)
   const _description = typeof description === 'string' ? description: ''
-  const _colored = typeof colored === 'boolean' ? colored: 'false'
   const matrix = graph.booleanMatrix
   const overallWidth = typeof width === 'number' ? width : 100
   const squareSize = Math.floor(overallWidth / matrix.length)
   const yOffset = m => m * squareSize
   const xOffset = n => n * squareSize
   const halfLength = Math.floor(matrix.length / 2)
-  // console.log({halfLength})
-  /* function elementNumbering (k) {
-    if (k >= halfLength) {
-      return k - halfLength + 1
-    } else {
-      return k - halfLength
-    }
-  } */
   %>
-  <div class="graph-container" data-matrix="<%= JSON.stringify(matrix) %>" data-colored="<%= _colored %>">
-    <div><%= colored ? 'Colored' : 'Uncolored' %> matrix representation of:</div>
+  <div class="graph-container" data-matrix="<%= JSON.stringify(matrix) %>" >
+    <div>Balanced Digraph Matrix representation of:</div>
     <div>"<%= graph.name %>"</div>
     <svg viewBox="-<%= squareSize %> -<%=squareSize %> <%= overallWidth + squareSize %> <%= overallWidth + squareSize %>" 
          class="sparse-matrix"
@@ -42,10 +32,6 @@
                 let color = 'white'
                 if (value === true) {
                   color = 'grey'
-                  if ( colored ) {
-                    if ( elementNumbering(j) > 0) color = 'red'
-                    if ( elementNumbering(j) < 0) color = 'blue'
-                  }
                   if (matrix[i][j] === true) color = 'black'
                 }
                 
@@ -60,15 +46,12 @@
             } %>
     </svg>
     <div style="color:white;background-color:black;padding:5px;line-height: 2;">Black cells balanced relationship</div>
-    <% if (colored) { %>
-      <div style="color:white;background-color:red;padding:5px;line-height: 2;">Female flavored action</div>
-      <div style="color:white;background-color:blue;padding:5px;line-height: 2;">Male flavored action</div>
-    <% } else { %>
-      <div style="color:white;background-color:grey;padding:5px;line-height: 2;border:1px solid black;">Grey cells unbalanced relationship</div>
-    <% } %>
+    <div style="color:white;background-color:grey;padding:5px;line-height: 2;border:1px solid black;">Grey cells unbalanced relationship</div>
     <div style="color:black;background-color:white;padding:5px;line-height: 2;border:1px solid black;margin-bottom:20px;">White cells represent no relationship</div>
+    <div class="model-3d-container"></div>
     <div class="cytoscape-visualization" style="height: <%= 1.5 * overallWidth %>px; width:<%= 1.5 * overallWidth %>px;display:none;border:1px solid black;"></div>
-    <button type="button" style="margin-top:20px;">Render As Wireframe</button>
+    <button type="button" name="model-3d" style="margin-top:20px;">Render 3D Model in State Space</button>
+    <button type="button" name="wireframe" style="margin-top:20px;">Render As Wireframe</button>
     <input type="text" hidden value="" name="imageSrc"/>
     <% if (process.env.NODE_ENV === 'local') { %> 
       <button type="submit" name="saveImage" style="display:none;" class="pull-right">Update Image</button>

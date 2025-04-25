@@ -144,6 +144,7 @@ exports.postEditSaveImageMorph = (req, res) => {
 
 exports.getEditMorph = (req, res) => {
   const id = req.params.id
+  // console.log(id)
   Morph.findById(id).populate('bestExample antiMorph').exec((err, morph) => {
     if (err) {
       console.log(err)

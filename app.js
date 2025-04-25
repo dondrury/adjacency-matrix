@@ -64,6 +64,18 @@ app.use((req, res, next) => {
   next()
 })
 
+// app.use((req, res, next) => { // debug middleware
+//   console.log(`--> ${req.method} ${req.url} ${JSON.stringify(req.headers)}`)
+//   const originalSend = res.send.bind(res)
+//   res.send = (body) => {
+//     console.log(`<-- ${res.statusCode} body length:`, body && body.length)
+//     return originalSend(body)
+//   };
+//   next()
+// })
+
+
+
 app.get('/', (req, res) => {
   return res.render('layout', { title: 'What is an adjacency graph?', view: 'home' })
 })
@@ -77,27 +89,41 @@ const publicServeOptions = {
     res.set('x-timestamp', Date.now())
   }
 }
+
+function isMongoId (req, res, next) { // better be a real id!
+  if (!req.params.id) {
+    next()
+    return
+  }
+  const isId = /^[a-f\d]{24}$/i.test(req.params.id)
+  if (isId) {
+    next()
+    return
+  }
+  return res.status(403).send('not a valid Mongo resource ID')
+}
+
 app.use('/', express.static(path.join(__dirname, 'public'), publicServeOptions))
 
 // app.get('/composingModes', graphController.getComposingModes)
 // app.get('/fourTuples', graphController.getFourTuples)
-app.get('/graph/:id', graphController.getGraph)
-app.get('/graph/lineage/:id', graphController.getGraphLineage)
+app.get('/graph/:id', isMongoId, graphController.getGraph)
+app.get('/graph/lineage/:id', isMongoId, graphController.getGraphLineage)
 // app.get('/spaces/all', graphController.getAllSpaces)
 app.get('/morph/size/:size/rank/:rank', morphController.getMorphs)
-app.get('/morphs/edit/:id', morphController.getEditMorph)
+app.get('/morphs/edit/:id', isMongoId, morphController.getEditMorph)
 app.get('/morphsTableView', morphController.getMorphsTableView)
 
 if (process.env.NODE_ENV === 'local') {
-  app.post('/morphs/edit/:id', morphController.postEditMorph)
-  app.post('/morphs/saveImage/:id', morphController.postEditSaveImageMorph)
+  app.post('/morphs/edit/:id', isMongoId, morphController.postEditMorph)
+  app.post('/morphs/saveImage/:id',isMongoId,  morphController.postEditSaveImageMorph)
   app.get('/morphs/json', morphController.getMorphsJson)
 }
 // app.get('/fundamentalModes', graphController.getFundamentalModes)
 // app.get('/fundamentalMode/:number', graphController.getFundamentalMode)
 // app.get('/composeFundamentalModes/tuple/:tupleId/composition/:compositionId', graphController.getComposeFundamentalModes)
 // app.get('/fourByFourComposition/c4/:compositionNumber/:fourTupleNumber', graphController.getFourByFourComposition)
-app.get('/composition/:id', graphController.getComposition)
+app.get('/composition/:id',isMongoId, graphController.getComposition)
 app.get('*', (req, res) => { // if page is left unspecified, this will direct to 404
   res.status(404).render('layout', { title: 'Sorry Not Found', view: '404' })
 })
