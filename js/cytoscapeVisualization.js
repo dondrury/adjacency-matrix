@@ -1,5 +1,8 @@
 const cytoscape = require('cytoscape')
-
+const stateSpace3DModal = require('./stateSpace3DModel')
+// next steps, sort and order graphs within a morphoolicy. Create a GIF for each one!
+// show that morphologies form a ring, or at least a group.
+const timeStepInterval = 400
 function init() {
   console.log('started cytoscape visualization')
   // Array.from(document.getElementsByClassName('cytoscape-visualization')).forEach(create)
@@ -19,18 +22,52 @@ function prepare(el, i) {
   button.onclick = function () {
     const cy = visualize(matrix, container)
     container.style.display = 'block'
-    if (window.location.pathname.indexOf('/morphs/edit/') !== -1) {
-      const saveButtonEl = el.querySelector('button[name="saveImage"]')
-      saveButtonEl.style.display = 'block'
-      cy.on('render', function() {
-        const imageSrc = cy.png({ full: true, maxWidth: 300, maxHeight: 300 })
-        // console.log('imageSrc', imageSrc)
-        el.querySelector('input[name="imageSrc"]').value = imageSrc
-        console.log('wireframe rendered and image loaded into form')
-      })
-      
-    }
+    const saveButtonEl = el.querySelector('button[name="saveImage"]')
+    saveButtonEl.style.display = 'block'
+    cy.on('render', function() {
+      const imageSrc = cy.png({ full: true, maxWidth: 300, maxHeight: 300 })
+      // console.log('imageSrc', imageSrc)
+      el.querySelector('input[name="imageSrc"]').value = imageSrc
+      // console.log('wireframe rendered and image loaded into form')
+    })
+    // const perturbationChart = stateSpace3DModal.producePerturbationChart(matrix)
+    // console.log('perturbationChart.length', perturbationChart.length)
+    // startPerturbationSequence(cy, perturbationChart)
   }
+}
+
+const nodeColorRGB = val => {
+  // map negatives to red, positives to blue
+  let red = 0
+  if (val < 0) red = Math.min(-val * 255, 255)
+  let blue = 0
+  if (val > 0) blue = Math.min(val * 255, 255)
+  return `rgb(${red}, 100, ${blue})`
+}
+
+function startPerturbationSequence (cy, perturbationChart) {
+  const nodes = []
+  for (let i = 0; i < perturbationChart.length; i++) {
+    nodes.push(cy.getElementById(i))
+  }
+  
+  console.log('nodes' , nodes)
+  let i = 0
+  step()
+  function step() {
+    if (i === perturbationChart.length - 1) return
+    console.log('step ' + i)
+    const state = perturbationChart[i]
+    console.log(state)
+    nodes.forEach((n, j) => { // set color of all nodes
+       n.style({
+            'background-color': nodeColorRGB(state[j])
+          })
+    })
+    i++
+    setTimeout(step, timeStepInterval)
+  }
+ 
 }
 
 function visualize (matrix, container) {
@@ -71,7 +108,7 @@ function visualize (matrix, container) {
       }
     }
   }
-  console.log('nodes', nodes)
+  console.log('nodes')
   console.log('connections', connections)
   return cytoscape({
     container: container, // container to render in
@@ -80,7 +117,7 @@ function visualize (matrix, container) {
       {
         selector: 'node',
         style: {
-          'background-color': '#666',
+          'background-color': 'blue',
           'label': 'data(id)'
         }
       },

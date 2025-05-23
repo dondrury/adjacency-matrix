@@ -31,8 +31,8 @@
                 const value = matrix[j][i]
                 let color = 'white'
                 if (value === true) {
-                  color = 'grey'
-                  if (matrix[i][j] === true) color = 'black'
+                  color = '#C0C0C0'
+                  if (matrix[i][j] === true) color = '#707070'
                 }
                 
                 %>
@@ -45,9 +45,9 @@
             <% }
             } %>
     </svg>
-    <div style="color:white;background-color:black;padding:5px;line-height: 2;">Black cells balanced relationship</div>
-    <div style="color:white;background-color:grey;padding:5px;line-height: 2;border:1px solid black;">Grey cells unbalanced relationship</div>
-    <div style="color:black;background-color:white;padding:5px;line-height: 2;border:1px solid black;margin-bottom:20px;">White cells represent no relationship</div>
+    <div style="color:white;background-color:#707070;padding:5px;line-height: 0.7;">Dark cells balanced relationship</div>
+    <div style="color:white;background-color:#C0C0C0;padding:5px;line-height: 0.7;border:1px solid black;">Light cells unbalanced relationship</div>
+    <div style="color:black;background-color:white;padding:5px;line-height: 0.7;border:1px solid black;margin-bottom:20px;">White cells represent no relationship</div>
     <div class="model-3d-container"></div>
     <div class="cytoscape-visualization" style="height: <%= 1.5 * overallWidth %>px; width:<%= 1.5 * overallWidth %>px;display:none;border:1px solid black;"></div>
     <button type="button" name="model-3d" style="margin-top:20px;">Render 3D Model in State Space</button>

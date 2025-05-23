@@ -1,24 +1,17 @@
 
-
+<h1><%- graph.morphIdentified.characteristicPolynomialHtml %></h1>
+<h2>Rank: <%= graph.rank %></h2>
+<h2>Size: <%= graph.size %></h2>
 <div class="row">
-  <div class="col-lg-4">
+  <div class="col-lg-3">
+   
     <%- include('graph', { graph, 
       width: 200
     }) %>
 
   </div>
-  <div class="col-lg-8">
-    <div class="row">
-      <div class="col-xs-4">
-        <h4><%= graph.morphIdentified.name %></h4>
-        <p><%- graph.morphIdentified.characteristicPolynomialHtml %></p>
-        <img src="<%= graph.morphIdentified.image %>" alt="cannonical image of graph" class="img-responsive" style="width:100px;">
-        <p>This is a cannonical image of the subseqent morphology, it's vertex numbers do <i>not</i> represent the graph shown</p>
-      </div>
-      <div class="col-xs-8">
-
-      </div>
-    </div>
+  <div class="col-lg-9">
+   
     
     <% graph.phylogeny.tuple.forEach(g => { %>
       <div class="row">

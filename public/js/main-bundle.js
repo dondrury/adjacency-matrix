@@ -2,6 +2,10 @@
 "use strict";
 
 var cytoscape = require('cytoscape');
+var stateSpace3DModal = require('./stateSpace3DModel');
+// next steps, sort and order graphs within a morphoolicy. Create a GIF for each one!
+// show that morphologies form a ring, or at least a group.
+var timeStepInterval = 400;
 function init() {
   console.log('started cytoscape visualization');
   // Array.from(document.getElementsByClassName('cytoscape-visualization')).forEach(create)
@@ -20,21 +24,53 @@ function prepare(el, i) {
   button.onclick = function () {
     var cy = visualize(matrix, container);
     container.style.display = 'block';
-    if (window.location.pathname.indexOf('/morphs/edit/') !== -1) {
-      var saveButtonEl = el.querySelector('button[name="saveImage"]');
-      saveButtonEl.style.display = 'block';
-      cy.on('render', function () {
-        var imageSrc = cy.png({
-          full: true,
-          maxWidth: 300,
-          maxHeight: 300
-        });
-        // console.log('imageSrc', imageSrc)
-        el.querySelector('input[name="imageSrc"]').value = imageSrc;
-        console.log('wireframe rendered and image loaded into form');
+    var saveButtonEl = el.querySelector('button[name="saveImage"]');
+    saveButtonEl.style.display = 'block';
+    cy.on('render', function () {
+      var imageSrc = cy.png({
+        full: true,
+        maxWidth: 300,
+        maxHeight: 300
       });
-    }
+      // console.log('imageSrc', imageSrc)
+      el.querySelector('input[name="imageSrc"]').value = imageSrc;
+      // console.log('wireframe rendered and image loaded into form')
+    });
+    // const perturbationChart = stateSpace3DModal.producePerturbationChart(matrix)
+    // console.log('perturbationChart.length', perturbationChart.length)
+    // startPerturbationSequence(cy, perturbationChart)
   };
+}
+var nodeColorRGB = function nodeColorRGB(val) {
+  // map negatives to red, positives to blue
+  var red = 0;
+  if (val < 0) red = Math.min(-val * 255, 255);
+  var blue = 0;
+  if (val > 0) blue = Math.min(val * 255, 255);
+  return "rgb(".concat(red, ", 100, ").concat(blue, ")");
+};
+function startPerturbationSequence(cy, perturbationChart) {
+  var nodes = [];
+  for (var _i = 0; _i < perturbationChart.length; _i++) {
+    nodes.push(cy.getElementById(_i));
+  }
+  console.log('nodes', nodes);
+  var i = 0;
+  step();
+  function step() {
+    if (i === perturbationChart.length - 1) return;
+    console.log('step ' + i);
+    var state = perturbationChart[i];
+    console.log(state);
+    nodes.forEach(function (n, j) {
+      // set color of all nodes
+      n.style({
+        'background-color': nodeColorRGB(state[j])
+      });
+    });
+    i++;
+    setTimeout(step, timeStepInterval);
+  }
 }
 function visualize(matrix, container) {
   var nodes = [];
@@ -46,29 +82,29 @@ function visualize(matrix, container) {
     });
   }
   var connections = [];
-  for (var _i = 0; _i < matrix.length; _i++) {
+  for (var _i2 = 0; _i2 < matrix.length; _i2++) {
     // i is for rows
-    for (var j = 0; j < matrix[_i].length; j++) {
+    for (var j = 0; j < matrix[_i2].length; j++) {
       // j is for columns
-      if (matrix[_i][j] && matrix[j][_i]) {
+      if (matrix[_i2][j] && matrix[j][_i2]) {
         // symmetrical, "undirected edge"
-        var x = Math.min(_i, j);
-        var y = Math.max(_i, j); // y > x
+        var x = Math.min(_i2, j);
+        var y = Math.max(_i2, j); // y > x
         connections.push({
           data: {
             id: x + '<=>' + y,
             source: x.toString(),
             target: y.toString(),
             directed: false,
-            self: _i === j
+            self: _i2 === j
           }
         });
-      } else if (matrix[_i][j]) {
+      } else if (matrix[_i2][j]) {
         // "directed edge"
         connections.push({
           data: {
-            id: _i + '=>' + j,
-            source: _i.toString(),
+            id: _i2 + '=>' + j,
+            source: _i2.toString(),
             target: j.toString(),
             directed: true,
             self: false
@@ -77,7 +113,7 @@ function visualize(matrix, container) {
       }
     }
   }
-  console.log('nodes', nodes);
+  console.log('nodes');
   console.log('connections', connections);
   return cytoscape({
     container: container,
@@ -88,7 +124,7 @@ function visualize(matrix, container) {
     {
       selector: 'node',
       style: {
-        'background-color': '#666',
+        'background-color': 'blue',
         'label': 'data(id)'
       }
     }, {
@@ -203,21 +239,21 @@ function visualize(matrix, container) {
 }
 exports.init = init;
 
-},{"cytoscape":5}],2:[function(require,module,exports){
+},{"./stateSpace3DModel":4,"cytoscape":5}],2:[function(require,module,exports){
 'use strict';
 
 // const adjacencyGraph = require('./adjacencyGraph')
 var cytoscapeVisualization = require('./cytoscapeVisualization');
-var stateSpace3DModel = require('./stateSpace3DModel');
+// const stateSpace3DModel = require('./stateSpace3DModel')
 var morphsDataTable = require('./morphsDataTable');
 document.addEventListener('DOMContentLoaded', function () {
   console.log('Start');
   morphsDataTable.init();
   cytoscapeVisualization.init();
-  stateSpace3DModel.init();
+  // stateSpace3DModel.init()
 });
 
-},{"./cytoscapeVisualization":1,"./morphsDataTable":3,"./stateSpace3DModel":4}],3:[function(require,module,exports){
+},{"./cytoscapeVisualization":1,"./morphsDataTable":3}],3:[function(require,module,exports){
 "use strict";
 
 function init() {
@@ -285,11 +321,7 @@ function prepare(el, i) {
   var container = el.querySelector('div.model-3d-container');
   button.onclick = function () {
     // console.log('onlick event for state space 3d model')
-    var _normalizeMatrix = normalizeMatrix(matrix),
-      rows = _normalizeMatrix.rows,
-      cols = _normalizeMatrix.cols,
-      rank = _normalizeMatrix.rank,
-      numericalMatrix = _normalizeMatrix.numericalMatrix;
+    var numericalMatrix = normalizeMatrix(matrix);
 
     // const iterations = iterateOnePulseNTimes(numericalMatrix, {
     //   channel: 0,
@@ -304,6 +336,23 @@ function prepare(el, i) {
     });
     console.log(iterations);
   };
+}
+function producePerturbationChart(booleanMatrix) {
+  var numericalMatrix = normalizeMatrix(booleanMatrix);
+
+  // const iterations = iterateOnePulseNTimes(numericalMatrix, {
+  //   channel: 0,
+  //   stopAfter: 300
+  // })
+  var iterations = vibrateOnOneChannelNTimes(numericalMatrix, {
+    channel: 0,
+    wavelength: 3,
+    intensity: 1,
+    stopAfter: 100,
+    stopForcingAfterWavelengths: 10
+  });
+  console.log(iterations);
+  return iterations;
 }
 function checkVectorSum(vector) {
   var sum = 0;
@@ -425,12 +474,7 @@ function normalizeMatrix(matrix) {
     }
     numericalMatrix.push(row);
   }
-  return {
-    rows: rows,
-    cols: cols,
-    rank: rank,
-    numericalMatrix: numericalMatrix
-  };
+  return numericalMatrix;
 }
 function determineRank(booleanMatrix) {
   var rowRank = [];
@@ -468,7 +512,10 @@ function determineRank(booleanMatrix) {
   }
   return null; // will throw error
 }
-exports.init = init;
+module.exports = {
+  init: init,
+  producePerturbationChart: producePerturbationChart
+};
 
 },{}],5:[function(require,module,exports){
 (function (global,setImmediate){(function (){

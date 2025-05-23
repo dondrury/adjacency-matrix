@@ -13,7 +13,7 @@ function prepare(el, i) {
   const container = el.querySelector('div.model-3d-container')
   button.onclick = function () {
     // console.log('onlick event for state space 3d model')
-    const  {rows, cols, rank, numericalMatrix} = normalizeMatrix(matrix)
+    const numericalMatrix = normalizeMatrix(matrix)
   
     // const iterations = iterateOnePulseNTimes(numericalMatrix, {
     //   channel: 0,
@@ -28,6 +28,25 @@ function prepare(el, i) {
     })
     console.log(iterations)
   }
+}
+
+function producePerturbationChart(booleanMatrix) {
+   const numericalMatrix = normalizeMatrix(booleanMatrix)
+  
+    // const iterations = iterateOnePulseNTimes(numericalMatrix, {
+    //   channel: 0,
+    //   stopAfter: 300
+    // })
+    const iterations = vibrateOnOneChannelNTimes(numericalMatrix,{
+      channel: 0,
+      wavelength: 3,
+      intensity: 1,
+      stopAfter: 100,
+      stopForcingAfterWavelengths: 10
+    })
+    console.log(iterations)
+
+    return iterations
 }
 
 function checkVectorSum (vector) {
@@ -148,7 +167,7 @@ function normalizeMatrix (matrix) {
     }
     numericalMatrix.push(row)
   }
-  return {rows, cols, rank, numericalMatrix}
+  return numericalMatrix
 }
 
 function determineRank (booleanMatrix) {
@@ -186,4 +205,7 @@ function determineRank (booleanMatrix) {
 }
 
 
-exports.init = init
+module.exports = {
+  init,
+  producePerturbationChart
+}

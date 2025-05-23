@@ -121,15 +121,6 @@ graphSchema.method('classify', function (cb) {
   })
 })
 
-function countSelfReferences (booleanMatrix) { // temporary
-  const size = booleanMatrix.length
-  let selfReferences = 0
-  for (let i = 0; i < size; i++) {
-    if (booleanMatrix[i][i]) selfReferences++
-  }
-  return selfReferences
-}
-
 function findEigenValues (matrix) {
   const numericalMatrix = []
   for (let i = 0; i < matrix.length; i++) {  // i is for rows
