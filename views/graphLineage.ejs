@@ -1,31 +1,17 @@
 
-<h1><%- graph.morphIdentified.characteristicPolynomialHtml %></h1>
-<h2>Rank: <%= graph.rank %></h2>
-<h2>Size: <%= graph.size %></h2>
+
 <div class="row">
   <div class="col-lg-3">
-   
+    <h1><%- graph.morphIdentified.characteristicPolynomialHtml %></h1>
+    <h2>Size: <%= graph.size %>, Rank: <%= graph.rank %></h2>
     <%- include('graph', { graph, 
       width: 200
     }) %>
 
   </div>
   <div class="col-lg-9">
-   
-    
-    <% graph.phylogeny.tuple.forEach(g => { %>
-      <div class="row">
-        <div class="col-xs-4">
-          <h4><%= g.morphIdentified.name %></h4>
-          <p><%- g.morphIdentified.characteristicPolynomialHtml %></p>
-          <img src="<%= g.morphIdentified.image %>" alt="cannonical image of graph" class="img-responsive" style="width:100px;">
-          <p>This is a cannonical image of the subseqent morphology, it's vertex numbers do <i>not</i> represent the graph shown</p>
-        </div>
-        <div class="col-xs-8">
-        <h4>Let's Consider an iterated perturbation vector, transformed repeatedly by a normalized version of this graph</h4>
-        </div>
-      </div>
-    <% }) %>
+   <!-- put time series here -->
+    <%- include('eventHorizon', { graph, width: 800 }) %>
   </div>
 </div>
 

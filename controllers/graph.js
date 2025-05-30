@@ -26,6 +26,7 @@ exports.getGraph = (req, res) => {
       console.log(err)
       return
     }
+    // console.log(graph.allLightPaths)
     return res.render('layout', { title: 'Graph ' + graph.name, view: 'graph', graph, width: 300 })
   })
 }
@@ -33,7 +34,7 @@ exports.getGraph = (req, res) => {
 exports.getGraphLineage = (req, res) => {
   const id = req.params.id
   Graph.findById(id)
-    .populate('phylogeny.composition')
+    // .populate('phylogeny.composition')
     .populate('morphIdentified')
     .exec((err, graph) => {
       if (err) {

@@ -1,3 +1,6 @@
+@use 'spectralGraph';
+@use 'mapping';
+@use 'eventHorizon';
 
 h4 {
   word-wrap: anywhere;
@@ -14,5 +17,4 @@ h4 {
   padding: 10px;
  }
 
-@import 'spectralGraph';
-@import 'mapping';
+

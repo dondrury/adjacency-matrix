@@ -14,6 +14,13 @@ const _view = typeof view === 'string' ? view : '404'
     <link rel="stylesheet" href="/css/main-bundle.css">
     <link rel="stylesheet" href="/css/dataTables.css">
     <!-- Google tag (gtag.js) -->
+  
+  </head>
+  <body>
+    <%- include('nav') %>
+    <div class="container-fluid page-container">
+      <%- include(view) %>
+    </div>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-J3ZX3LXJB1"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -21,13 +28,6 @@ const _view = typeof view === 'string' ? view : '404'
       gtag('js', new Date());
       gtag('config', 'G-J3ZX3LXJB1');
     </script>
-  </head>
-  <body>
-    <%- include('nav') %>
-    <div class="container-fluid page-container">
-      <%- include(view) %>
-    </div>
-
     <script type="text/javascript" src="/js/main-bundle.js"></script>
     <script src ="/js/jquery.min.js"></script>
     <script src="/js/bootstrap.min.js"></script>

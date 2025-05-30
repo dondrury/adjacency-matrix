@@ -42,6 +42,10 @@
                       height="<%= squareSize %>" 
                       stroke="<%= color === 'black' ? 'dimgrey' : 'black' %>"
                       fill="<%= color %>"></rect>
+                <text y="<%= yOffset(j) + (squareSize * 4 / 5) %>" 
+                    x="<%= xOffset(i) + (squareSize / 4) %>" 
+                    font-size="<%= squareSize * 3 /4 %>px"
+                    fill="black"><%= value ? 1 : 0 %></text>
             <% }
             } %>
     </svg>

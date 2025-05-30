@@ -239,21 +239,105 @@ function visualize(matrix, container) {
 }
 exports.init = init;
 
-},{"./stateSpace3DModel":4,"cytoscape":5}],2:[function(require,module,exports){
+},{"./stateSpace3DModel":5,"cytoscape":6}],2:[function(require,module,exports){
+"use strict";
+
+var PHI = 1.618033988749894;
+function init() {
+  console.log('started event horizon');
+  Array.from(document.getElementsByClassName('event-horizon-container')).forEach(create);
+}
+function create(el) {
+  var matrix = JSON.parse(el.dataset.matrix);
+  console.log(matrix); // still boolean
+  var canvas = el.querySelector('canvas');
+  var ctx = canvas.getContext("2d");
+  if (!ctx) {
+    console.error('canvas context not supported');
+    return;
+  }
+  var canvasWidth = canvas.width;
+  var canvasHeight = canvas.height;
+  var arcLengthIncrement = 2 * Math.PI / matrix.length;
+  // console.log('size', canvasWidth, canvasHeight)
+  var xOffset = function xOffset(x) {
+    return x + canvasWidth / 2;
+  };
+  var yOffset = function yOffset(y) {
+    return y + canvasHeight / 2;
+  };
+  var r = 7;
+  var horizons = [];
+  for (var i = 0; i < matrix.length * 2; i++) {
+    var horizonElements = drawCenteredHorizonByRadius(r, i);
+    horizons.push(horizonElements);
+    r *= PHI;
+  }
+  console.log(horizons);
+  drawArrows();
+  function drawArrows() {}
+  function drawArrow(fromx, fromy, tox, toy) {
+    var headlen = 10; // length of head in pixels
+    var dx = tox - fromx;
+    var dy = toy - fromy;
+    var angle = Math.atan2(dy, dx);
+    ctx.moveTo(fromx, fromy);
+    ctx.lineTo(tox, toy);
+    ctx.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
+    ctx.moveTo(tox, toy);
+    ctx.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
+  }
+  function drawCenteredHorizonByRadius(radius, t) {
+    var x = xOffset(0);
+    var y = yOffset(0);
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, 2 * Math.PI, true);
+    ctx.stroke();
+    var nodes = [];
+    var arcLength = 0;
+    for (var _i = 0; _i < matrix.length; _i++) {
+      var element = {
+        // r cos arc - r sin arc
+        x: radius * Math.cos(arcLength),
+        y: -1 * radius * Math.sin(arcLength)
+      };
+      nodes.push(element);
+      arcLength += arcLengthIncrement;
+    }
+    nodes.forEach(drawNode);
+    // console.log(nodes)
+    function drawNode(node, i) {
+      // node : { x: 12.2, y: 123.43 }
+      var x = xOffset(node.x);
+      var y = yOffset(node.y);
+      ctx.beginPath();
+      ctx.arc(x, y, 2, 0, 2 * Math.PI);
+      ctx.stroke();
+      ctx.font = '14px serif';
+      // ctx.fillText(`n=${i}, t=${t}`, xOffset(node.x + 5), yOffset(node.y))
+      ctx.fillText(i, xOffset(node.x + 5), yOffset(node.y));
+    }
+    return nodes;
+    // horizon elements (nodes) in zero coordinates [ {x: 1.12312, y: 211.23} , ... ]
+  }
+}
+exports.init = init;
+
+},{}],3:[function(require,module,exports){
 'use strict';
 
 // const adjacencyGraph = require('./adjacencyGraph')
 var cytoscapeVisualization = require('./cytoscapeVisualization');
-// const stateSpace3DModel = require('./stateSpace3DModel')
+var eventHorizon = require('./eventHorizon');
 var morphsDataTable = require('./morphsDataTable');
 document.addEventListener('DOMContentLoaded', function () {
   console.log('Start');
   morphsDataTable.init();
   cytoscapeVisualization.init();
-  // stateSpace3DModel.init()
+  eventHorizon.init();
 });
 
-},{"./cytoscapeVisualization":1,"./morphsDataTable":3}],3:[function(require,module,exports){
+},{"./cytoscapeVisualization":1,"./eventHorizon":2,"./morphsDataTable":4}],4:[function(require,module,exports){
 "use strict";
 
 function init() {
@@ -304,7 +388,7 @@ function create() {
 }
 exports.init = init;
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 "use strict";
 
 function init() {
@@ -517,7 +601,7 @@ module.exports = {
   producePerturbationChart: producePerturbationChart
 };
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 (function (global,setImmediate){(function (){
 /**
  * Copyright (c) 2016-2025, The Cytoscape Consortium.
@@ -35129,7 +35213,7 @@ cytoscape.stylesheet = cytoscape.Stylesheet = _Stylesheet;
 module.exports = cytoscape;
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("timers").setImmediate)
-},{"timers":7}],6:[function(require,module,exports){
+},{"timers":8}],7:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -35315,7 +35399,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 (function (setImmediate,clearImmediate){(function (){
 var nextTick = require('process/browser.js').nextTick;
 var apply = Function.prototype.apply;
@@ -35394,4 +35478,4 @@ exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate :
   delete immediateIds[id];
 };
 }).call(this)}).call(this,require("timers").setImmediate,require("timers").clearImmediate)
-},{"process/browser.js":6,"timers":7}]},{},[2]);
+},{"process/browser.js":7,"timers":8}]},{},[3]);

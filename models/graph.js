@@ -322,7 +322,36 @@ function pseudoSkewSymmetryScore (booleanMatrix) {
   }
   return score
 }
-graphSchema.virtual('relationsObject').get(function() {
+
+function allLightPathsFromRelationsObject () {
+  const relationsObject = createRelationsObject()
+  const lightPaths = [[0]]
+  const size =  this.size
+  appendWorldPath(lightPaths[0])
+
+  function appendWorldPath (pathArray) { // start with the array children
+    if (pathArray.length > size  ) return
+    const lastElement = pathArray[pathArray.length - 1]
+    const connectedElements = Object.keys(relationsObject[lastElement]).map(el => 1 * el)
+    // console.log('connectedElements', connectedElements)
+    for (const i in connectedElements) {
+      const newPathArray = pathArray.map(x => 1 * x)
+      const newElement = connectedElements[i]
+      if (newElement !== 0 ) { // don't cross zero, and become and accidentally closed space
+        newPathArray.push(newElement)
+        lightPaths.push(newPathArray)
+        appendWorldPath(newPathArray)
+      }
+      
+    }
+  }
+  console.log('lightPaths', lightPaths)
+  return lightPaths
+}
+
+graphSchema.virtual('allLightPaths').get(allLightPathsFromRelationsObject)
+
+function createRelationsObject () {
    /*
     { 0 : {
             1 : true,
@@ -358,7 +387,9 @@ graphSchema.virtual('relationsObject').get(function() {
     //   return graphs
     // }
     return relationsObject
-})
+}
+
+graphSchema.virtual('relationsObject').get(createRelationsObject)
 
 graphSchema.virtual('relationArray').get(function() {
   /*

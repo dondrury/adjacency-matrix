@@ -1,0 +1,11 @@
+<% if ( typeof graph !== 'object') { %>
+  <b>Error: Empty Matrix</b>
+<% } else {
+  const matrix = graph.booleanMatrix
+  const overallWidth = typeof width === 'number' ? width : 500
+  %>
+  <div class="event-horizon-container" data-matrix="<%= JSON.stringify(matrix) %>" >
+    <div>Event Horizon Representation of: <%= graph.name %></div>
+     <canvas class="event-horizon" width="<%= overallWidth %>" height="<%= overallWidth %>"></canvas>
+  </div>
+<% } %>
