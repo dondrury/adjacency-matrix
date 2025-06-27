@@ -264,42 +264,56 @@ function create(el) {
     return x + canvasWidth / 2;
   };
   var yOffset = function yOffset(y) {
-    return y + canvasHeight / 2;
+    return -y + canvasHeight / 2;
   };
-  var r = 7;
+  var r = 200 / (matrix.length * PHI);
   var horizons = [];
-  for (var i = 0; i < matrix.length * 2; i++) {
+  for (var i = 0; i < matrix.length + 1; i++) {
     var horizonElements = drawCenteredHorizonByRadius(r, i);
     horizons.push(horizonElements);
     r *= PHI;
   }
-  console.log(horizons);
-  drawArrows();
-  function drawArrows() {}
-  function drawArrow(fromx, fromy, tox, toy) {
-    var headlen = 10; // length of head in pixels
-    var dx = tox - fromx;
-    var dy = toy - fromy;
-    var angle = Math.atan2(dy, dx);
-    ctx.moveTo(fromx, fromy);
-    ctx.lineTo(tox, toy);
-    ctx.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
-    ctx.moveTo(tox, toy);
-    ctx.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
+  // console.log(horizons)
+
+  horizons.forEach(drawArrows);
+  function drawArrows(horizon, n) {
+    if (n >= horizons.length - 1) return;
+    var nextHorizon = horizons[n + 1];
+    // console.log('nextHorizon', nextHorizon)
+    horizon.forEach(function (startNode, i) {
+      nextHorizon.forEach(function (endNode, j) {
+        if (matrix[i][j]) {
+          var fromx = startNode.x;
+          var fromy = startNode.y;
+          var tox = endNode.x;
+          var toy = endNode.y;
+          console.log(i, j);
+          console.log('matrix[i][j]', matrix[i][j]);
+          console.log('matrix[j][i]', matrix[j][i]);
+          var color = matrix[i][j] === matrix[j][i] ? '#707070' : '#C0C0C0'; // darker for symmetries
+          color = i === j ? 'red' : color;
+          var arrowWidth = i === j ? 5 : 3;
+          drawArrow(fromx, fromy, tox, toy, arrowWidth, color);
+        }
+      });
+    });
   }
   function drawCenteredHorizonByRadius(radius, t) {
     var x = xOffset(0);
     var y = yOffset(0);
     ctx.beginPath();
     ctx.arc(x, y, radius, 0, 2 * Math.PI, true);
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = 'lightgrey';
     ctx.stroke();
     var nodes = [];
+    // let arcLength = t * arcLengthIncrement // to make the eigenvalue shift for each iteration on the bigest ring
     var arcLength = 0;
     for (var _i = 0; _i < matrix.length; _i++) {
       var element = {
         // r cos arc - r sin arc
-        x: radius * Math.cos(arcLength),
-        y: -1 * radius * Math.sin(arcLength)
+        x: xOffset(radius * Math.cos(arcLength)),
+        y: yOffset(radius * Math.sin(arcLength))
       };
       nodes.push(element);
       arcLength += arcLengthIncrement;
@@ -308,19 +322,70 @@ function create(el) {
     // console.log(nodes)
     function drawNode(node, i) {
       // node : { x: 12.2, y: 123.43 }
-      var x = xOffset(node.x);
-      var y = yOffset(node.y);
+      var x = node.x;
+      var y = node.y;
       ctx.beginPath();
       ctx.arc(x, y, 2, 0, 2 * Math.PI);
       ctx.stroke();
       ctx.font = '14px serif';
       // ctx.fillText(`n=${i}, t=${t}`, xOffset(node.x + 5), yOffset(node.y))
-      ctx.fillText(i, xOffset(node.x + 5), yOffset(node.y));
+      ctx.fillText(i, x + 5, y);
     }
     return nodes;
     // horizon elements (nodes) in zero coordinates [ {x: 1.12312, y: 211.23} , ... ]
   }
+  function drawArrow(fromx, fromy, tox, toy, arrowWidth, color) {
+    //variables to be used when creating the arrow
+    var headlen = 10;
+    var angle = Math.atan2(toy - fromy, tox - fromx);
+    ctx.save();
+    ctx.strokeStyle = color;
+
+    //starting path of the arrow from the start square to the end square
+    //and drawing the stroke
+    ctx.beginPath();
+    ctx.moveTo(fromx, fromy);
+    ctx.lineTo(tox, toy);
+    ctx.lineWidth = arrowWidth;
+    ctx.stroke();
+
+    //starting a new path from the head of the arrow to one of the sides of
+    //the point
+    ctx.beginPath();
+    ctx.moveTo(tox, toy);
+    ctx.lineTo(tox - headlen * Math.cos(angle - Math.PI / 7), toy - headlen * Math.sin(angle - Math.PI / 7));
+
+    //path from the side point of the arrow, to the other side point
+    ctx.lineTo(tox - headlen * Math.cos(angle + Math.PI / 7), toy - headlen * Math.sin(angle + Math.PI / 7));
+
+    //path from the side point back to the tip of the arrow, and then
+    //again to the opposite side point
+    ctx.lineTo(tox, toy);
+    ctx.lineTo(tox - headlen * Math.cos(angle - Math.PI / 7), toy - headlen * Math.sin(angle - Math.PI / 7));
+
+    //draws the paths created above
+    ctx.stroke();
+    ctx.restore();
+  }
 }
+
+// function drawArrow(fromx, fromy, tox, toy) {
+//   console.log('drawArrow', arguments)
+//   var headlen = 8 // length of head in pixels
+//   var dx = tox - fromx
+//   var dy = toy - fromy
+//   var angle = Math.atan2(dy, dx)
+//   ctx.beginPath()
+//   ctx.lineWidth = 1
+//   ctx.strokeStyle = 'grey'
+//   ctx.moveTo(fromx, fromy)
+//   ctx.lineTo(tox, toy)
+//   ctx.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6))
+//   ctx.moveTo(tox, toy)
+//   ctx.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6))
+//   ctx.stroke()
+// }
+
 exports.init = init;
 
 },{}],3:[function(require,module,exports){

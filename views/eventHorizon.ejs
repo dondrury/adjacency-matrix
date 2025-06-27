@@ -6,6 +6,8 @@
   %>
   <div class="event-horizon-container" data-matrix="<%= JSON.stringify(matrix) %>" >
     <div>Event Horizon Representation of: <%= graph.name %></div>
+    <p>The "Event Horizon" representation is v<sub>i+1</sub> = Av<sub>i</sub> computed n times.</p>
+    <p>Think of it as looking into the path of the oncoming structure, in time.</p>
      <canvas class="event-horizon" width="<%= overallWidth %>" height="<%= overallWidth %>"></canvas>
   </div>
 <% } %>
