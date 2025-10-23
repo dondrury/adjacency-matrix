@@ -1,5 +1,4 @@
 const cytoscape = require('cytoscape')
-const stateSpace3DModal = require('./stateSpace3DModel')
 // next steps, sort and order graphs within a morphoolicy. Create a GIF for each one!
 // show that morphologies form a ring, or at least a group.
 const timeStepInterval = 400
@@ -30,9 +29,7 @@ function prepare(el, i) {
       el.querySelector('input[name="imageSrc"]').value = imageSrc
       // console.log('wireframe rendered and image loaded into form')
     })
-    // const perturbationChart = stateSpace3DModal.producePerturbationChart(matrix)
-    // console.log('perturbationChart.length', perturbationChart.length)
-    // startPerturbationSequence(cy, perturbationChart)
+  
   }
 }
 

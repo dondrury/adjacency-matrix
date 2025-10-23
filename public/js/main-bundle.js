@@ -1,8 +1,21 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 "use strict";
 
+function init() {
+  console.log('started coherence chart');
+  Array.from(document.getElementsByClassName('graph-container')).forEach(prepare);
+}
+function prepare(el, i) {
+  var matrix = JSON.parse(el.dataset.matrix);
+}
+module.exports = {
+  init: init
+};
+
+},{}],2:[function(require,module,exports){
+"use strict";
+
 var cytoscape = require('cytoscape');
-var stateSpace3DModal = require('./stateSpace3DModel');
 // next steps, sort and order graphs within a morphoolicy. Create a GIF for each one!
 // show that morphologies form a ring, or at least a group.
 var timeStepInterval = 400;
@@ -36,9 +49,6 @@ function prepare(el, i) {
       el.querySelector('input[name="imageSrc"]').value = imageSrc;
       // console.log('wireframe rendered and image loaded into form')
     });
-    // const perturbationChart = stateSpace3DModal.producePerturbationChart(matrix)
-    // console.log('perturbationChart.length', perturbationChart.length)
-    // startPerturbationSequence(cy, perturbationChart)
   };
 }
 var nodeColorRGB = function nodeColorRGB(val) {
@@ -239,7 +249,7 @@ function visualize(matrix, container) {
 }
 exports.init = init;
 
-},{"./stateSpace3DModel":5,"cytoscape":6}],2:[function(require,module,exports){
+},{"cytoscape":6}],3:[function(require,module,exports){
 "use strict";
 
 var PHI = 1.618033988749894;
@@ -249,7 +259,7 @@ function init() {
 }
 function create(el) {
   var matrix = JSON.parse(el.dataset.matrix);
-  console.log(matrix); // still boolean
+  // console.log(matrix) // still boolean
   var canvas = el.querySelector('canvas');
   var ctx = canvas.getContext("2d");
   if (!ctx) {
@@ -268,28 +278,36 @@ function create(el) {
   };
   var r = 200 / (matrix.length * PHI);
   var horizons = [];
-  for (var i = 0; i < matrix.length + 1; i++) {
+  // for (let i = 0; i < matrix.length + 1; i++) {
+  //   const horizonElements = drawCenteredHorizonByRadius(r, i)
+  //   horizons.push(horizonElements)
+  //   r *= PHI
+  //   if (i > 0) drawArrowsBetweenHorizons(horizons[i - 1], horizons[i])
+  // }
+  // console.log(horizons)
+  var i = 0;
+  drawNextHorizonWithArrows();
+  function drawNextHorizonWithArrows() {
+    if (i > matrix.length) return;
     var horizonElements = drawCenteredHorizonByRadius(r, i);
     horizons.push(horizonElements);
     r *= PHI;
+    if (i > 0) drawArrowsBetweenHorizons(horizons[i - 1], horizons[i]);
+    i++;
+    setTimeout(drawNextHorizonWithArrows, 2000);
   }
-  // console.log(horizons)
-
-  horizons.forEach(drawArrows);
-  function drawArrows(horizon, n) {
-    if (n >= horizons.length - 1) return;
-    var nextHorizon = horizons[n + 1];
-    // console.log('nextHorizon', nextHorizon)
-    horizon.forEach(function (startNode, i) {
-      nextHorizon.forEach(function (endNode, j) {
+  function drawArrowsBetweenHorizons(before, after) {
+    // console.log(before, after)
+    before.forEach(function (startNode, i) {
+      after.forEach(function (endNode, j) {
         if (matrix[i][j]) {
           var fromx = startNode.x;
           var fromy = startNode.y;
           var tox = endNode.x;
           var toy = endNode.y;
-          console.log(i, j);
-          console.log('matrix[i][j]', matrix[i][j]);
-          console.log('matrix[j][i]', matrix[j][i]);
+          // console.log(i, j)
+          // console.log('matrix[i][j]', matrix[i][j])
+          // console.log('matrix[j][i]', matrix[j][i])
           var color = matrix[i][j] === matrix[j][i] ? '#707070' : '#C0C0C0'; // darker for symmetries
           color = i === j ? 'red' : color;
           var arrowWidth = i === j ? 5 : 3;
@@ -298,6 +316,31 @@ function create(el) {
       });
     });
   }
+
+  // horizons.forEach(drawArrows)
+  // function drawArrows (horizon, n) {
+  //   if (n >= horizons.length - 1) return
+  //   const nextHorizon = horizons[n + 1]
+  //   // console.log('nextHorizon', nextHorizon)
+  //   horizon.forEach((startNode, i) => {
+  //     nextHorizon.forEach((endNode, j) => {
+  //       if (matrix[i][j]) {
+  //         const fromx = startNode.x
+  //         const fromy = startNode.y
+  //         const tox = endNode.x
+  //         const toy = endNode.y
+  //         console.log(i, j)
+  //         console.log('matrix[i][j]', matrix[i][j])
+  //         console.log('matrix[j][i]', matrix[j][i])
+  //         let color = matrix[i][j] === matrix[j][i] ? '#707070' : '#C0C0C0' // darker for symmetries
+  //         color = i === j ? 'red' : color
+  //         const arrowWidth = i === j ? 5 : 3
+  //         drawArrow(fromx, fromy, tox, toy, arrowWidth, color)
+  //       }
+  //     })
+  //   })
+  // }
+
   function drawCenteredHorizonByRadius(radius, t) {
     var x = xOffset(0);
     var y = yOffset(0);
@@ -388,21 +431,26 @@ function create(el) {
 
 exports.init = init;
 
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 'use strict';
 
 // const adjacencyGraph = require('./adjacencyGraph')
 var cytoscapeVisualization = require('./cytoscapeVisualization');
 var eventHorizon = require('./eventHorizon');
 var morphsDataTable = require('./morphsDataTable');
+var coherenceChart = require('./coherenceChart');
+// const acousticModel = require('./acousticModel')
+
 document.addEventListener('DOMContentLoaded', function () {
   console.log('Start');
   morphsDataTable.init();
   cytoscapeVisualization.init();
   eventHorizon.init();
+  // acousticModel.init()
+  coherenceChart.init();
 });
 
-},{"./cytoscapeVisualization":1,"./eventHorizon":2,"./morphsDataTable":4}],4:[function(require,module,exports){
+},{"./coherenceChart":1,"./cytoscapeVisualization":2,"./eventHorizon":3,"./morphsDataTable":5}],5:[function(require,module,exports){
 "use strict";
 
 function init() {
@@ -452,219 +500,6 @@ function create() {
   });
 }
 exports.init = init;
-
-},{}],5:[function(require,module,exports){
-"use strict";
-
-function init() {
-  console.log('started State Space 3D Model');
-  Array.from(document.getElementsByClassName('graph-container')).forEach(prepare);
-}
-function prepare(el, i) {
-  var matrix = JSON.parse(el.dataset.matrix);
-  var button = el.querySelector('button[name="model-3d"]');
-  if (!button) {
-    console.log('button[name="model-3d"] not found');
-    return;
-  }
-  var container = el.querySelector('div.model-3d-container');
-  button.onclick = function () {
-    // console.log('onlick event for state space 3d model')
-    var numericalMatrix = normalizeMatrix(matrix);
-
-    // const iterations = iterateOnePulseNTimes(numericalMatrix, {
-    //   channel: 0,
-    //   stopAfter: 300
-    // })
-    var iterations = vibrateOnOneChannelNTimes(numericalMatrix, {
-      channel: 0,
-      wavelength: 3,
-      intensity: 1,
-      stopAfter: 100,
-      stopForcingAfterWavelengths: 10
-    });
-    console.log(iterations);
-  };
-}
-function producePerturbationChart(booleanMatrix) {
-  var numericalMatrix = normalizeMatrix(booleanMatrix);
-
-  // const iterations = iterateOnePulseNTimes(numericalMatrix, {
-  //   channel: 0,
-  //   stopAfter: 300
-  // })
-  var iterations = vibrateOnOneChannelNTimes(numericalMatrix, {
-    channel: 0,
-    wavelength: 3,
-    intensity: 1,
-    stopAfter: 100,
-    stopForcingAfterWavelengths: 10
-  });
-  console.log(iterations);
-  return iterations;
-}
-function checkVectorSum(vector) {
-  var sum = 0;
-  vector.forEach(function (v) {
-    sum += v;
-  });
-  if (sum > 0.00000000001) {
-    throw new Error('vector sum not zero');
-  }
-  return sum;
-}
-function vectorRadius(vector) {
-  var sum = 0;
-  vector.forEach(function (v) {
-    sum += Math.pow(v, 2);
-  });
-  return sum;
-}
-function iterateOnePulseNTimes(numericalMatrix) {
-  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-  // these just overdamped to equal portions!
-  var channel = options.channel || 0;
-  var stopAfter = options.stopAfter || 200;
-  var initVector = new Array(numericalMatrix.length).fill(0);
-  initVector[channel] = 1;
-  initVector[channel + 1] = -1;
-  checkVectorSum(initVector);
-  var results = [initVector];
-  console.log("0:", initVector, 'radius', vectorRadius(initVector));
-  addAnotherResult();
-  function addAnotherResult() {
-    if (results.length > stopAfter) return;
-    var result = multiplyMatrixAndVector(numericalMatrix, results[results.length - 1]); // start with the latest result
-    console.log("".concat(results.length, ":"), result, 'radius', vectorRadius(result));
-    checkVectorSum(result);
-    results.push(result);
-    addAnotherResult();
-  }
-  return results;
-}
-function vibrateOnOneChannelNTimes(numericalMatrix) {
-  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-  var channel = options.channel || 0;
-  var intensity = options.intensity || 0.000001;
-  var stopAfter = options.stopAfter || 200;
-  var stopForcingAfterWavelengths = options.stopForcingAfterWavelengths || 10;
-  var initVector = new Array(numericalMatrix.length).fill(0);
-  var wavelength = options.wavelength || 2;
-  initVector[channel] = intensity;
-  initVector[channel + 1] = 0 - intensity;
-  checkVectorSum(initVector);
-  var results = [initVector];
-  console.log("0: forcingVector ".concat(initVector.join(','), " to start"), initVector);
-  addAnotherResult();
-  function addAnotherResult() {
-    if (results.length > stopAfter) return;
-    var result = multiplyMatrixAndVector(numericalMatrix, results[results.length - 1]); // start with the latest result
-    // let forcingFunction = results.length % 2 ? 0 : intensity
-    var applyForcingVector = results.length % wavelength === 0 && results.length < stopForcingAfterWavelengths * wavelength;
-    if (applyForcingVector) {
-      result = addVectors(initVector, result);
-      console.log("".concat(results.length, ": forcingVector ").concat(initVector, " was applied"), result);
-    } else {
-      console.log("".concat(results.length, ": forcingVector not applied"), result);
-    }
-    console.log('result vector radius', vectorRadius(result));
-    checkVectorSum(result);
-    results.push(result);
-    addAnotherResult();
-  }
-  return results;
-}
-function multiplyMatrixAndVector(numericalMatrix, vector) {
-  // this appears trustworthy
-  var resultVector = new Array(vector.length).fill(null);
-  // console.log(resultVector)
-  // console.log(' numericalMatrix.length',  numericalMatrix.length)
-  for (var i = 0; i < numericalMatrix.length; i++) {
-    // i iterates rows
-    var cumulativeSumOfMultipliedPairs = 0;
-    for (var j = 0; j < numericalMatrix.length; j++) {
-      // j is for columns
-      cumulativeSumOfMultipliedPairs += vector[j] * numericalMatrix[i][j];
-      // console.log(`(${i},${j})`, 'vector[j],  numericalMatrix[i][j], vector[j] * numericalMatrix[i][j]', vector[j],  numericalMatrix[i][j], vector[j] * numericalMatrix[i][j] )
-    }
-    resultVector[i] = cumulativeSumOfMultipliedPairs;
-    // console.log('resultVector[i]', resultVector[i])
-  }
-  return resultVector;
-}
-function addVectors(v, w) {
-  if (v.length !== w.length) throw new Error('cannot add two different size vectors');
-  var length = w.length;
-  var resultVector = new Array(length).fill(null);
-  for (var i = 0; i < length; i++) {
-    resultVector[i] = v[i] + w[i];
-  }
-  return resultVector;
-}
-function normalizeMatrix(matrix) {
-  // console.log(matrix)
-  var rows = matrix.length;
-  var cols = matrix[0].length;
-  if (rows !== cols) {
-    console.log('not square');
-    return;
-  }
-  var rank = determineRank(matrix);
-  // console.log({ rank })
-  if (typeof rank !== 'number') return;
-  var numericalMatrix = [];
-  for (var i = 0; i < matrix.length; i++) {
-    // i is for rows
-    var row = [];
-    for (var j = 0; j < matrix[i].length; j++) {
-      // j is for columns
-      var elementValue = matrix[i][j] ? 1 : 0;
-      row.push(elementValue / rank);
-    }
-    numericalMatrix.push(row);
-  }
-  return numericalMatrix;
-}
-function determineRank(booleanMatrix) {
-  var rowRank = [];
-  for (var i = 0; i < booleanMatrix.length; i++) {
-    var rank = 0;
-    for (var j = 0; j < booleanMatrix[i].length; j++) {
-      if (booleanMatrix[i][j]) rank++;
-    }
-    rowRank.push(rank);
-    if (i > 0 && rowRank[i] !== rowRank[i - 1]) {
-      console.log('inconsistent adjascent row ranks, exiting determineRank');
-      return null;
-    }
-  }
-  var columnRank = [];
-  for (var _i = 0; _i < booleanMatrix.length; _i++) {
-    var _rank = 0;
-    for (var _j = 0; _j < booleanMatrix[_i].length; _j++) {
-      if (booleanMatrix[_j][_i]) _rank++;
-    }
-    columnRank.push(_rank);
-    if (_i > 0 && rowRank[_i] !== rowRank[_i - 1]) {
-      console.log('inconsistent adjascent column ranks, exiting determineRank');
-      return null;
-    }
-  }
-  var testRank = rowRank[0];
-  if (rowRank.every(function (el) {
-    return el === testRank;
-  }) && columnRank.every(function (el) {
-    return el === testRank;
-  })) {
-    console.log('consistent rank of ' + testRank);
-    return testRank;
-  }
-  return null; // will throw error
-}
-module.exports = {
-  init: init,
-  producePerturbationChart: producePerturbationChart
-};
 
 },{}],6:[function(require,module,exports){
 (function (global,setImmediate){(function (){
@@ -35543,4 +35378,4 @@ exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate :
   delete immediateIds[id];
 };
 }).call(this)}).call(this,require("timers").setImmediate,require("timers").clearImmediate)
-},{"process/browser.js":7,"timers":8}]},{},[3]);
+},{"process/browser.js":7,"timers":8}]},{},[4]);

@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 const Polynomial = require('polynomial')
 // const Morph = require('./morph')
-const eigs = require('mathjs').eigs
+const MathJS = require('mathjs')
 // graph is given only name and booleanArray when init, all other values are calculated internally
 
 const graphSchema = new mongoose.Schema({
@@ -132,10 +132,10 @@ function findEigenValues (matrix) {
   }
   // console.log('matrix', matrix)
   // console.log('numericalMatrix', numericalMatrix)
-  // console.log('eigenvalues', eigs(numericalMatrix, { eigenvectors: false }))
+  // console.log('eigenvalues', MathJS.eigs(numericalMatrix, { eigenvectors: false }))
   let eigenvalues = []
   try {
-    eigenvalues = eigs(numericalMatrix, { eigenvectors: false }).values.sort((a,b) => a - b)
+    eigenvalues = MathJS.eigs(numericalMatrix, { eigenvectors: false }).values.sort((a,b) => a - b)
   } catch (e) {
     console.log(e)
   }
@@ -415,6 +415,26 @@ graphSchema.virtual('relationArray').get(function() {
 
    return relationArray
 })
+
+graphSchema.virtual('coherenceChart').get(createCoherenceChart)
+
+function createCoherenceChart () {
+  const numericalMatrix = []
+  for (let i = 0; i < this.booleanMatrix.length; i++) {  // i is for rows
+    const row = []
+    for (let j = 0; j < this.booleanMatrix[i].length; j++) { // j is for columns
+      row.push(this.booleanMatrix[i][j] ? 1: 0)
+    }
+    numericalMatrix.push(row)
+  }
+  const Matrix = MathJS.matrix(numericalMatrix)
+  var atotheNthPower = Matrix
+  for (let i = 0; i < this.size; i++) {
+    atotheNthPower = MathJS.multiply(Matrix, atotheNthPower)
+    // console.log('multiplied again')
+  }
+  return atotheNthPower.toArray()
+}
 
 const Graph = mongoose.model('Graph', graphSchema)
 

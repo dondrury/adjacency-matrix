@@ -5,9 +5,8 @@ function init() {
 }
 
 function create(el) {
-
   const matrix = JSON.parse(el.dataset.matrix)
-  console.log(matrix) // still boolean
+  // console.log(matrix) // still boolean
   const canvas = el.querySelector('canvas')
   const ctx = canvas.getContext("2d")
   if (!ctx) {
@@ -22,30 +21,38 @@ function create(el) {
   const yOffset = y => - y + (canvasHeight / 2)
   let r = 200 / (matrix.length * PHI)
   const horizons = []
-  for (let i = 0; i < matrix.length + 1; i++) {
+  // for (let i = 0; i < matrix.length + 1; i++) {
+  //   const horizonElements = drawCenteredHorizonByRadius(r, i)
+  //   horizons.push(horizonElements)
+  //   r *= PHI
+  //   if (i > 0) drawArrowsBetweenHorizons(horizons[i - 1], horizons[i])
+  // }
+  // console.log(horizons)
+  let i = 0
+  drawNextHorizonWithArrows()
+
+  function drawNextHorizonWithArrows () {
+    if (i > matrix.length) return
     const horizonElements = drawCenteredHorizonByRadius(r, i)
     horizons.push(horizonElements)
     r *= PHI
+    if (i > 0) drawArrowsBetweenHorizons(horizons[i - 1], horizons[i])
+    i++
+    setTimeout(drawNextHorizonWithArrows, 2000)
   }
-  // console.log(horizons)
 
-  horizons.forEach(drawArrows)
-
-
-  function drawArrows (horizon, n) {
-    if (n >= horizons.length - 1) return
-    const nextHorizon = horizons[n + 1]
-    // console.log('nextHorizon', nextHorizon)
-    horizon.forEach((startNode, i) => {
-      nextHorizon.forEach((endNode, j) => {
+  function drawArrowsBetweenHorizons(before, after) {
+    // console.log(before, after)
+    before.forEach((startNode, i) => {
+      after.forEach((endNode, j) => {
         if (matrix[i][j]) {
           const fromx = startNode.x
           const fromy = startNode.y
           const tox = endNode.x
           const toy = endNode.y
-          console.log(i, j)
-          console.log('matrix[i][j]', matrix[i][j])
-          console.log('matrix[j][i]', matrix[j][i])
+          // console.log(i, j)
+          // console.log('matrix[i][j]', matrix[i][j])
+          // console.log('matrix[j][i]', matrix[j][i])
           let color = matrix[i][j] === matrix[j][i] ? '#707070' : '#C0C0C0' // darker for symmetries
           color = i === j ? 'red' : color
           const arrowWidth = i === j ? 5 : 3
@@ -54,6 +61,32 @@ function create(el) {
       })
     })
   }
+
+
+  // horizons.forEach(drawArrows)
+  // function drawArrows (horizon, n) {
+  //   if (n >= horizons.length - 1) return
+  //   const nextHorizon = horizons[n + 1]
+  //   // console.log('nextHorizon', nextHorizon)
+  //   horizon.forEach((startNode, i) => {
+  //     nextHorizon.forEach((endNode, j) => {
+  //       if (matrix[i][j]) {
+  //         const fromx = startNode.x
+  //         const fromy = startNode.y
+  //         const tox = endNode.x
+  //         const toy = endNode.y
+  //         console.log(i, j)
+  //         console.log('matrix[i][j]', matrix[i][j])
+  //         console.log('matrix[j][i]', matrix[j][i])
+  //         let color = matrix[i][j] === matrix[j][i] ? '#707070' : '#C0C0C0' // darker for symmetries
+  //         color = i === j ? 'red' : color
+  //         const arrowWidth = i === j ? 5 : 3
+  //         drawArrow(fromx, fromy, tox, toy, arrowWidth, color)
+  //       }
+  //     })
+  //   })
+  // }
+
 
 
 

@@ -18,7 +18,7 @@
       <div class="col-lg-6">
         <h4><%- morph.characteristicPolynomialHtml %></h4>
         <img src="<%= morph.image %>" alt="cannonical image of graph" class="img-responsive" style="max-width:200px;max-height:200px;margin-bottom:20px;">
-        <p>This is a cannonical image. It's vertex numbers represent <i>only this one permutation</i> of the <%= morph.exampleCount %> permutations of this graph.</p>
+        <p>This is a cannonical image. It's vertex numbers represent <i>only this one permutation</i> of the <%= morph.exampleCount %> permutations of this morph.</p>
       </div>
       <div class="col-lg-6">
         <form action="/morphs/saveImage/<%= morph._id %>" method="POST" >

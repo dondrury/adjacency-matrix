@@ -1,33 +1,66 @@
 function init() {
-  console.log('started State Space 3D Model')
+  console.log('started acoustic Model')
   Array.from(document.getElementsByClassName('graph-container')).forEach(prepare)
 }
 
 function prepare(el, i) {
   const matrix = JSON.parse(el.dataset.matrix)
-  const button = el.querySelector('button[name="model-3d"]')
+  const button = el.querySelector('button[name="acoustic-model"]')
   if (!button) {
-    console.log('button[name="model-3d"] not found')
+    console.log('button[name="acoustic-model"] not found')
     return
   }
-  const container = el.querySelector('div.model-3d-container')
-  button.onclick = function () {
-    // console.log('onlick event for state space 3d model')
-    const numericalMatrix = normalizeMatrix(matrix)
+  // button.onclick = function () {
+  //   // console.log('onlick event for state space 3d model')
+  //   const numericalMatrix = normalizeMatrix(matrix)
   
-    // const iterations = iterateOnePulseNTimes(numericalMatrix, {
-    //   channel: 0,
-    //   stopAfter: 300
-    // })
-    const iterations = vibrateOnOneChannelNTimes(numericalMatrix,{
-      channel: 0,
-      wavelength: 3,
-      intensity: 1,
-      stopAfter: 100,
-      stopForcingAfterWavelengths: 10
-    })
-    console.log(iterations)
+  //   // const iterations = iterateOnePulseNTimes(numericalMatrix, {
+  //   //   channel: 0,
+  //   //   stopAfter: 300
+  //   // })
+  //   const iterations = vibrateOnOneChannelNTimes(numericalMatrix,{
+  //     channel: 0,
+  //     wavelength: 2,
+  //     intensity: 1,
+  //     stopAfter: 100,
+  //     stopForcingAfterWavelengths: 33
+  //   })
+  //   // console.log(iterations)
+  //   // generateSoundFile()
+  // }
+}
+
+function generateSoundFile () {
+  // Legend
+  // DUR - duration in seconds   SPS - sample per second (default 44100)
+  // NCH - number of channels    BPS - bytes per sample
+
+  // t - is number from range [0, DUR), return number in range [0, 1]
+  function getSampleAt(t,DUR,SPS)
+  {
+      return Math.sin(6000*t); 
   }
+
+  function genWAVUrl(fun, DUR=1, NCH=1, SPS=44100, BPS=1) {
+    let size = DUR*NCH*SPS*BPS; 
+    let put = (n,l=4) => [(n<<24),(n<<16),(n<<8),n].filter((x,i)=>i<l).map(x=> String.fromCharCode(x>>>24)).join('');
+    let p = (...a) => a.map( b=> put(...[b].flat()) ).join(''); 
+    let data = `RIFF${put(44+size)}WAVEfmt ${p(16,[1,2],[NCH,2],SPS,NCH*BPS*SPS,[NCH*BPS,2],[BPS*8,2])}data${put(size)}`
+    for (let i = 0; i < DUR*SPS; i++) {
+      let f= Math.min(Math.max(fun(i/SPS,DUR,SPS),0),1);
+      data += put(Math.floor( f * (2**(BPS*8)-1)), BPS);
+    }
+    const wavUrl = "data:Audio/WAV;base64," + btoa(data)
+    console.log('length of wavUrl', wavUrl.length)
+    return wavUrl
+  }
+
+
+  var WAV = new Audio( genWAVUrl(getSampleAt,5) ); // 5s
+  WAV.setAttribute("controls", "controls");
+  document.getElementsByClassName('graph-container')[0].appendChild(WAV)
+  WAV.style.marginTop = '40px'
+  //WAV.play()
 }
 
 function producePerturbationChart(booleanMatrix) {
@@ -42,7 +75,7 @@ function producePerturbationChart(booleanMatrix) {
       wavelength: 3,
       intensity: 1,
       stopAfter: 100,
-      stopForcingAfterWavelengths: 10
+      stopForcingAfterWavelengths: 100
     })
     console.log(iterations)
 
@@ -65,16 +98,16 @@ function vectorRadius (vector) {
   vector.forEach(v => {
     sum += Math.pow(v, 2)
   })
-  return sum
+  return Math.pow(sum, 0.5)
 }
 
 function iterateOnePulseNTimes (numericalMatrix, options = {}) { // these just overdamped to equal portions!
   const channel = options.channel || 0
   const stopAfter = options.stopAfter || 200
   const initVector = (new Array(numericalMatrix.length)).fill(0)
-  initVector[channel] = 1
-  initVector[channel + 1] = -1
-  checkVectorSum(initVector)
+  initVector[channel] = 100
+  initVector[channel + 1] = 100
+  // checkVectorSum(initVector)
   const results = [initVector]
   console.log(`0:`, initVector, 'radius', vectorRadius(initVector))
   addAnotherResult()
@@ -82,7 +115,7 @@ function iterateOnePulseNTimes (numericalMatrix, options = {}) { // these just o
     if (results.length > stopAfter) return
     const result = multiplyMatrixAndVector(numericalMatrix, results[results.length - 1]) // start with the latest result
     console.log(`${results.length}:`, result, 'radius', vectorRadius(result))
-    checkVectorSum(result)
+    // checkVectorSum(result)
     results.push(result)
     addAnotherResult()
   }
@@ -97,8 +130,8 @@ function vibrateOnOneChannelNTimes (numericalMatrix, options = {}) {
   const initVector = (new Array(numericalMatrix.length)).fill(0)
   const wavelength = options.wavelength || 2
   initVector[channel] = intensity
-  initVector[channel + 1] = 0 - intensity
-  checkVectorSum(initVector)
+  // initVector[channel + 1] = 0 - intensity
+  // checkVectorSum(initVector)
   const results = [ initVector ]
   console.log(`0: forcingVector ${initVector.join(',')} to start`, initVector) 
   addAnotherResult()
@@ -114,7 +147,7 @@ function vibrateOnOneChannelNTimes (numericalMatrix, options = {}) {
       console.log(`${results.length}: forcingVector not applied`, result)
     }
     console.log('result vector radius', vectorRadius(result))
-    checkVectorSum(result)
+    // checkVectorSum(result)
     results.push(result)
     addAnotherResult()
   }
@@ -207,5 +240,5 @@ function determineRank (booleanMatrix) {
 
 module.exports = {
   init,
-  producePerturbationChart
+  // producePerturbationChart
 }
