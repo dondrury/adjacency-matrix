@@ -10,24 +10,15 @@ function prepare(el, i) {
     console.log('button[name="acoustic-model"] not found')
     return
   }
-  // button.onclick = function () {
-  //   // console.log('onlick event for state space 3d model')
-  //   const numericalMatrix = normalizeMatrix(matrix)
-  
-  //   // const iterations = iterateOnePulseNTimes(numericalMatrix, {
-  //   //   channel: 0,
-  //   //   stopAfter: 300
-  //   // })
-  //   const iterations = vibrateOnOneChannelNTimes(numericalMatrix,{
-  //     channel: 0,
-  //     wavelength: 2,
-  //     intensity: 1,
-  //     stopAfter: 100,
-  //     stopForcingAfterWavelengths: 33
-  //   })
-  //   // console.log(iterations)
-  //   // generateSoundFile()
-  // }
+  button.onclick = function () {
+    // console.log('onlick event for state space 3d model')
+    const numericalMatrix = normalizeMatrix(matrix)
+    // console.log('numericalMatrix', numericalMatrix)
+    const iterations = vibrate(numericalMatrix, {
+      periods: 10
+    })
+    console.log(iterations)
+  }
 }
 
 function generateSoundFile () {
@@ -101,20 +92,19 @@ function vectorRadius (vector) {
   return Math.pow(sum, 0.5)
 }
 
-function iterateOnePulseNTimes (numericalMatrix, options = {}) { // these just overdamped to equal portions!
-  const channel = options.channel || 0
-  const stopAfter = options.stopAfter || 200
-  const initVector = (new Array(numericalMatrix.length)).fill(0)
-  initVector[channel] = 100
-  initVector[channel + 1] = 100
-  // checkVectorSum(initVector)
+function vibrate (numericalMatrix, options = {}) { // these just overdamped to equal portions!
+  // const channel = options.channel || 0
+  const periods = options.periods || 4
+  const stopAfter = numericalMatrix.length * periods
+  const initVector = (new Array(numericalMatrix.length)).fill(1)
+  console.log(initVector)
   const results = [initVector]
-  console.log(`0:`, initVector, 'radius', vectorRadius(initVector))
+  // console.log(`0:`, initVector, 'radius', vectorRadius(initVector))
   addAnotherResult()
   function addAnotherResult() {
     if (results.length > stopAfter) return
     const result = multiplyMatrixAndVector(numericalMatrix, results[results.length - 1]) // start with the latest result
-    console.log(`${results.length}:`, result, 'radius', vectorRadius(result))
+    console.log(`${results.length}:`, result)
     // checkVectorSum(result)
     results.push(result)
     addAnotherResult()

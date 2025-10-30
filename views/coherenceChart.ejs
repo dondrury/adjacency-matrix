@@ -8,9 +8,8 @@
   const yOffset = m => m * squareSize
   const xOffset = n => n * squareSize
   const halfLength = Math.floor(matrix.length / 2)
-  console.log(graph.coherenceChart)
-  const divisor = Math.pow(graph.rank, graph.size + 1)
-  console.log('divisor', divisor)
+  // console.log(graph.coherenceChart)
+
   %>
   <div class="coherence-chart-container"  >
     <div>Coherence Chart representation of:</div>
@@ -31,28 +30,19 @@
                       fill="black"><%- j %></text>
           <%
               for (let i = 0; i < matrix[j].length; i++) { // columns
-                const value = matrix[j][i]
-                const colorValue = value / divisor * 100
-                let color = `rgb(${colorValue}, 100, ${255 - colorValue})`
-                
-                
                 %>
                 <rect y="<%= yOffset(j) %>" 
                       x="<%= xOffset(i) %>" 
                       width="<%= squareSize %>" 
                       height="<%= squareSize %>" 
                       stroke="black"
-                      fill="<%= color %>"></rect>
+                      fill="white"></rect>
                 <text y="<%= yOffset(j) + (squareSize * 4 / 5) %>" 
                     x="<%= xOffset(i) + (squareSize / 4) %>" 
-                    font-size="<%= squareSize * 1 / 4 %>px"
-                    fill="black"><%= value / divisor %></text>
+                    font-size="<%= squareSize * 2 / 4 %>px"
+                    fill="black"><%= matrix[j][i] %></text>
             <% }
             } %>
     </svg>
-    <!-- <div style="color:white;background-color:red;padding:5px;line-height: 0.7;border:1px solid black;">Red cells are self relationship</div>
-    <div style="color:white;background-color:#707070;padding:5px;line-height: 0.7;">Dark cells are balanced relationship</div>
-    <div style="color:black;background-color:#C0C0C0;padding:5px;line-height: 0.7;border:1px solid black;">Light cells are unbalanced relationship</div>
-    <div style="color:black;background-color:white;padding:5px;line-height: 0.7;border:1px solid black;margin-bottom:20px;">White cells represent no relationship</div> -->
   </div>
 <% } %>

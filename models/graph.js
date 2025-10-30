@@ -416,25 +416,27 @@ graphSchema.virtual('relationArray').get(function() {
    return relationArray
 })
 
-graphSchema.virtual('coherenceChart').get(createCoherenceChart)
+// graphSchema.virtual('coherenceChart').get(createCoherenceChart)
 
-function createCoherenceChart () {
-  const numericalMatrix = []
-  for (let i = 0; i < this.booleanMatrix.length; i++) {  // i is for rows
-    const row = []
-    for (let j = 0; j < this.booleanMatrix[i].length; j++) { // j is for columns
-      row.push(this.booleanMatrix[i][j] ? 1: 0)
-    }
-    numericalMatrix.push(row)
-  }
-  const Matrix = MathJS.matrix(numericalMatrix)
-  var atotheNthPower = Matrix
-  for (let i = 0; i < this.size; i++) {
-    atotheNthPower = MathJS.multiply(Matrix, atotheNthPower)
-    // console.log('multiplied again')
-  }
-  return atotheNthPower.toArray()
-}
+// function createCoherenceChart () {
+//   const numericalMatrix = []
+//   for (let i = 0; i < this.booleanMatrix.length; i++) {  // i is for rows
+//     const row = []
+//     for (let j = 0; j < this.booleanMatrix[i].length; j++) { // j is for columns
+//       row.push(this.booleanMatrix[i][j] ? 1: 0)
+//     }
+//     numericalMatrix.push(row)
+//   }
+//   const Matrix = MathJS.matrix(numericalMatrix)
+//   var atotheNthPower = Matrix
+//   for (let i = 0; i < this.size - 1; i++) { // note the first pass is two matrices, one multiplication, after that it's one at a time
+//     atotheNthPower = MathJS.multiply(Matrix, atotheNthPower)
+//     // console.log(atotheNthPower)
+//     // console.log('multiplied again')
+//   }
+//   return atotheNthPower.toArray()
+// }
+
 
 const Graph = mongoose.model('Graph', graphSchema)
 

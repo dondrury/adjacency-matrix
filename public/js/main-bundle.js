@@ -1,15 +1,256 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 "use strict";
 
+function _toConsumableArray(r) { return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread(); }
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
+function _iterableToArray(r) { if ("undefined" != typeof Symbol && null != r[Symbol.iterator] || null != r["@@iterator"]) return Array.from(r); }
+function _arrayWithoutHoles(r) { if (Array.isArray(r)) return _arrayLikeToArray(r); }
+function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
 function init() {
-  console.log('started coherence chart');
+  console.log('started acoustic Model');
   Array.from(document.getElementsByClassName('graph-container')).forEach(prepare);
 }
 function prepare(el, i) {
   var matrix = JSON.parse(el.dataset.matrix);
+  var button = el.querySelector('button[name="acoustic-model"]');
+  if (!button) {
+    console.log('button[name="acoustic-model"] not found');
+    return;
+  }
+  button.onclick = function () {
+    // console.log('onlick event for state space 3d model')
+    var numericalMatrix = normalizeMatrix(matrix);
+    // console.log('numericalMatrix', numericalMatrix)
+    var iterations = vibrate(numericalMatrix, {
+      periods: 10
+    });
+    console.log(iterations);
+  };
+}
+function generateSoundFile() {
+  // Legend
+  // DUR - duration in seconds   SPS - sample per second (default 44100)
+  // NCH - number of channels    BPS - bytes per sample
+
+  // t - is number from range [0, DUR), return number in range [0, 1]
+  function getSampleAt(t, DUR, SPS) {
+    return Math.sin(6000 * t);
+  }
+  function genWAVUrl(fun) {
+    var DUR = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
+    var NCH = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
+    var SPS = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 44100;
+    var BPS = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 1;
+    var size = DUR * NCH * SPS * BPS;
+    var put = function put(n) {
+      var l = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 4;
+      return [n << 24, n << 16, n << 8, n].filter(function (x, i) {
+        return i < l;
+      }).map(function (x) {
+        return String.fromCharCode(x >>> 24);
+      }).join('');
+    };
+    var p = function p() {
+      for (var _len = arguments.length, a = new Array(_len), _key = 0; _key < _len; _key++) {
+        a[_key] = arguments[_key];
+      }
+      return a.map(function (b) {
+        return put.apply(void 0, _toConsumableArray([b].flat()));
+      }).join('');
+    };
+    var data = "RIFF".concat(put(44 + size), "WAVEfmt ").concat(p(16, [1, 2], [NCH, 2], SPS, NCH * BPS * SPS, [NCH * BPS, 2], [BPS * 8, 2]), "data").concat(put(size));
+    for (var i = 0; i < DUR * SPS; i++) {
+      var f = Math.min(Math.max(fun(i / SPS, DUR, SPS), 0), 1);
+      data += put(Math.floor(f * (Math.pow(2, BPS * 8) - 1)), BPS);
+    }
+    var wavUrl = "data:Audio/WAV;base64," + btoa(data);
+    console.log('length of wavUrl', wavUrl.length);
+    return wavUrl;
+  }
+  var WAV = new Audio(genWAVUrl(getSampleAt, 5)); // 5s
+  WAV.setAttribute("controls", "controls");
+  document.getElementsByClassName('graph-container')[0].appendChild(WAV);
+  WAV.style.marginTop = '40px';
+  //WAV.play()
+}
+function producePerturbationChart(booleanMatrix) {
+  var numericalMatrix = normalizeMatrix(booleanMatrix);
+
+  // const iterations = iterateOnePulseNTimes(numericalMatrix, {
+  //   channel: 0,
+  //   stopAfter: 300
+  // })
+  var iterations = vibrateOnOneChannelNTimes(numericalMatrix, {
+    channel: 0,
+    wavelength: 3,
+    intensity: 1,
+    stopAfter: 100,
+    stopForcingAfterWavelengths: 100
+  });
+  console.log(iterations);
+  return iterations;
+}
+function checkVectorSum(vector) {
+  var sum = 0;
+  vector.forEach(function (v) {
+    sum += v;
+  });
+  if (sum > 0.00000000001) {
+    throw new Error('vector sum not zero');
+  }
+  return sum;
+}
+function vectorRadius(vector) {
+  var sum = 0;
+  vector.forEach(function (v) {
+    sum += Math.pow(v, 2);
+  });
+  return Math.pow(sum, 0.5);
+}
+function vibrate(numericalMatrix) {
+  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  // these just overdamped to equal portions!
+  // const channel = options.channel || 0
+  var periods = options.periods || 4;
+  var stopAfter = numericalMatrix.length * periods;
+  var initVector = new Array(numericalMatrix.length).fill(1);
+  console.log(initVector);
+  var results = [initVector];
+  // console.log(`0:`, initVector, 'radius', vectorRadius(initVector))
+  addAnotherResult();
+  function addAnotherResult() {
+    if (results.length > stopAfter) return;
+    var result = multiplyMatrixAndVector(numericalMatrix, results[results.length - 1]); // start with the latest result
+    console.log("".concat(results.length, ":"), result);
+    // checkVectorSum(result)
+    results.push(result);
+    addAnotherResult();
+  }
+  return results;
+}
+function vibrateOnOneChannelNTimes(numericalMatrix) {
+  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  var channel = options.channel || 0;
+  var intensity = options.intensity || 0.000001;
+  var stopAfter = options.stopAfter || 200;
+  var stopForcingAfterWavelengths = options.stopForcingAfterWavelengths || 10;
+  var initVector = new Array(numericalMatrix.length).fill(0);
+  var wavelength = options.wavelength || 2;
+  initVector[channel] = intensity;
+  // initVector[channel + 1] = 0 - intensity
+  // checkVectorSum(initVector)
+  var results = [initVector];
+  console.log("0: forcingVector ".concat(initVector.join(','), " to start"), initVector);
+  addAnotherResult();
+  function addAnotherResult() {
+    if (results.length > stopAfter) return;
+    var result = multiplyMatrixAndVector(numericalMatrix, results[results.length - 1]); // start with the latest result
+    // let forcingFunction = results.length % 2 ? 0 : intensity
+    var applyForcingVector = results.length % wavelength === 0 && results.length < stopForcingAfterWavelengths * wavelength;
+    if (applyForcingVector) {
+      result = addVectors(initVector, result);
+      console.log("".concat(results.length, ": forcingVector ").concat(initVector, " was applied"), result);
+    } else {
+      console.log("".concat(results.length, ": forcingVector not applied"), result);
+    }
+    console.log('result vector radius', vectorRadius(result));
+    // checkVectorSum(result)
+    results.push(result);
+    addAnotherResult();
+  }
+  return results;
+}
+function multiplyMatrixAndVector(numericalMatrix, vector) {
+  // this appears trustworthy
+  var resultVector = new Array(vector.length).fill(null);
+  // console.log(resultVector)
+  // console.log(' numericalMatrix.length',  numericalMatrix.length)
+  for (var i = 0; i < numericalMatrix.length; i++) {
+    // i iterates rows
+    var cumulativeSumOfMultipliedPairs = 0;
+    for (var j = 0; j < numericalMatrix.length; j++) {
+      // j is for columns
+      cumulativeSumOfMultipliedPairs += vector[j] * numericalMatrix[i][j];
+      // console.log(`(${i},${j})`, 'vector[j],  numericalMatrix[i][j], vector[j] * numericalMatrix[i][j]', vector[j],  numericalMatrix[i][j], vector[j] * numericalMatrix[i][j] )
+    }
+    resultVector[i] = cumulativeSumOfMultipliedPairs;
+    // console.log('resultVector[i]', resultVector[i])
+  }
+  return resultVector;
+}
+function addVectors(v, w) {
+  if (v.length !== w.length) throw new Error('cannot add two different size vectors');
+  var length = w.length;
+  var resultVector = new Array(length).fill(null);
+  for (var i = 0; i < length; i++) {
+    resultVector[i] = v[i] + w[i];
+  }
+  return resultVector;
+}
+function normalizeMatrix(matrix) {
+  // console.log(matrix)
+  var rows = matrix.length;
+  var cols = matrix[0].length;
+  if (rows !== cols) {
+    console.log('not square');
+    return;
+  }
+  var rank = determineRank(matrix);
+  // console.log({ rank })
+  if (typeof rank !== 'number') return;
+  var numericalMatrix = [];
+  for (var i = 0; i < matrix.length; i++) {
+    // i is for rows
+    var row = [];
+    for (var j = 0; j < matrix[i].length; j++) {
+      // j is for columns
+      var elementValue = matrix[i][j] ? 1 : 0;
+      row.push(elementValue / rank);
+    }
+    numericalMatrix.push(row);
+  }
+  return numericalMatrix;
+}
+function determineRank(booleanMatrix) {
+  var rowRank = [];
+  for (var i = 0; i < booleanMatrix.length; i++) {
+    var rank = 0;
+    for (var j = 0; j < booleanMatrix[i].length; j++) {
+      if (booleanMatrix[i][j]) rank++;
+    }
+    rowRank.push(rank);
+    if (i > 0 && rowRank[i] !== rowRank[i - 1]) {
+      console.log('inconsistent adjascent row ranks, exiting determineRank');
+      return null;
+    }
+  }
+  var columnRank = [];
+  for (var _i = 0; _i < booleanMatrix.length; _i++) {
+    var _rank = 0;
+    for (var _j = 0; _j < booleanMatrix[_i].length; _j++) {
+      if (booleanMatrix[_j][_i]) _rank++;
+    }
+    columnRank.push(_rank);
+    if (_i > 0 && rowRank[_i] !== rowRank[_i - 1]) {
+      console.log('inconsistent adjascent column ranks, exiting determineRank');
+      return null;
+    }
+  }
+  var testRank = rowRank[0];
+  if (rowRank.every(function (el) {
+    return el === testRank;
+  }) && columnRank.every(function (el) {
+    return el === testRank;
+  })) {
+    console.log('consistent rank of ' + testRank);
+    return testRank;
+  }
+  return null; // will throw error
 }
 module.exports = {
   init: init
+  // producePerturbationChart
 };
 
 },{}],2:[function(require,module,exports){
@@ -438,19 +679,17 @@ exports.init = init;
 var cytoscapeVisualization = require('./cytoscapeVisualization');
 var eventHorizon = require('./eventHorizon');
 var morphsDataTable = require('./morphsDataTable');
-var coherenceChart = require('./coherenceChart');
-// const acousticModel = require('./acousticModel')
-
+// const coherenceChart = require('./coherenceChart')
+var acousticModel = require('./acousticModel');
 document.addEventListener('DOMContentLoaded', function () {
   console.log('Start');
   morphsDataTable.init();
   cytoscapeVisualization.init();
   eventHorizon.init();
-  // acousticModel.init()
-  coherenceChart.init();
+  acousticModel.init();
 });
 
-},{"./coherenceChart":1,"./cytoscapeVisualization":2,"./eventHorizon":3,"./morphsDataTable":5}],5:[function(require,module,exports){
+},{"./acousticModel":1,"./cytoscapeVisualization":2,"./eventHorizon":3,"./morphsDataTable":5}],5:[function(require,module,exports){
 "use strict";
 
 function init() {
