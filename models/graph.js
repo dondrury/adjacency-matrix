@@ -349,47 +349,47 @@ function allLightPathsFromRelationsObject () {
   return lightPaths
 }
 
-graphSchema.virtual('allLightPaths').get(allLightPathsFromRelationsObject)
+// graphSchema.virtual('allLightPaths').get(allLightPathsFromRelationsObject) // temporarily removed because this isn't working for size: 3, rank: 1 graphs
 
-function createRelationsObject () {
-   /*
-    { 0 : {
-            1 : true,
-            4: true,
-            5: true
-          },
-      1: {
-            0: true,
-            7: true,
-            9:true
-          }
-      ...
-    }
-    */
-    const relationsObject = {}
-    for (let j = 0; j < this.booleanMatrix.length; j++ ) {
-      for (let i = 0; i < this.booleanMatrix[j].length; i++) {
-        if (this.booleanMatrix[j][i]) {
-          if (typeof relationsObject[j] !== 'object' ) {
-            relationsObject[j] = {}
-          }
-          relationsObject[j][i] = true
-        }
-      }
-    }
-    // totalPredictedCompliantGraphs(this.size)
-    // function totalPredictedCompliantGraphs (size) {
-    //   let graphs = 0
-    //   for (let i = size; i >= 0; i--) {
-    //     graphs += ( Math.ceil(1, i - 1 ) * Math.ceil(1, i - 2) * Math.ceil(1, i - 3) )
-    //   }
-    //   // console.log('totalCompliantGraphs', graphs)
-    //   return graphs
-    // }
-    return relationsObject
-}
+// function createRelationsObject () {
+//    /*
+//     { 0 : {
+//             1 : true,
+//             4: true,
+//             5: true
+//           },
+//       1: {
+//             0: true,
+//             7: true,
+//             9:true
+//           }
+//       ...
+//     }
+//     */
+//     const relationsObject = {}
+//     for (let j = 0; j < this.booleanMatrix.length; j++ ) {
+//       for (let i = 0; i < this.booleanMatrix[j].length; i++) {
+//         if (this.booleanMatrix[j][i]) {
+//           if (typeof relationsObject[j] !== 'object' ) {
+//             relationsObject[j] = {}
+//           }
+//           relationsObject[j][i] = true
+//         }
+//       }
+//     }
+//     // totalPredictedCompliantGraphs(this.size)
+//     // function totalPredictedCompliantGraphs (size) {
+//     //   let graphs = 0
+//     //   for (let i = size; i >= 0; i--) {
+//     //     graphs += ( Math.ceil(1, i - 1 ) * Math.ceil(1, i - 2) * Math.ceil(1, i - 3) )
+//     //   }
+//     //   // console.log('totalCompliantGraphs', graphs)
+//     //   return graphs
+//     // }
+//     return relationsObject
+// }
 
-graphSchema.virtual('relationsObject').get(createRelationsObject)
+// graphSchema.virtual('relationsObject').get(createRelationsObject)
 
 graphSchema.virtual('relationArray').get(function() {
   /*
@@ -405,37 +405,14 @@ graphSchema.virtual('relationArray').get(function() {
    const relationArray = []
    for (let j = 0; j < this.booleanMatrix.length; j++ ) {
      for (let i = 0; i < this.booleanMatrix[j].length; i++) {
-       if (i > j) {
-         if (this.booleanMatrix[j][i]) {
-          relationArray.push([j, i])
-         }
-       }
+        if (this.booleanMatrix[j][i]) {
+        relationArray.push([j, i])
+        }
      }
     }
 
    return relationArray
 })
-
-// graphSchema.virtual('coherenceChart').get(createCoherenceChart)
-
-// function createCoherenceChart () {
-//   const numericalMatrix = []
-//   for (let i = 0; i < this.booleanMatrix.length; i++) {  // i is for rows
-//     const row = []
-//     for (let j = 0; j < this.booleanMatrix[i].length; j++) { // j is for columns
-//       row.push(this.booleanMatrix[i][j] ? 1: 0)
-//     }
-//     numericalMatrix.push(row)
-//   }
-//   const Matrix = MathJS.matrix(numericalMatrix)
-//   var atotheNthPower = Matrix
-//   for (let i = 0; i < this.size - 1; i++) { // note the first pass is two matrices, one multiplication, after that it's one at a time
-//     atotheNthPower = MathJS.multiply(Matrix, atotheNthPower)
-//     // console.log(atotheNthPower)
-//     // console.log('multiplied again')
-//   }
-//   return atotheNthPower.toArray()
-// }
 
 
 const Graph = mongoose.model('Graph', graphSchema)
