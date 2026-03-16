@@ -30,10 +30,41 @@ const graphSchema = new mongoose.Schema({
 })
 
 graphSchema.method('createPowerSeries', function () {
-  console.log('createPowerSeries on this matrix', this.booleanMatrix)
+  // console.log('createPowerSeries on this matrix', this.booleanMatrix)
   const numericalMatrix = createNumericalMatrix(this.booleanMatrix)
-  return numericalMatrix
+  const powerSeries = [numericalMatrix]
+
+  for (let i = 1; i < this.size; i++) {
+    const product = multiplySquareMatrices(numericalMatrix, powerSeries[powerSeries.length - 1])
+    // console.log('product', product)
+    powerSeries.push(product)
+  }
+  return powerSeries
 })
+
+function multiplySquareMatrices (A, B) {
+  if (A.length !== B.length) throw new Error('different size square matrices cant be multiplied')
+  // var productMatrix = (new Array(A.length)).fill((new Array(A.length)).fill(null))
+  var productMatrix = []
+  // console.log(productMatrix)
+  for (let i = 0; i < A.length; i++) { // is is row number of A
+    let productRow = []
+    for (let j = 0; j < A.length; j++) { // j is the column number of B
+      const rowOfA = A[i]
+      const colOfB = (new Array(A.length)).fill(null).map((v,k) => B[j][k])
+      // console.log({rowOfA})
+      // console.log({colOfB})
+      let dotProduct = 0
+      for (let k = 0; k < rowOfA.length; k++) {
+        dotProduct += (rowOfA[k] * colOfB[k])
+      }
+      productRow.push(dotProduct)
+    }
+    productMatrix.push(productRow)
+  }
+  //  console.log(productMatrix)
+  return productMatrix
+}
 
 function createNumericalMatrix (booleanMatrix) {
   const numericalMatrix = []

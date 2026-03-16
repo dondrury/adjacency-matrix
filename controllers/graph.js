@@ -17,11 +17,11 @@ exports.afterConnectionTasks = function () {
     classifyNextUnclassifiedGraph()
     // processNextUnprocessedMorph()
     // Graph.findOne({ size: 4, rank: 3 }).then(colorGraph) // this does work, but isn't minimal
-    Graph.findOne({ size: 4, rank: 3 }).then(function (graph) {
-      const powerSeries = graph.createPowerSeries()
-      console.log('return value of createPowerSeries')
-      console.log(powerSeries)
-    }) // this does work, but isn't minimal
+    // Graph.findOne({ size: 4, rank: 3 }).then(function (graph) {
+    //   const powerSeries = graph.createPowerSeries()
+    //   console.log('return value of createPowerSeries')
+    //   console.log(powerSeries)
+    // }) // this does work, but isn't minimal
   }, 1000)
 }
 
@@ -109,7 +109,9 @@ exports.getGraphSurvey = (req, res) => {
         console.log(err)
         return
       }
-      return res.render('layout', { title: 'Graph ' + graph.name, view: 'graphSurvey', graph })
+      const powerSeries = graph.createPowerSeries()
+      // console.log('powerSeries', powerSeries)
+      return res.render('layout', { title: 'Graph ' + graph.name, view: 'graphSurvey', graph, powerSeries })
     })
 }
 

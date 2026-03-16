@@ -7,11 +7,16 @@
     <%- include('graph', { graph, 
       width: 200
     }) %>
-
   </div>
   <div class="col-lg-9">
-   <!-- put time series here -->
-  <a href="/graph/eventHorizon/<%= graph._id %>">Event Horizon View</a>
+     <div>
+       <a href="/graph/eventHorizon/<%= graph._id %>">Event Horizon View</a>
+    </div>
+    <h2>Power Series of A<sup>n</sup></h2>
+    <% powerSeries.forEach((matrix, i) => { %>
+      <%- include('numericalMatrix',{ matrix, width: 200, title: `A<sup>${i + 1}</sup>` }) %>
+    <% }) %>
+   
   </div>
 </div>
 
