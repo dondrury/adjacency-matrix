@@ -16,70 +16,73 @@ exports.afterConnectionTasks = function () {
     // symmetricalGraphSearch(6, 10367) // this is for symmetrical graphs only
     classifyNextUnclassifiedGraph()
     // processNextUnprocessedMorph()
-    Graph.findOne({ size: 4, rank: 3 }).then(colorGraph) // this does work, but isn't minimal
+    // Graph.findOne({ size: 4, rank: 3 }).then(colorGraph) // this does work, but isn't minimal
+    Graph.findOne({ size: 4, rank: 3 }).then(function (graph) {
+      const powerSeries = graph.createPowerSeries()
+      console.log('return value of createPowerSeries')
+      console.log(powerSeries)
+    }) // this does work, but isn't minimal
   }, 1000)
 }
 
-// function colorGraph (graph) { // via relationsObject
-//   const relations = _.cloneDeep(graph.relationsObject)
-//   console.log(relations)
-//   const colors = {}
-//   // start with node 0 and make any loop
-//   createAndCompleteColor()
-//   console.log(relations)
-//   console.log(colors)
-
-//   function createAndCompleteColor () {
-//    // need escape condition here
-//    const newColor = Object.keys(colors).length
-//    colors[newColor] = {}
-//    const startingNode = Object.keys(relations)[0] // string
-//    console.log('startingNode', startingNode)
-//    const 
+// function createLongestWalk (graph) { // lets not pass over a node already visited
+//   const orderedPairs = _.clone(graph.relationArray)
+//   console.log(graph)
+//   const initalPair = orderedPairs.shift()
+//   console.log(initalPair)
+//   const walk = {
+//     nodesVisited: [initalPair[0]],
+//     relation: [initalPair]
 //   }
+//   console.log(walk)
+
+//   function takeNextStep () {
+
+//   }
+
 // }
 
-function colorGraph (graph) { // via relations array
-  const orderedPairs = _.clone(graph.relationArray)
-  const colors = {}
-  console.log(graph)
-  createAndCompleteColor()
+// function colorGraph (graph) { // via relations array
+//   const orderedPairs = _.clone(graph.relationArray)
+//   const colors = {}
+//   console.log(graph)
+//   createAndCompleteColor()
 
-  function createAndCompleteColor () {
-    console.log('orderedPairs', orderedPairs)
-    console.log('colors', colors)
-    if (orderedPairs.length === 0) return // escape condition no ordered pairs left
-    const colorNumber = Object.keys(colors).length
-    colors[colorNumber] = []
-    colors[colorNumber].push(orderedPairs.shift())
-    completeNextColorStep()
+//   function createAndCompleteColor () {
+//     console.log('orderedPairs', orderedPairs)
+//     console.log('colors', colors)
+//     if (orderedPairs.length === 0) return // escape condition no ordered pairs left
+//     const colorNumber = Object.keys(colors).length
+//     colors[colorNumber] = []
+//     colors[colorNumber].push(orderedPairs.shift())
+//     completeNextColorStep()
    
-    function completeNextColorStep () {
-      const firstPair = colors[colorNumber][0]
-      const lastPair = colors[colorNumber][colors[colorNumber].length - 1]
-      console.log('startingElement of sequential relation',firstPair[0])
-      console.log('endingElement of sequential relation', lastPair[1])
-      if (firstPair[0] === lastPair[1]) { // we've finished a cycle, this is the escape condition fo a cycle
-        console.log('A color-walk has been completed')
-        return 
-      }
-      colorWalk: for (let i = 0; i < orderedPairs.length; i++) {
-        const testPair = orderedPairs[i]
-        if (testPair[0] === lastPair[1]) { //we have a match for the next step
-          colors[colorNumber].push(orderedPairs.splice(i, 1)[0])
-          console.log('orderedPairs', orderedPairs)
-          console.log('colors', colors)
-          completeNextColorStep()
-          break colorWalk
-        }
-        if (i === orderedPairs.length - 1) throw new Error('An color-walk failed to terminate')
-      }
-    }
-   // now that we've completed a color-walk,
-    createAndCompleteColor()
-  }
+//     function completeNextColorStep () {
+//       const firstPair = colors[colorNumber][0]
+//       const lastPair = colors[colorNumber][colors[colorNumber].length - 1]
+//       console.log('startingElement of sequential relation',firstPair[0])
+//       console.log('endingElement of sequential relation', lastPair[1])
+//       if (firstPair[0] === lastPair[1]) { // we've finished a cycle, this is the escape condition fo a cycle
+//         console.log('A color-walk has been completed')
+//         return 
+//       }
+//       colorWalk: for (let i = 0; i < orderedPairs.length; i++) {
+//         const testPair = orderedPairs[i]
+//         if (testPair[0] === lastPair[1]) { //we have a match for the next step
+//           colors[colorNumber].push(orderedPairs.splice(i, 1)[0])
+//           console.log('orderedPairs', orderedPairs)
+//           console.log('colors', colors)
+//           completeNextColorStep()
+//           break colorWalk
+//         }
+//         if (i === orderedPairs.length - 1) throw new Error('An color-walk failed to terminate')
+//       }
+//     }
+//    // now that we've completed a color-walk,
+//     createAndCompleteColor()
+//   }
  
-}
+// }
 
 
 
@@ -96,7 +99,7 @@ exports.getGraph = (req, res) => {
   })
 }
 
-exports.getGraphLineage = (req, res) => {
+exports.getGraphSurvey = (req, res) => {
   const id = req.params.id
   Graph.findById(id)
     // .populate('phylogeny.composition')
@@ -106,20 +109,21 @@ exports.getGraphLineage = (req, res) => {
         console.log(err)
         return
       }
-      const tuple = graph.phylogeny.tuple
-      // console.log(tuple)
-      Graph.find({ _id: tuple}).populate('morphIdentified').exec((err, tupleContents) => {
-        if (err) {
-          console.log(err)
-          return
-        }
-        // console.log(tupleContents)
-        graph.phylogeny.tuple = tupleContents
-        // console.log(graph.phylogeny.tuple[0])
-        return res.render('layout', { title: 'Graph ' + graph.name, view: 'graphLineage', graph })
-      })
-      
-      
+      return res.render('layout', { title: 'Graph ' + graph.name, view: 'graphSurvey', graph })
+    })
+}
+
+exports.getGraphEventHorizon = (req, res) => {
+  const id = req.params.id
+  Graph.findById(id)
+    // .populate('phylogeny.composition')
+    .populate('morphIdentified')
+    .exec((err, graph) => {
+      if (err) {
+        console.log(err)
+        return
+      }
+      return res.render('layout', { title: 'Event Horizon View of ' + graph.name, view: 'eventHorizon', graph, width: 700 })
     })
 }
 

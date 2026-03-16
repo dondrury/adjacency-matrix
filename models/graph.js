@@ -29,6 +29,25 @@ const graphSchema = new mongoose.Schema({
   timestamps: true
 })
 
+graphSchema.method('createPowerSeries', function () {
+  console.log('createPowerSeries on this matrix', this.booleanMatrix)
+  const numericalMatrix = createNumericalMatrix(this.booleanMatrix)
+  return numericalMatrix
+})
+
+function createNumericalMatrix (booleanMatrix) {
+  const numericalMatrix = []
+  for (let i = 0; i < booleanMatrix.length; i++) {  // i is for rows
+    const row = []
+    for (let j = 0; j < booleanMatrix[i].length; j++) { // j is for columns
+      const elementValue = booleanMatrix[i][j] ? 1: 0
+      row.push(elementValue)
+    }
+    numericalMatrix.push(row)
+  }
+  return numericalMatrix
+}
+
 graphSchema.method('createFromBinaryString', function (binaryString) {
   // console.log({ binaryString})
   this.size = Math.sqrt(binaryString.length)
@@ -142,15 +161,15 @@ function findEigenValues (matrix) {
   return eigenvalues
 }
 
-function findBinaryRepresentation (booleanMatrix) {
-  let arrayOfBooleans = []
-  for (let i = 0; i < booleanMatrix.length - 1; i++) { // i is for rows
-    const partialRow = booleanMatrix[i].slice(i + 1)
-    arrayOfBooleans = arrayOfBooleans.concat(partialRow)
-  }
-  // console.log('array of booleans', arrayOfBooleans)
-  return arrayOfBooleans.map(b => b ? '1' : '0').join('')
-}
+// function findBinaryRepresentation (booleanMatrix) {
+//   let arrayOfBooleans = []
+//   for (let i = 0; i < booleanMatrix.length - 1; i++) { // i is for rows
+//     const partialRow = booleanMatrix[i].slice(i + 1)
+//     arrayOfBooleans = arrayOfBooleans.concat(partialRow)
+//   }
+//   // console.log('array of booleans', arrayOfBooleans)
+//   return arrayOfBooleans.map(b => b ? '1' : '0').join('')
+// }
 
 function prettyPrintPolynomial (poly) {
   // console.log(poly)
@@ -323,31 +342,31 @@ function pseudoSkewSymmetryScore (booleanMatrix) {
   return score
 }
 
-function allLightPathsFromRelationsObject () {
-  const relationsObject = createRelationsObject()
-  const lightPaths = [[0]]
-  const size =  this.size
-  appendWorldPath(lightPaths[0])
+// function allLightPathsFromRelationsObject () {
+//   const relationsObject = createRelationsObject()
+//   const lightPaths = [[0]]
+//   const size =  this.size
+//   appendWorldPath(lightPaths[0])
 
-  function appendWorldPath (pathArray) { // start with the array children
-    if (pathArray.length > size  ) return
-    const lastElement = pathArray[pathArray.length - 1]
-    const connectedElements = Object.keys(relationsObject[lastElement]).map(el => 1 * el)
-    // console.log('connectedElements', connectedElements)
-    for (const i in connectedElements) {
-      const newPathArray = pathArray.map(x => 1 * x)
-      const newElement = connectedElements[i]
-      if (newElement !== 0 ) { // don't cross zero, and become and accidentally closed space
-        newPathArray.push(newElement)
-        lightPaths.push(newPathArray)
-        appendWorldPath(newPathArray)
-      }
+//   function appendWorldPath (pathArray) { // start with the array children
+//     if (pathArray.length > size  ) return
+//     const lastElement = pathArray[pathArray.length - 1]
+//     const connectedElements = Object.keys(relationsObject[lastElement]).map(el => 1 * el)
+//     // console.log('connectedElements', connectedElements)
+//     for (const i in connectedElements) {
+//       const newPathArray = pathArray.map(x => 1 * x)
+//       const newElement = connectedElements[i]
+//       if (newElement !== 0 ) { // don't cross zero, and become and accidentally closed space
+//         newPathArray.push(newElement)
+//         lightPaths.push(newPathArray)
+//         appendWorldPath(newPathArray)
+//       }
       
-    }
-  }
-  console.log('lightPaths', lightPaths)
-  return lightPaths
-}
+//     }
+//   }
+//   console.log('lightPaths', lightPaths)
+//   return lightPaths
+// }
 
 // graphSchema.virtual('allLightPaths').get(allLightPathsFromRelationsObject) // temporarily removed because this isn't working for size: 3, rank: 1 graphs
 
