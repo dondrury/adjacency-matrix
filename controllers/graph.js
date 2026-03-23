@@ -16,11 +16,11 @@ exports.afterConnectionTasks = function () {
     // symmetricalGraphSearch(6, 10367) // this is for symmetrical graphs only
     classifyNextUnclassifiedGraph()
     // processNextUnprocessedMorph()
-    // Graph.findOne({ size: 4, rank: 3 }).then(colorGraph) // this does work, but isn't minimal
     // Graph.findOne({ size: 4, rank: 3 }).then(function (graph) {
-    //   const powerSeries = graph.createPowerSeries()
-    //   console.log('return value of createPowerSeries')
-    //   console.log(powerSeries)
+    //   // const searchOutput = graph.depthFirstSearchForClosedPaths()
+    //   // const searchOutput = graph.breadthFirstSearchForClosedPaths()
+    //   const allLightPaths = graph.findAllClosedPaths(0,6)
+    //   console.log({allLightPaths})
     // }) // this does work, but isn't minimal
   }, 1000)
 }
@@ -95,6 +95,7 @@ exports.getGraph = (req, res) => {
       return
     }
     // console.log(graph.allLightPaths)
+
     return res.render('layout', { title: 'Graph ' + graph.name, view: 'graph', graph, width: 300 })
   })
 }
@@ -109,7 +110,13 @@ exports.getGraphSurvey = (req, res) => {
         console.log(err)
         return
       }
-      const powerSeries = graph.createPowerSeries()
+      const closedPaths = graph.findAllClosedPathsStartingAt(0)
+      console.log({closedPaths})
+      const powerSeries = graph.createPowerSeries({
+        // normalize: true,
+        // iterations: 20
+      })
+         
       // console.log('powerSeries', powerSeries)
       return res.render('layout', { title: 'Graph ' + graph.name, view: 'graphSurvey', graph, powerSeries })
     })

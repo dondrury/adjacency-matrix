@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 const Polynomial = require('polynomial')
+const _ = require('lodash')
 // const Morph = require('./morph')
 const MathJS = require('mathjs')
 // graph is given only name and booleanArray when init, all other values are calculated internally
@@ -29,14 +30,125 @@ const graphSchema = new mongoose.Schema({
   timestamps: true
 })
 
-graphSchema.method('createPowerSeries', function () {
-  // console.log('createPowerSeries on this matrix', this.booleanMatrix)
-  const numericalMatrix = createNumericalMatrix(this.booleanMatrix)
-  const powerSeries = [numericalMatrix]
+graphSchema.method('findAllClosedPathsStartingAt', function (startingIndex) {
+  const relationsObject = createRelationsObject(this)
+  const worldPaths = [[startingIndex]]
+  const closedPaths = []
+  appendWorldPath(worldPaths[0])
 
-  for (let i = 1; i < this.size; i++) {
+  function appendWorldPath (pathArray) { // start with the array children
+    const lastElement = pathArray[pathArray.length - 1]
+    const connectedElements = Object.keys(relationsObject[lastElement]).map(el => 1 * el)
+    // console.log('connectedElements', connectedElements)
+    for (const i in connectedElements) {
+      const newPathArray = pathArray.map(x => 1 * x)
+      const newElement = connectedElements[i]
+      const indexOfNewElement = newPathArray.indexOf(newElement)
+      // console.log({indexOfNewElement})
+      if (indexOfNewElement === -1) {// still walking, never visited this element before
+        newPathArray.push(newElement)
+        worldPaths.push(newPathArray)
+        appendWorldPath(newPathArray)
+      } else {  // this element already in the array at known position, closed path!
+        // console.log('closed path %s, closing on element %s, with index %s', newPathArray, newElement, indexOfNewElement)
+        const closedPath = newPathArray.slice(indexOfNewElement)
+        // console.log({closedPath})
+        closedPaths.push(newPathArray)
+      }
+    }
+   }
+  return closedPaths
+})
+
+
+function createRelationsObject (graph) {
+   /*
+    { 0 : {
+            1 : true,
+            4: true,
+            5: true
+          },
+      1: {
+            0: true,
+            7: true,
+            9:true
+          }
+      ...
+    }
+    */
+    const relationsObject = {}
+    for (let j = 0; j < graph.booleanMatrix.length; j++ ) {
+      for (let i = 0; i < graph.booleanMatrix[j].length; i++) {
+        if (graph.booleanMatrix[j][i]) {
+          if (typeof relationsObject[j] !== 'object' ) {
+            relationsObject[j] = {}
+          }
+          relationsObject[j][i] = true
+        }
+      }
+    }
+    console.log({relationsObject})
+    return relationsObject
+}
+
+
+// graphSchema.method('breadthFirstSearchForClosedPaths', function () { // walk every possible, non-repeating path.
+//   // let's try to do this from only the booleanMatrix
+//   console.log('depth first search of ')
+  
+//   const booleanMatrix = this.booleanMatrix
+//   console.log(booleanMatrix)
+//   const paths = []
+//   walk([0])
+
+//   function walk (path) {
+//     const currentNode = path[path.length - 1]
+//      console.log(`walk([${path}])`)
+//     console.log({currentNode})
+//     const possibleNextStepsRow = booleanMatrix[currentNode]
+//     console.log({possibleNextStepsRow})
+//     // console.log({paths})
+//     for (let i = 0; i < possibleNextStepsRow.length; i++) {
+//       if (possibleNextStepsRow[i] === true) { // 'i' is a node name we can continue our walk towards
+//         console.log({currentNode, considering: i})
+//         if (i === path[0]) { // the next node would loop back around to the first step of the path!
+//           path.push('closes!')
+//           console.log({paths})
+//           return
+//         }
+//         if (path.includes(i)) { // if the next node has already been visited, but is not the start of the path, terminate
+//           path.push(i)
+//           path.push('terminates')
+//           console.log({paths})
+//           return
+//         } else { // we can take another step towards 'i'
+//            const newPath = _.clone(path)
+//            newPath.push(i)
+//            paths.push(newPath)
+//            console.log({paths})
+//            walk(newPath)
+//         }
+//       }
+//     }
+//   }
+// })
+
+graphSchema.method('createPowerSeries', function (options) {
+  // console.log('createPowerSeries on this matrix', this.booleanMatrix)
+  var numericalMatrix
+  var iterations = this.size
+  if (typeof options.normalize === 'boolean' && options.normalize === true)
+    numericalMatrix = normalizeNumericalMatrix(createNumericalMatrix(this.booleanMatrix))
+  else
+    numericalMatrix = createNumericalMatrix(this.booleanMatrix)
+  if (typeof options.iterations === 'number')
+    iterations = options.iterations
+  const powerSeries = [numericalMatrix]
+  for (let i = 1; i < iterations; i++) {
     const product = multiplySquareMatrices(numericalMatrix, powerSeries[powerSeries.length - 1])
+    // const difference = subtractMatrices(product, powerSeries[powerSeries.length - 1])
     // console.log('product', product)
+    // powerSeries.push(difference)
     powerSeries.push(product)
   }
   return powerSeries
@@ -66,6 +178,26 @@ function multiplySquareMatrices (A, B) {
   return productMatrix
 }
 
+function addMatrices (A,B) {
+  if (A.length !== B.length) throw new Error('different size square matrices cant be multiplied')
+  var sumMatrix = []
+  for (let i = 0; i < A.length; i++) { // is is row number of A
+    const sumRow = (new Array(A.length)).fill(null).map((v,k) => A[i][k] + B[i][k])
+    sumMatrix.push(sumRow)
+  }
+  return sumMatrix
+}
+
+function subtractMatrices (A,B) {
+  if (A.length !== B.length) throw new Error('different size square matrices cant be multiplied')
+  var sumMatrix = []
+  for (let i = 0; i < A.length; i++) { // is is row number of A
+    const sumRow = (new Array(A.length)).fill(null).map((v,k) => A[i][k] - B[i][k])
+    sumMatrix.push(sumRow)
+  }
+  return sumMatrix
+}
+
 function createNumericalMatrix (booleanMatrix) {
   const numericalMatrix = []
   for (let i = 0; i < booleanMatrix.length; i++) {  // i is for rows
@@ -77,6 +209,21 @@ function createNumericalMatrix (booleanMatrix) {
     numericalMatrix.push(row)
   }
   return numericalMatrix
+}
+
+function normalizeNumericalMatrix (numericalMatrix) {
+  const cheapRank = numericalMatrix[0].reduce((a,c) => a + c) // cheap rank is just the sum of the first row
+  // console.log({cheapRank})
+  const normalizedNumericalMatrix = []
+  for (let i = 0; i < numericalMatrix.length; i++) {  // i is for rows
+    const row = []
+    for (let j = 0; j < numericalMatrix[i].length; j++) { // j is for columns
+      const elementValue = numericalMatrix[i][j]
+      row.push(elementValue / cheapRank)
+    }
+    normalizedNumericalMatrix.push(row)
+  }
+  return normalizedNumericalMatrix
 }
 
 graphSchema.method('createFromBinaryString', function (binaryString) {
@@ -372,74 +519,6 @@ function pseudoSkewSymmetryScore (booleanMatrix) {
   }
   return score
 }
-
-// function allLightPathsFromRelationsObject () {
-//   const relationsObject = createRelationsObject()
-//   const lightPaths = [[0]]
-//   const size =  this.size
-//   appendWorldPath(lightPaths[0])
-
-//   function appendWorldPath (pathArray) { // start with the array children
-//     if (pathArray.length > size  ) return
-//     const lastElement = pathArray[pathArray.length - 1]
-//     const connectedElements = Object.keys(relationsObject[lastElement]).map(el => 1 * el)
-//     // console.log('connectedElements', connectedElements)
-//     for (const i in connectedElements) {
-//       const newPathArray = pathArray.map(x => 1 * x)
-//       const newElement = connectedElements[i]
-//       if (newElement !== 0 ) { // don't cross zero, and become and accidentally closed space
-//         newPathArray.push(newElement)
-//         lightPaths.push(newPathArray)
-//         appendWorldPath(newPathArray)
-//       }
-      
-//     }
-//   }
-//   console.log('lightPaths', lightPaths)
-//   return lightPaths
-// }
-
-// graphSchema.virtual('allLightPaths').get(allLightPathsFromRelationsObject) // temporarily removed because this isn't working for size: 3, rank: 1 graphs
-
-// function createRelationsObject () {
-//    /*
-//     { 0 : {
-//             1 : true,
-//             4: true,
-//             5: true
-//           },
-//       1: {
-//             0: true,
-//             7: true,
-//             9:true
-//           }
-//       ...
-//     }
-//     */
-//     const relationsObject = {}
-//     for (let j = 0; j < this.booleanMatrix.length; j++ ) {
-//       for (let i = 0; i < this.booleanMatrix[j].length; i++) {
-//         if (this.booleanMatrix[j][i]) {
-//           if (typeof relationsObject[j] !== 'object' ) {
-//             relationsObject[j] = {}
-//           }
-//           relationsObject[j][i] = true
-//         }
-//       }
-//     }
-//     // totalPredictedCompliantGraphs(this.size)
-//     // function totalPredictedCompliantGraphs (size) {
-//     //   let graphs = 0
-//     //   for (let i = size; i >= 0; i--) {
-//     //     graphs += ( Math.ceil(1, i - 1 ) * Math.ceil(1, i - 2) * Math.ceil(1, i - 3) )
-//     //   }
-//     //   // console.log('totalCompliantGraphs', graphs)
-//     //   return graphs
-//     // }
-//     return relationsObject
-// }
-
-// graphSchema.virtual('relationsObject').get(createRelationsObject)
 
 graphSchema.virtual('relationArray').get(function() {
   /*
