@@ -30,8 +30,25 @@ const graphSchema = new mongoose.Schema({
   timestamps: true
 })
 
-graphSchema.method('findAllClosedPathsStartingAt', function (startingIndex) {
+graphSchema.method('getHistogramOfClosedPaths', function () {
   const relationsObject = createRelationsObject(this)
+  const uniqueClosedPaths = findAllUniqueClosedPathsStartingAt(relationsObject, 0)
+  // console.log({uniqueClosedPaths})
+  const histogram = {}
+  uniqueClosedPaths.forEach(p => {
+    const pathLength = p.length
+    if (histogram[pathLength]) {
+      histogram[pathLength].push(p)
+    } else {
+      histogram[pathLength] = []
+      histogram[pathLength].push(p)
+    }
+  })
+  console.log({histogram})
+  return histogram
+})
+
+function findAllUniqueClosedPathsStartingAt (relationsObject, startingIndex) {
   const worldPaths = [[startingIndex]]
   const closedPaths = []
   appendWorldPath(worldPaths[0])
@@ -53,12 +70,28 @@ graphSchema.method('findAllClosedPathsStartingAt', function (startingIndex) {
         // console.log('closed path %s, closing on element %s, with index %s', newPathArray, newElement, indexOfNewElement)
         const closedPath = newPathArray.slice(indexOfNewElement)
         // console.log({closedPath})
-        closedPaths.push(newPathArray)
+        closedPaths.push(closedPath)
       }
     }
    }
-  return closedPaths
-})
+  // console.log({closedPaths})
+  const uniqueClosedPaths = filterUniquePaths(closedPaths)
+  return uniqueClosedPaths
+}
+
+function filterUniquePaths (paths) {
+  const uniquePaths = []
+  const seenPaths = {}
+  for (let i = 0; i < paths.length; i++) {
+    const path = paths[i]
+    const pathKey = path.join(',') // convert to string, cuz it's unique isn't it
+    if (!seenPaths[pathKey]) { // seri
+      uniquePaths.push(path)
+      seenPaths[pathKey] = true
+    }
+  }
+  return uniquePaths
+}
 
 
 function createRelationsObject (graph) {
@@ -87,7 +120,7 @@ function createRelationsObject (graph) {
         }
       }
     }
-    console.log({relationsObject})
+    // console.log({relationsObject})
     return relationsObject
 }
 

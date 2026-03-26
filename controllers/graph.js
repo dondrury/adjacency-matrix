@@ -110,8 +110,8 @@ exports.getGraphSurvey = (req, res) => {
         console.log(err)
         return
       }
-      const closedPaths = graph.findAllClosedPathsStartingAt(0)
-      console.log({closedPaths})
+      const uniqueClosedPaths = graph.getHistogramOfClosedPaths()
+      // const uniqueClosdedPaths = graph.findAllUniqueClosedPathsStartingAt(1)
       const powerSeries = graph.createPowerSeries({
         // normalize: true,
         // iterations: 20
