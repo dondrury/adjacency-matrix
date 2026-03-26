@@ -124,48 +124,6 @@ function createRelationsObject (graph) {
     return relationsObject
 }
 
-
-// graphSchema.method('breadthFirstSearchForClosedPaths', function () { // walk every possible, non-repeating path.
-//   // let's try to do this from only the booleanMatrix
-//   console.log('depth first search of ')
-  
-//   const booleanMatrix = this.booleanMatrix
-//   console.log(booleanMatrix)
-//   const paths = []
-//   walk([0])
-
-//   function walk (path) {
-//     const currentNode = path[path.length - 1]
-//      console.log(`walk([${path}])`)
-//     console.log({currentNode})
-//     const possibleNextStepsRow = booleanMatrix[currentNode]
-//     console.log({possibleNextStepsRow})
-//     // console.log({paths})
-//     for (let i = 0; i < possibleNextStepsRow.length; i++) {
-//       if (possibleNextStepsRow[i] === true) { // 'i' is a node name we can continue our walk towards
-//         console.log({currentNode, considering: i})
-//         if (i === path[0]) { // the next node would loop back around to the first step of the path!
-//           path.push('closes!')
-//           console.log({paths})
-//           return
-//         }
-//         if (path.includes(i)) { // if the next node has already been visited, but is not the start of the path, terminate
-//           path.push(i)
-//           path.push('terminates')
-//           console.log({paths})
-//           return
-//         } else { // we can take another step towards 'i'
-//            const newPath = _.clone(path)
-//            newPath.push(i)
-//            paths.push(newPath)
-//            console.log({paths})
-//            walk(newPath)
-//         }
-//       }
-//     }
-//   }
-// })
-
 graphSchema.method('createPowerSeries', function (options) {
   // console.log('createPowerSeries on this matrix', this.booleanMatrix)
   var numericalMatrix
