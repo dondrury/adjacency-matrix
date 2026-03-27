@@ -86,17 +86,22 @@ function filterUniquePaths (paths) {
     const path = paths[i]
     // loop: all possible rotations here?
     // console.log(path)
-    rotations: for (let k = 0; k < path.length; k++) {
+    let seen = false
+    const pathKey = path.join(',')
+    rotations: for (let k = 0; k < path.length; k++) { // check to make sure ALL rotations are not seen before adding
       const rotatedPath = rotateArray(path, k)
       console.log(rotatedPath, 'was rotated by ' + k)
-      const pathKey = rotatedPath.join(',') // convert to string, cuz it's unique isn't it 
-      if (!seenPaths[pathKey]) { // maybe better here to try every possible rotation? This way we don't worry about ranking serializaztions?
-        uniquePaths.push(rotatedPath)
-        seenPaths[pathKey] = true
-        console.log(pathKey, 'seen!')
+      const rotatedPathKey = rotatedPath.join(',')
+      if (seenPaths[rotatedPathKey]) {
+        seen = true
         break rotations
       }
     }
+    if (seen === false) {
+       uniquePaths.push(path)
+       seenPaths[pathKey] = true
+    }
+
   }
   return uniquePaths
 }
