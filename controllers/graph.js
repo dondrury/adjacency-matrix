@@ -110,7 +110,7 @@ exports.getGraphSurvey = (req, res) => {
         console.log(err)
         return
       }
-      const uniqueClosedPaths = graph.getHistogramOfClosedPaths()
+      const histogram = graph.getHistogramOfClosedPaths()
       // const uniqueClosdedPaths = graph.findAllUniqueClosedPathsStartingAt(1)
       const powerSeries = graph.createPowerSeries({
         // normalize: true,
@@ -118,7 +118,7 @@ exports.getGraphSurvey = (req, res) => {
       })
          
       // console.log('powerSeries', powerSeries)
-      return res.render('layout', { title: 'Graph ' + graph.name, view: 'graphSurvey', graph, powerSeries })
+      return res.render('layout', { title: 'Graph ' + graph.name, view: 'graphSurvey', graph, powerSeries, histogram })
     })
 }
 

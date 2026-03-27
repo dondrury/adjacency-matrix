@@ -33,7 +33,7 @@ const graphSchema = new mongoose.Schema({
 graphSchema.method('getHistogramOfClosedPaths', function () {
   const relationsObject = createRelationsObject(this)
   const uniqueClosedPaths = findAllUniqueClosedPathsStartingAt(relationsObject, 0)
-  // console.log({uniqueClosedPaths})
+  console.log({uniqueClosedPaths})
   const histogram = {}
   uniqueClosedPaths.forEach(p => {
     const pathLength = p.length
@@ -44,7 +44,7 @@ graphSchema.method('getHistogramOfClosedPaths', function () {
       histogram[pathLength].push(p)
     }
   })
-  console.log({histogram})
+  // console.log({histogram})
   return histogram
 })
 
@@ -82,17 +82,31 @@ function findAllUniqueClosedPathsStartingAt (relationsObject, startingIndex) {
 function filterUniquePaths (paths) {
   const uniquePaths = []
   const seenPaths = {}
-  for (let i = 0; i < paths.length; i++) {
+  for (let i = 0; i < paths.length; i++) { // this is the easy first pass
     const path = paths[i]
-    const pathKey = path.join(',') // convert to string, cuz it's unique isn't it
-    if (!seenPaths[pathKey]) { // seri
-      uniquePaths.push(path)
-      seenPaths[pathKey] = true
+    // loop: all possible rotations here?
+    // console.log(path)
+    rotations: for (let k = 0; k < path.length; k++) {
+      const rotatedPath = rotateArray(path, k)
+      console.log(rotatedPath, 'was rotated by ' + k)
+      const pathKey = rotatedPath.join(',') // convert to string, cuz it's unique isn't it 
+      if (!seenPaths[pathKey]) { // maybe better here to try every possible rotation? This way we don't worry about ranking serializaztions?
+        uniquePaths.push(rotatedPath)
+        seenPaths[pathKey] = true
+        console.log(pathKey, 'seen!')
+        break rotations
+      }
     }
   }
   return uniquePaths
 }
 
+function rotateArray(arr, rotateBy) {
+    const n = arr.length;
+    rotateBy %= n;
+
+    return arr.slice(rotateBy).concat(arr.slice(0, rotateBy));
+}
 
 function createRelationsObject (graph) {
    /*

@@ -12,6 +12,24 @@
      <div>
        <a href="/graph/eventHorizon/<%= graph._id %>">Event Horizon View</a>
     </div>
+    <h2>Histogram of Number of Unique, Closed Paths in Structure</h2>
+    <div class="histogram-of-closed-paths">
+       <div>
+           <div style="display:inline-block;height:1rem;width:8rem;">Path Length</div>
+           <div style="display:inline-block;height:1rem">Unique Closed Paths</div>
+        </div>
+      <% for (const lengthKey in histogram) { 
+        const width = histogram[lengthKey].length
+        // console.log(lengthKey, width)
+        %>
+        <div>
+           <div style="display:inline-block;height:1rem;width:8rem;text-align:center;"><%= lengthKey %></div>
+           <div style="display:inline-block;height:1rem;background-color:grey;width:<%= width %>rem;"></div>
+           <span><%= width %></span>
+        </div>
+       
+      <% } %>
+    </div>
     <h2>Power Series of A<sup>n</sup></h2>
     <% powerSeries.forEach((matrix, i) => { %>
       <%- include('numericalMatrix',{ matrix, width: 200, title: `A<sup>${i + 1}</sup>` }) %>
