@@ -1,7 +1,6 @@
 const mongoose = require('mongoose')
 const Polynomial = require('polynomial')
 const _ = require('lodash')
-// const Morph = require('./morph')
 const MathJS = require('mathjs')
 // graph is given only name and booleanArray when init, all other values are calculated internally
 
@@ -12,13 +11,10 @@ const graphSchema = new mongoose.Schema({
   booleanMatrix: [[Boolean]],
   binaryString: { type: String, required: true, unique: true },
   morphIdentified: { type: mongoose.Schema.Types.ObjectId, ref: 'Morph'},
+  markovCharacteristicPolynomial: Object,
+  markovCharacteristicPolynomialString: String,
+  markovCharacteristicPolynomialHtml: String,
   pseudoSkewSymmetryScore: Number,
-  phylogeny: {
-    composition: { type: mongoose.Schema.Types.ObjectId, ref: 'Composition'},
-    tuple: [
-      { type: mongoose.Schema.Types.ObjectId, ref: 'Graph'}
-    ]
-  },
   notes: { type: String }
 }, {
   toObject: {
@@ -55,6 +51,7 @@ function findAllUniqueClosedPathsStartingAt (relationsObject, startingIndex) {
 
   function appendWorldPath (pathArray) { // start with the array children
     const lastElement = pathArray[pathArray.length - 1]
+    // console.log(pathArray)
     const connectedElements = Object.keys(relationsObject[lastElement]).map(el => 1 * el)
     // console.log('connectedElements', connectedElements)
     for (const i in connectedElements) {
@@ -90,7 +87,7 @@ function filterUniquePaths (paths) {
     const pathKey = path.join(',')
     rotations: for (let k = 0; k < path.length; k++) { // check to make sure ALL rotations are not seen before adding
       const rotatedPath = rotateArray(path, k)
-      console.log(rotatedPath, 'was rotated by ' + k)
+      // console.log(rotatedPath, 'was rotated by ' + k)
       const rotatedPathKey = rotatedPath.join(',')
       if (seenPaths[rotatedPathKey]) {
         seen = true
@@ -139,7 +136,7 @@ function createRelationsObject (graph) {
         }
       }
     }
-    // console.log({relationsObject})
+    console.log({relationsObject})
     return relationsObject
 }
 
@@ -294,6 +291,7 @@ graphSchema.method('classify', function (cb) {
       })
       newMorph.save((err, savedNewMorph) => {
         if (err) {
+          console.log(newMorph)
           console.log(err)
           return
         }
@@ -440,7 +438,8 @@ function createPolynomialMatrix (matrix) {
     const row = []
     for (let j = 0; j < matrix[i].length; j++) { // j is for columns
       let element = new Polynomial([0])
-      element = new Polynomial([matrix[i][j] ? 1 : 0, i === j ? -1 : 0])
+      element = new Polynomial([matrix[i][j] ? 1 : 0, i === j ? -1 : 0]) // A - LambdaI(r) where r is rank
+      // instead of normalizing the whole matrix, we can just multipy the lamba by the rank and keep whole humber coefficients
       row.push(element)
     }
     polynomialMatrix.push(row)
