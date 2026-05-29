@@ -8,7 +8,7 @@ const morphSchema = new mongoose.Schema({
   characteristicPolynomialString: { type: String, required: true, index: true, unique: true },
   characteristicPolynomialHtml: String,
   markovCharacteristicPolynomial: Object,
-  markovCharacteristicPolynomialString: { type: String, required: true, index: true, unique: true },
+  markovCharacteristicPolynomialString: { type: String, index: true, unique: true },
   markovCharacteristicPolynomialHtml: String,
   isSymmetric: Boolean,
   selfReferences: Number,

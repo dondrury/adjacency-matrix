@@ -29,7 +29,7 @@ const graphSchema = new mongoose.Schema({
 graphSchema.method('getHistogramOfClosedPaths', function () {
   const relationsObject = createRelationsObject(this)
   const uniqueClosedPaths = findAllUniqueClosedPathsStartingAt(relationsObject, 0)
-  console.log({uniqueClosedPaths})
+  // console.log({uniqueClosedPaths})
   const histogram = {}
   uniqueClosedPaths.forEach(p => {
     const pathLength = p.length
@@ -136,7 +136,7 @@ function createRelationsObject (graph) {
         }
       }
     }
-    console.log({relationsObject})
+    // console.log({relationsObject})
     return relationsObject
 }
 
@@ -217,6 +217,11 @@ function createNumericalMatrix (booleanMatrix) {
   }
   return numericalMatrix
 }
+
+graphSchema.method('getWolframMatrix', function () {
+  const wolframMatrix = JSON.stringify(createNumericalMatrix(this.booleanMatrix)).replaceAll('[','{').replaceAll(']','}')
+  return wolframMatrix
+})
 
 function normalizeNumericalMatrix (numericalMatrix) {
   const cheapRank = numericalMatrix[0].reduce((a,c) => a + c) // cheap rank is just the sum of the first row
@@ -387,7 +392,39 @@ function findCharacteristicEquation (matrix) {
     return new Polynomial([matrix[0][0] ? 1 : 0, -1])
   }
   return detByLaplace(polynomialMatrix)
- }
+}
+
+graphSchema.method('getMarkovCharacteristicPolynomials', function () {
+  const markovPolynomial = findMarkovCharacteristicPolynomial(this)
+  // console.log(markovPolynomial)
+  return {
+    markovPolynomial,
+    markovCharacteristicPolynomialString: markovPolynomial.toString(),
+    markovCharacteristicPolynomialHtml: prettyPrintPolynomial(markovPolynomial)
+  }
+})
+
+function findMarkovCharacteristicPolynomial (graph) {
+  const matrix = _.clone(graph.booleanMatrix)
+   // console.log('before createPolynomialMatrix', matrix)
+  if (matrix.length === 1) {
+    return new Polynomial([matrix[0][0] ? 1 : 0, -1])
+  }
+  const polynomialMatrix = []
+  for (let i = 0; i < matrix.length; i++) {  // i is for rows
+    const row = []
+    for (let j = 0; j < matrix[i].length; j++) { // j is for columns
+      let element = new Polynomial([0])
+      element = new Polynomial([matrix[i][j] ? 1 : 0, i === j ? (-1 * graph.rank) : 0]) // A - LambdaI(r) where r is rank
+      // instead of normalizing the whole matrix, we can just multipy the lamba by the rank and keep whole humber coefficients
+      row.push(element)
+    }
+    polynomialMatrix.push(row)
+  }
+ 
+  return detByLaplace(polynomialMatrix)
+}
+
 
 function detByLaplace(polyMatrix) {
   // console.log('polynomial matrix from which to take determinant', polyMatrix)

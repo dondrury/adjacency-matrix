@@ -120,7 +120,9 @@ exports.postEditMorph = (req, res) => {
       return
     }
     morph.name = req.body.name
+    console.log(morph)
     morph.save((err, morphAfter) => {
+      if (err) console.log(err)
       return res.redirect('/morphs/edit/' + id)
     })
   })

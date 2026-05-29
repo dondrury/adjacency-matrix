@@ -2,6 +2,8 @@
 const Composition = require('../models/composition')
 const Graph = require('../models/graph')
 const _ = require('lodash')
+const { spawnSync } = require( 'child_process' )
+
 // const Tuple = require('../models/tuple')
 // const Morph = require('../models/morph')
 // const { composition } = require('mathjs')
@@ -16,11 +18,11 @@ exports.afterConnectionTasks = function () {
     // symmetricalGraphSearch(6, 10367) // this is for symmetrical graphs only
     classifyNextUnclassifiedGraph()
     // processNextUnprocessedMorph()
-    // Graph.findOne({ size: 4, rank: 3 }).then(function (graph) {
-    //   // const searchOutput = graph.depthFirstSearchForClosedPaths()
-    //   // const searchOutput = graph.breadthFirstSearchForClosedPaths()
-    //   const allLightPaths = graph.findAllClosedPaths(0,6)
-    //   console.log({allLightPaths})
+    // Graph.findById('6658f5d34483de1ab2ff182c').then(function (graph) {
+    //  console.log(graph.getNumericalMatrixForWolfram())
+    //  const markovPolynomials = graph.getMarkovCharacteristicPolynomials()
+    //  console.log({markovPolynomials})
+    //  console.log(markovPolynomials.markovPolynomial)
     // }) // this does work, but isn't minimal
   }, 1000)
 }
@@ -116,8 +118,16 @@ exports.getGraphSurvey = (req, res) => {
         // normalize: true,
         // iterations: 20
       })
+     
+      if (process.env.NODE_ENV === 'local') {
+        const wolframMatrix =  graph.getWolframMatrix()
+        const wolframCommand = `Eigensystem[${wolframMatrix}]`
+        const command = spawnSync( 'wolframscript', [ '-code', wolframCommand ] )
+        const responseString = command.stdout.toString()
+        console.log( `${wolframCommand} => ${responseString}`)
+      }
          
-      // console.log('powerSeries', powerSeries)
+     
       return res.render('layout', { title: 'Graph ' + graph.name, view: 'graphSurvey', graph, powerSeries, histogram })
     })
 }
@@ -252,6 +262,7 @@ function findAllGraphsOfSizeAndRank (size, rank, i = 0) {
       booleanMatrix
     })
     graph.save((err, savedGraph) => {
+      //perhaps we should go ahead and classfiy here
       if (err) console.log(err)
       if (savedGraph) console.log('saved graph' , savedGraph)
       
