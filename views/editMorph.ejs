@@ -37,6 +37,9 @@
     <% if (morph.antiMorph) { %>
        <h3><a href="/morphs/edit/<%= morph.antiMorph.id %>">Anti Morph</a></h3>
     <% } %>
+    <% if (morph.antiMorph.id == morph.id) { %>
+          <div>Is own anti-morph</div>
+    <% } %>
    
     <h3>All <%= graphs.length %> graphs that have this Morphology</h3>
       <ol>

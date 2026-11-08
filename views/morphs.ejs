@@ -22,7 +22,8 @@
       <h3>
         <div>There are <%= m.exampleCount %> of</div>
         <div>
-          <a href="/morphs/edit/<%= m._id %>"><%= m.name ? m.name: 'Unnamed' %></a>
+          <a href="/morphs/edit/<%= m._id %>"><%= m.name ? m.name: 'Unnamed' %><% if (m.antiMorph == m.id) { %><sup>*</sup><% } %></a>
+        
         </div>
       </h3>
       <% if (typeof graphsInSpace === 'number') { %>

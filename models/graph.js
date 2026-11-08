@@ -29,7 +29,7 @@ const graphSchema = new mongoose.Schema({
 graphSchema.method('getHistogramOfClosedPaths', function () {
   const relationsObject = createRelationsObject(this)
   const uniqueClosedPaths = findAllUniqueClosedPathsStartingAt(relationsObject, 0)
-  // console.log({uniqueClosedPaths})
+  console.log({uniqueClosedPaths})
   const histogram = {}
   uniqueClosedPaths.forEach(p => {
     const pathLength = p.length
