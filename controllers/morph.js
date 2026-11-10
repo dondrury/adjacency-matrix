@@ -83,11 +83,14 @@ exports.getMorphsTableView = (req, res) => {
 }
 
 exports.getMorphsJson = (req, res) => {
-  Morph.find().populate('bestExample').exec((err, morphs) => {
+    Morph.find().select('-image').populate('bestExample').exec((err, morphs) => {
     if (err || !morphs) {
       console.log(err)
       return
     }
+    morphs = morphs.map(m => {
+      return m.bestExample.getWolframMatrix()
+    })
     // console.log(morphs)
     return res.json({ morphs })
   })
